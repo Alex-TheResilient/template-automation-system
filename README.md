@@ -54,5 +54,5 @@ Frontend .env:
 Crea un archivo .env en la carpeta frontend con el siguiente contenido:
 
 ```
-REACT_APP_BACKEND_URL=http://localhost:5000
+REACT_APP_API_BASE_URL=http://localhost:5000/api/v1
 ```
