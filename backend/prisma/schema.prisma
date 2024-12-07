@@ -256,8 +256,6 @@ model Experto {
   apellidoMaterno   String?
   nombres           String
   experiencia       String
-  autorId           String?
-  autor             Autor?      @relation(fields: [autorId], references: [id])
   comentario        String?
   estado            String
   proyectoId        String
