@@ -1,5 +1,7 @@
 # Template Automation System
 
+> username = 'admin' & password = 'admin123';
+
 ## Configuración
 
 Sigue estos pasos para configurar el sistema de automatización de plantillas:
