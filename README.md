@@ -38,7 +38,7 @@ DIRECT_URL="postgresql://postgres.nkjudkvrqcmfuvfzpjxe:pass-system-pis@aws-0-us-
 PORT=5000
 ```
 
-3. **Configuración del backend**
+3. **Configuración del frontend**
 
 ```
 cd ../frontend
