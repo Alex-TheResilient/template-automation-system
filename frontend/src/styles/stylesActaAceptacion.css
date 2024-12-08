@@ -210,3 +210,32 @@ body {
 button:hover {
     background-color: #7a1a5e;
 }
+
+.file-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* Ocupa todo el ancho del contenedor */
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    overflow: auto;
+}
+
+.file-preview-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.file-preview-pdf {
+    width: 100%;
+    /* Ajusta para que ocupe todo el ancho del contenedor */
+    height: 600px;
+    /* Puedes ajustar la altura según lo que necesites */
+    border: none;
+}

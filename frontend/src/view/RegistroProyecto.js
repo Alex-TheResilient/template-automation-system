@@ -1,16 +1,20 @@
 // frontend/src/view/RegistroProyecto.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import '../styles/stylesRegistroProyecto.css';
 import '../styles/styles.css';
 
 const RegistroProyecto = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-    const irAListaProyecto = () => navigate("/listaProyectos");
+    const irAListaProyecto = () => navigate(`/listaProyectos?orgcod=${orgcod}`);
     const irALogin = () => navigate("/");
+
+    const queryParams = new URLSearchParams(location.search);
+    const orgcod = queryParams.get('orgcod');
 
     // Estado para los datos del proyecto
     const [projectData, setProjectData] = useState({
@@ -57,10 +61,10 @@ const RegistroProyecto = () => {
             const response = await axios.post("http://localhost:5000/api/projects", {
                 ...projectData,
                 status: "En proceso",
-                organizationId: "ORG-002", // Cambia si la organización tiene otro ID
+                organizationId: orgcod, // Cambia si la organización tiene otro ID
             });
             console.log("Proyecto registrado:", response.data);
-            navigate("/listaProyectos");
+            irAListaProyecto();
         } catch (error) {
             console.error("Error registrando proyecto:", error);
         }
@@ -125,15 +129,18 @@ const RegistroProyecto = () => {
                         <div className="rp-cod-vers">
                             <div className="fiel-cod">
                                 <h4>Nombre</h4>
-                                <input
-                                    className="inputnombre-field"
-                                    type="text"
-                                    name="name"
-                                    value={projectData.name}  // Mostrar el nombre desde el estado
-                                    onChange={handleChange}
-                                    placeholder="Ingrese el nombre del proyecto"
-                                    size="125"
-                                />
+                                <span class="message">
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        name="name"
+                                        value={projectData.name}  // Mostrar el nombre desde el estado
+                                        onChange={handleChange}
+                                        size="125"
+                                    />
+                                    <span class="tooltip-text"> Ingresar el nombre del proyecto </span>
+                                </span>
+                                
                             </div>
                         </div>
 

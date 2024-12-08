@@ -63,7 +63,10 @@ const NuevoRol = () => {
                         <div className="rr-cod-vers">
                             <div className="fiel-cod">
                                 <h4>Nombre del Rol</h4>
-                                <input  className="inputnombre-field" type="text" placeholder=""  size="50" />
+                                <span class="message">
+                                    <input  className="inputnombre-field" type="text" placeholder=""  size="50" />
+                                    <span class="tooltip-text">Nombre del rol que se creará para el proyecto</span>
+                                </span>
                             </div>
                             <div className="fiel-vers">
                                 <h4>Fecha de Creacion</h4>

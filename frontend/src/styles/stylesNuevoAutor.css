@@ -64,6 +64,16 @@ body {
     margin: 5px;
     border-radius: 5px;
 }
+.estado-input{
+    background-color: #fdffff;
+    text-align: center; 
+    color: black; 
+    border-radius: 5px; 
+    width: 100%; 
+    padding: 5px; 
+    height: 28px; 
+    box-sizing: border-box;
+}
 
 .sidebar {
     background-color: #E4D2DB;
@@ -175,7 +185,8 @@ body {
     margin-top: 2px;
     margin-bottom: -1px;
     display: flex;
-    align-content: center;
+    align-items: center; /* Centra verticalmente */
+    gap: 10px; /* Espaciado uniforme */
 }
 
 .inputBloq-field {
@@ -183,6 +194,10 @@ body {
     text-align: center;
     color: black;
     border-radius: 5px;
+    width: 100px;
+    height: 28px;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
 .inputBloq-field-select {

@@ -73,7 +73,10 @@ const NuevaEntrevista = () => {
                                 <h4>Fecha de entrevista *</h4>
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Fecha de la entrevista con el cliente</span>
+                                </span>
                             </div>
                         </div>
 
@@ -104,7 +107,10 @@ const NuevaEntrevista = () => {
                                 <h4>Nombre del entrevistado *</h4>
                             </div>
                             <div className="fiel-vers">
+                                <span class="message">
                                 <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Nombre del cliente o persona a la que se entrevistará</span>
+                                </span>
                             </div>
                         </div>
 
@@ -113,7 +119,10 @@ const NuevaEntrevista = () => {
                                 <h4>Cargo que ostenta *</h4>
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />  
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" /> 
+                                    <span class="tooltip-text">Cargo que tiene en el proyecto la persona entrevistada. Ej. Cliente, Líder del proyecto, etc.</span>
+                                </span>
                             </div>
                         </div>
                     </section>
@@ -123,18 +132,27 @@ const NuevaEntrevista = () => {
                         <div className="rp-cod-vers">
                             <div className="fiel-cod-e">
                                 <h4>Fecha *</h4>
-                                <input className="input-text" type="text"placeholder=""  size="50" />
+                                    <span class="message">
+                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <span class="tooltip-text">Fecha en la que se llevará a cabo la entrevista</span>
+                                    </span>
                             </div>
                             <div className="rp-cod-vers">
                                 <div className="fiel-cod-e">
                                     <h4>Hora de inicio *</h4>
-                                    <input className="input-text" type="text"placeholder=""  size="50" />
+                                    <span class="message">
+                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <span class="tooltip-text">Hora de inicio de la entrevista</span>
+                                    </span>
                                 </div>
                             </div>
                             <div className="rp-cod-vers">
                                 <div className="fiel-cod-e">
                                     <h4>Hora de fin *</h4>
-                                    <input className="input-text" type="text"placeholder=""  size="50" />
+                                    <span class="message">
+                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <span class="tooltip-text">Hora de fin de la entrevista</span>
+                                    </span>
                                 </div>
                             </div>
                             <div className="rp-cod-vers">
@@ -146,7 +164,10 @@ const NuevaEntrevista = () => {
                             <div className="rp-cod-vers">
                                 <div className="fiel-cod-e">
                                     <h4>Observaciones *</h4>
-                                    <input className="input-text" type="text"placeholder=""  size="50" />
+                                    <span class="message">
+                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <span class="tooltip-text">Agregar observaciones respecto a la duración de la reunión</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -160,7 +181,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="1" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
+                                </span>
                             </div>
                         </div>
 
@@ -169,7 +193,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="2" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
+                                </span>
                             </div>
                         </div>
 
@@ -178,7 +205,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="3" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
+                                </span>
                             </div>
                         </div>
                         
@@ -191,7 +221,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="1" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
+                                </span>
                             </div>
                         </div>
 
@@ -200,7 +233,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="2" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
+                                </span>
                             </div>
                         </div>
 
@@ -209,7 +245,10 @@ const NuevaEntrevista = () => {
                                 <input disabled type="text" className="inputBloq-field2" value="3" readOnly size="50" />
                             </div>
                             <div className="fiel-vers">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <span class="message">
+                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
+                                </span>
                             </div>
                         </div>
                         

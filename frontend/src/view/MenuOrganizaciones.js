@@ -153,8 +153,9 @@ const MenuOrganizaciones = () => {
                                             <td>{mainOrganization.fechaCreacion}</td>
                                             <td>{mainOrganization.version}</td>
                                             <td>
-                                                <button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                                {/*<button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                                 <button className="botton-crud"><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
+                                            */}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -168,13 +169,18 @@ const MenuOrganizaciones = () => {
                         <h3>Organizaciones</h3>
 
                         <div className="sectionTextBuscar">
-                            <input
-                                className="textBuscar"
-                                type="text"
-                                placeholder="Buscar por nombre"
-                                value={searchNombre}
-                                onChange={(e) => setSearchNombre(e.target.value)}
-                            />
+                            <span class="message">
+                                <input
+                                    className="textBuscar"
+                                    type="text"
+                                    size="125"
+                                    placeholder="Buscar por nombre"
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
+                                />
+                                <span class="tooltip-text"> Buscar por la fecha </span>
+                            </span>
+                           
                             <button className="search-button" onClick={handleSearch}>Buscar</button>
                         </div>
 
@@ -231,13 +237,15 @@ const MenuOrganizaciones = () => {
                                             <td>{org.fechaCreacion}</td>
                                             <td>{org.version}</td>
                                             <td>
-                                                <button className="botton-crud">
+                                                {/*<button className="botton-crud">
                                                 <FaFolder style={{ color: "orange", cursor: "pointer" }} />
-                                                </button>
-                                                <button className="botton-crud">
+                                                </button>*/}
+                                                <button className="botton-crud"onClick={(e) => {e.stopPropagation();  // Evita que el clic se propague al tr
+                                                    irAEditarOrganizacion(org.orgcod);}}>
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
                                                 </button>
-                                                <button className="botton-crud">
+                                                <button className="botton-crud"onClick={(e) => {e.stopPropagation();  // Evita que el clic se propague al tr
+                                                    deleteOrganization(org.orgcod);}}>
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                                 </button>
                                             </td>

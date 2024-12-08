@@ -29,7 +29,7 @@ const Entrevistas = () => {
     };
     
     const irASubirEvidencia = () => {
-        navigate("/subirEvidencia");
+        navigate("/nuevaEvidencia");
     };
     const irAMenuProyecto = () => {
         navigate("/menuProyecto");
@@ -96,7 +96,16 @@ const Entrevistas = () => {
                         <div className="search-section-bar">
                             <button onClick={irANuevaEntrevista} className="nueva-entrevista-button">Nueva Entrevista</button>
                             <div className="sectionTextBuscar">
-                                <input className="textBuscar" type="text" placeholder="Buscar" />
+                                <span class="message">
+                                <input 
+                                    className="textBuscar" 
+                                    type="text" 
+                                    placeholder="Buscar" 
+                                    style={{ width: "500px" }} 
+                                    />
+                                    <span class="tooltip-text">Filtrar información por nombre de entrevista</span>
+                                </span>
+                                
                                 <button className="search-button">Buscar</button>
                             </div>
                         </div>
@@ -154,8 +163,14 @@ const Entrevistas = () => {
                         <div className="search-section-bar">
                             <h4>Total de registros 2</h4>
                             <div className="export-buttons">
-                                <button className="export-button">Excel</button>
+                                <span class="message">
+                                    <button className="export-button">Excel</button>
+                                    <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
+                                </span>
+                                <span class="message">
                                 <button className="export-button">PDF</button>
+                                    <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
+                                </span>
                             </div>
                         </div>
 
@@ -166,7 +181,15 @@ const Entrevistas = () => {
                         <div className="search-section-bar">
                             <button onClick={irASubirEvidencia} className="evidencia-button">Subir Evidencia</button>
                             <div className="sectionTextBuscar">
-                                <input className="textBuscar" type="text" placeholder="Buscar" />
+                                <span class="message">
+                                <input 
+                                    className="textBuscar" 
+                                    type="text" 
+                                    placeholder="Buscar" 
+                                    style={{ width: "500px" }} 
+                                    />
+                                    <span class="tooltip-text">Filtrar información por nombre de evidencia</span>
+                                </span>
                                 <button className="search-button">Buscar</button>
                             </div>
                         </div>
