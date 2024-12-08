@@ -1,4 +1,5 @@
 // backend/src/controllers/organizacion.controller.ts
+
 import { Request, Response } from 'express';
 import * as organizacionService from '../services/organizacion.service';
 
@@ -15,7 +16,6 @@ export const createOrganizacion = async (req: Request, res: Response) => {
 
 export const getOrganizaciones = async (_req: Request, res: Response) => {
     try {
-        console.log('Obteniendo todas las organizaciones');
         const organizaciones = await organizacionService.getOrganizaciones();
         res.status(200).json(organizaciones);
     } catch (error) {
