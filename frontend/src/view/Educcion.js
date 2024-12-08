@@ -29,7 +29,7 @@ const Educcion = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registrarRiesgo");
+        navigate("/registroRiesgo");
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");

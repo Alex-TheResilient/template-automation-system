@@ -24,14 +24,16 @@ import EditarActaAceptacion from './view/EditarActaAceptacion.js';
 import NuevaEvidencia from './view/NuevaEvidencia.js';
 import Plantillas from './view/Plantillas.js';
 import Educcion from './view/Educcion.js';
-/*
+import NuevaEduccion from './view/NuevaEduccion.js';
+import RegistroRiesgo from './view/RegistroRiesgo.js';
+import Actores from './view/Actores.js';
+import NuevoActor from './view/NuevoActor.js';
 import Expertos from './view/Expertos.js';
 import Fuentes from './view/Fuentes.js';
 import NuevaFuente from './view/NuevaFuente.js';
 import EditarFuente from './view/EditarFuente.js';
 import NuevoExperto from './view/NuevoExperto.js';
 import EditarExperto from './view/EditarExperto.js';
-*/
 
 function App() {
   return (
@@ -67,6 +69,16 @@ function App() {
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
+          <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
+          <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
+          <Route path="/actores" element={<Actores />} />
+          <Route path="/nuevoActor" element={<NuevoActor />} />
+          <Route path="/expertos" element={<Expertos />} />   
+          <Route path="/fuentes" element={<Fuentes />} />   
+          <Route path="/nuevaFuente" element={<NuevaFuente />} /> 
+          <Route path="/editarFuente" element={<EditarFuente />} /> 
+          <Route path="/nuevoExperto" element={<NuevoExperto />} /> 
+          <Route path="/editarExperto" element={<EditarExperto />} /> 
         </Routes>
       </div>
     </Router>
