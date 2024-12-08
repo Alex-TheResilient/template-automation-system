@@ -72,25 +72,19 @@ export const deleteOrganizacion = async (id: string) => {
 
 // Función para generar el próximo código
 const generateCodigo = async (): Promise<string> => {
-    const lastOrganizacion = await prisma.organizacion.findFirst({
-        orderBy: { codigo: 'desc' }, // Obtener la última organización por código
+    const organizaciones = await prisma.organizacion.findMany({
+        orderBy: { fechaCreacion: 'desc' }, // Ordenar por fecha de creación como alternativa confiable
     });
 
-    if (!lastOrganizacion || !lastOrganizacion.codigo.includes('-')) {
-        return 'ORG-001'; // Si no hay organizaciones o el formato no es válido, comienza en ORG-001
+    if (organizaciones.length === 0) {
+        return 'ORG-001'; // Si no hay organizaciones, empezar en ORG-001
     }
 
-    // Extraer el número del código
-    const codeParts = lastOrganizacion.codigo.split('-');
-    const lastCodeNumber = parseInt(codeParts[1], 10);
-
-    if (isNaN(lastCodeNumber)) {
-        return 'ORG-001'; // Si no es un número válido, comienza en ORG-001
-    }
-
-    // Incrementar el número del código
-    return `ORG-${(lastCodeNumber + 1).toString().padStart(3, '0')}`;
+    const lastCodigo = organizaciones[0].codigo; // Obtener el último código creado
+    const lastCodeNumber = parseInt(lastCodigo.split('-')[1], 10); // Extraer el número del código
+    return `ORG-${(lastCodeNumber + 1).toString().padStart(3, '0')}`; // Generar el siguiente código
 };
+
 
 
 // Incrementar la versión
