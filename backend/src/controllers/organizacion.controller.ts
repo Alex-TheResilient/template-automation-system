@@ -60,7 +60,6 @@ export const deleteOrganizacion = async (req: Request, res: Response) => {
 
 export const getMainOrganization = async (_req: Request, res: Response) => {
     try {
-        console.log('Intentando obtener la organización principal (código: ORG-MAIN)');
         const mainOrganization = await organizacionService.getMainOrganization();
 
         if (!mainOrganization) {
@@ -68,7 +67,6 @@ export const getMainOrganization = async (_req: Request, res: Response) => {
             return res.status(404).json({ error: 'No encontrada' });
         }
 
-        console.log('Organización principal encontrada:', mainOrganization);
         res.json(mainOrganization);
     } catch (error) {
         console.error('Error al obtener la organización principal:', error);
@@ -76,3 +74,13 @@ export const getMainOrganization = async (_req: Request, res: Response) => {
     }
 };
 
+export const getNextCode = async (_req: Request, res: Response) => {
+    try {
+        const nextCode = await organizacionService.getNextCodigo();
+        res.status(200).json({ nextCode });
+    } catch (error) {
+        const err = error as Error;
+        console.error('Error al obtener el siguiente código:', err.message);
+        res.status(500).json({ error: 'Error al obtener el siguiente código.' });
+    }
+};

@@ -4,20 +4,17 @@ import * as organizacionController from '../controllers/organizacion.controller'
 
 const router = Router();
 
+// Ruta para obtener la organización principal
+router.get('/principal', organizacionController.getMainOrganization);
+router.get('/', organizacionController.getOrganizaciones);
+router.get('/next-code', organizacionController.getNextCode);
+
 // Rutas CRUD
-// router.post('/', organizacionController.createOrganizacion);
-// router.get('/', organizacionController.getOrganizaciones);
+router.post('/', organizacionController.createOrganizacion);
 // router.get('/:id', organizacionController.getOrganizacionById);
 // router.put('/:id', organizacionController.updateOrganizacion);
 // router.delete('/:id', organizacionController.deleteOrganizacion);
 
-// Ruta para obtener la organización principal
-router.get('/principal', (req, res, next) => {
-    console.log('Solicitud recibida en /api/v1/organizations/principal');
-    next();
-}, organizacionController.getMainOrganization);
-
-router.get('/', organizacionController.getOrganizaciones);
 
 
 

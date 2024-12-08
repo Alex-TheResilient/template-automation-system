@@ -76,12 +76,22 @@ const generateCodigo = async (): Promise<string> => {
         orderBy: { codigo: 'desc' }, // Obtener la última organización por código
     });
 
-    if (!lastOrganizacion) return 'ORG-001'; // Si no hay organizaciones, empezar en ORG-001
+    if (!lastOrganizacion || !lastOrganizacion.codigo.includes('-')) {
+        return 'ORG-001'; // Si no hay organizaciones o el formato no es válido, comienza en ORG-001
+    }
+
+    // Extraer el número del código
+    const codeParts = lastOrganizacion.codigo.split('-');
+    const lastCodeNumber = parseInt(codeParts[1], 10);
+
+    if (isNaN(lastCodeNumber)) {
+        return 'ORG-001'; // Si no es un número válido, comienza en ORG-001
+    }
 
     // Incrementar el número del código
-    const lastCodeNumber = parseInt(lastOrganizacion.codigo.split('-')[1], 10);
     return `ORG-${(lastCodeNumber + 1).toString().padStart(3, '0')}`;
 };
+
 
 // Incrementar la versión
 const incrementVersion = (currentVersion: string): string => {
@@ -99,7 +109,7 @@ export const initializeMainOrganization = async () => {
     });
   
     if (existingOrg) {
-        console.log('La organización principal ya existe:', existingOrg);
+        console.log('La organización principal ya existe:', existingOrg.nombre);
         return;
     }
   
@@ -118,4 +128,9 @@ export const initializeMainOrganization = async () => {
     });
   
     console.log('Organización principal creada:', mainOrganization.nombre);
+};
+
+// Agregar esta función para reutilizar la lógica de generateCodigo
+export const getNextCodigo = async (): Promise<string> => {
+    return await generateCodigo();
 };

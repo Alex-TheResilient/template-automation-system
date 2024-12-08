@@ -24,58 +24,57 @@ const RegistroOrganizacion = () => {
     const [codigo, setCodigo] = useState("");
     const [version, setVersion] = useState("0.01");
     const [fecha, setFecha] = useState("");
-    const [tipo, setTipo] = useState("Contratante");
-    const [autor, setAutor] = useState("AUT-00.00");
-
     const [error, setError] = useState(null);
+
+    // Datos fijos
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
     useEffect(() => {
         // Simular la obtención de datos automáticos desde el servidor
         const fetchAutomaticData = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/organizations/last");
+                const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
                 const nextCode = response.data.nextCode || "ORG-001";
+                const localDate = new Date();
+                setFecha(localDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
                 setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
             } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
+                console.error("Error al obtener el siguiente código:", err);
                 setError("No se pudieron cargar los datos automáticos.");
             }
         };
         fetchAutomaticData();
     }, []);
 
-    const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
-    };
+    const irAMenuOrganizaciones = () => { navigate("/menuOrganizaciones"); };
 
     // Función para registrar la organización
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/organizations", {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
+            const response = await axios.post(`${API_BASE_URL}/organizations`, {
+                codigo,               // Generado automáticamente
+                version,              // Versión inicial
+                nombre,
+                direccion,
+                telefono: telefonoOrganizacion,
+                representanteLegal,
+                telefonoRepresentante,
+                ruc,
+                contacto,
+                telefonoContacto,
+                estado,
+                comentarios: comentario,
             });
+
             if (response.status === 201) {
                 alert("Organización registrada correctamente");
                 irAMenuOrganizaciones();
             }
+
         } catch (err) {
-            setError("Error al registrar la organización: " + err.message);
+            console.error("Error al registrar la organización:", err);
+            setError(err.response?.data?.error || "Error al registrar la organización.");
         }
     };
 
@@ -102,7 +101,7 @@ const RegistroOrganizacion = () => {
                 </aside>
 
                 <main className="ro-content">
-                    <h2>NUEVO ORGANIZACIÓN</h2>
+                    <h2>NUEVA ORGANIZACIÓN</h2>
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo">Código </label>
@@ -117,7 +116,7 @@ const RegistroOrganizacion = () => {
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={new Date(fecha).toLocaleDateString()} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -169,15 +168,23 @@ const RegistroOrganizacion = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <h4>Tipo</h4>
-                                <input type="text" className="inputBloq-field" value={tipo} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value="Contratante" readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>Autor</h4>
-                                <input type="text" className="inputBloq-field" value={autor} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value="AUT-000" readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Estado</h4>
-                                <input className="inputnombre-field" type="text" value={estado} onChange={(e) => setEstado(e.target.value)} size="30" />
+                                <select
+                                    className="inputnombre-field"
+                                    value={estado}
+                                    onChange={(e) => setEstado(e.target.value)}
+                                >
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+
                             </div>
                         </div>
                     </section>

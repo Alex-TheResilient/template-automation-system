@@ -17,16 +17,10 @@ app.use(cors());
 
 // Middleware para parsear JSON
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log(`Solicitud recibida: ${req.method} ${req.originalUrl}`);
-  next();
-});
-
 
 // Definir rutas
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/organizations', organizacionRoutes);
-console.log('Rutas de organización registradas en /api/v1/organizations');
 
 // Crear el usuario admin si no existe
 const initSystem = async () => {
