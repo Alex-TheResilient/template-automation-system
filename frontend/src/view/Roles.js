@@ -81,7 +81,10 @@ const Roles = () => {
                         <div className="rol-search-section-bar">
                             <button onClick={irANuevoRol} className="rol-register-button">Nuevo Rol</button>
                             <div className="rol-sectionTextBuscar ">
-                                <input className="rol-textBuscar" type="text" placeholder="Buscar" />
+                                <span class="message">
+                                    <input className="rol-textBuscar" type="text" placeholder="Buscar" size="50"/>
+                                    <span class="tooltip-text">Filtrar información por nombre de rol</span>
+                                </span>
                                 <button className="rol-search-button">Buscar</button>
                             </div>
                         </div>
@@ -143,8 +146,14 @@ const Roles = () => {
                                                
                         <h4 className="rol-h4">Total de registros 3</h4>
                         <div className="rol-export-buttons">
-                            <button className="rol-export-button">Excel</button>
-                            <button className="rol-export-button">PDF</button>
+                            <span class="message">
+                                <button className="rol-export-button">Excel</button>
+                                <span class="tooltip-text">Generar reporte de la lista de roles en Excel</span>
+                            </span>
+                            <span class="message">
+                                <button className="rol-export-button">PDF</button>
+                                <span class="tooltip-text">Generar reporte de la lista de roles en Pdf</span>
+                            </span>
                         </div>
 
                         <div className="search-section-bar">

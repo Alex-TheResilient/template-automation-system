@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/stylesNuevoRol.css';
 import '../styles/styles.css';
@@ -24,6 +24,17 @@ const EditarRol = () => {
     };
 
 
+    //valores iniciales o cargados
+    const [nombreRol, setNombreRol] = useState("Diseñador de software"); 
+    const [fechaCreacionRol, setFechaCreacionRol] = useState("23/10/2023"); 
+    const [comentarioRol, setComentarioRol] = useState("Encargado de realizar interfaces"); 
+
+    // Función para manejar cambios en el input
+    const handleChange = (event) => {
+        setNombreRol(event.target.value);
+        setFechaCreacionRol(event.target.value);
+        setComentarioRol(event.target.value);
+    };
     return (
         <div className="rr-container">
             <header className="rr-header">
@@ -63,11 +74,29 @@ const EditarRol = () => {
                         <div className="rr-cod-vers">
                             <div className="fiel-cod">
                                 <h4>Nombre del Rol</h4>
-                                <input  className="inputBloq-field" type="text" placeholder=""  size="50" />
+                                <span class="message">
+                                    <input
+                                    className="inputBloq-field"
+                                    type="text"
+                                    placeholder=""
+                                    size="50"
+                                    value={nombreRol} 
+                                    onChange={handleChange} 
+                                    />
+                                    <span class="tooltip-text">Modificar nombre del rol</span>
+                                </span>
                             </div>
                             <div className="fiel-vers">
                                 <h4>Fecha de Creacion</h4>
-                                <input disabled type="text" className="inputBloq-field" value="26/10/23" readOnly size="50" />
+                                <input
+                                    className="inputBloq-field"
+                                    type="text"
+                                    placeholder=""
+                                    readOnly
+                                    size="50"
+                                    value={fechaCreacionRol} 
+                                    onChange={handleChange} 
+                                    />
                             </div>
                         </div>
 
@@ -77,7 +106,12 @@ const EditarRol = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" ></textarea>
+                            <textarea 
+                            className="input-fieldtext" 
+                            rows="3" 
+                            value={comentarioRol} 
+                            onChange={handleChange} 
+                            ></textarea>
                         </div>
 
                         <div className="rr-buttons">

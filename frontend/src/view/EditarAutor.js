@@ -4,98 +4,47 @@ import '../styles/stylesNuevoAutor.css';
 import '../styles/styles.css';
 import axios from "axios";
 
-const NuevoAutor = () => {
+const EditarAutor = () => {
 
     const navigate = useNavigate();
 
     // Datos controlados por el usuario
-    const [apellidoPaterno, setApellidoPaterno] = useState("");
-    const [apellidoMaterno, setApellidoMaterno] = useState("");
-    const [nombre, setNombre] = useState("");
-    const [alias, setAlias] = useState("");
-    const [rol, setRol] = useState("");
-    const [password, setPassword] = useState('');
-    const [telefonoAutor, setTelefonoAutor] = useState("");
-    const [dniAutor, setDniAutor] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [apellidoPaternoAutor, setApellidoPaternoAutor] = useState("Perez");
+    const [apellidoMaternoAutor, setApellidoMaternoAutor] = useState("Casimiro");
+    const [nombreAutor, setNombreAutor] = useState("Felix");
+    const [aliasAutor, setAliasAutor] = useState("Fepe");
+    const [rolAutor, setRolAutor] = useState("Diseñador de software");
+    const [passwordAutor, setPasswordAutor] = useState('123456');
+    const [telefonoAutor, setTelefonoAutor] = useState("123456789");
+    const [dniAutor, setDniAutor] = useState("87654321");
+    const [estado, setEstado] = useState("En progreso");
+    const [comentario, setComentario] = useState("Trabaja con el cliente");
     //const [permisoPantilla, setPermisoPantilla] = useState([]);
 
     // Datos automáticos
-    const [codigo, setCodigo] = useState("");//Generacion Automatizada
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState(""); //Generacion Automatizada
-    const [codigoOrganizacion, setcodigoOrganizacion] = useState("ORG-001"); //Cambiar a Generacion Automatizada
-    const [autorPantilla, setAutorPantilla] = useState("AUT-000");//Cambiar a Generacion Automatizada
-    const [error, setError] = useState(null);
+    const [codigoAutor, setCodigoAutor] = useState("AUT-0002");
+    const [versionAutor, setVersionAutor] = useState("00.01");
+    const [fechaCreacionAutor, setFechaCreacionAutor] = useState("23/10/2023"); 
+    const [codigoOrganizacion, setCodigoOrganizacion] = useState("ORG-001");
+    const [autorPantilla, setAutorPantilla] = useState("AUT-000");
 
-    useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/authors/last");//Cambiar router
-                const nextCode = response.data.nextCode || "AUT-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
-            } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
-            }
-        };
-        fetchAutomaticData();
-    }, []);
-
-    // Función para registrar la organización
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/api/authors", { //Cambiar router
-
-                autCod: codigo,
-                autVer: version,
-                autFecCrea: fecha,
-                autApePat: apellidoPaterno,
-                autApeMat: apellidoMaterno,
-                autNom: nombre,
-                autAli: alias,
-                autRol: rol,
-                password: password,
-                autTef: telefonoAutor,
-                autDNI: dniAutor,
-                autCodOrg: codigoOrganizacion,
-                autPan: autorPantilla,
-                autEst: estado,
-                autCom: comentario,
-                //permissions: permisoPantilla,
-            });
-            if (response.status === 201) {
-                alert("Autor registrado correctamente");
-                irAAutores();
-            }
-        } catch (err) {
-            setError("Error al registrar al autor: " + err.message);
-        }
+    // Función para manejar cambios en el input
+    const handleChange = (event) => {
+        setApellidoPaternoAutor(event.target.value);
+        setApellidoMaternoAutor(event.target.value);
+        setNombreAutor(event.target.value);
+        setAliasAutor(event.target.value);
+        setRolAutor(event.target.value);
+        setPasswordAutor(event.target.value);
+        setDniAutor(event.target.value);
+        setEstado(event.target.value);
+        setComentario(event.target.value);
+        setCodigoAutor(event.target.value);
+        setVersionAutor(event.target.value);
+        setFechaCreacionAutor(event.target.value);
+        setCodigoOrganizacion(event.target.value);
+        setAutorPantilla(event.target.value);
     };
-
-    // Manejar los cambios en los checkboxes de permisos
-    /*const handlePermissionChange = (e, templateName, permissionType) => {
-        const { checked } = e.target;
-        setFormData((prevData) => {
-            const updatedPermissions = prevData.permissions.filter(
-                (perm) => perm.templateName !== templateName
-            );
-
-            if (checked) {
-                updatedPermissions.push({
-                    templateName,
-                    [permissionType]: true,
-                });
-            }
-
-            return { ...prevData, permissions: updatedPermissions };
-        });
-    };*/
-
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
     };
@@ -125,17 +74,13 @@ const NuevoAutor = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAAutores}>Autores /</span>
-                    <span>Nuevo autor</span>
+                    <span>Editar autor</span>
                 </div>
             </header>
 
             <div className="rosub-container">
 
                 <aside className="sidebar">
-                    {/*<div className="nav-button">
-                            <button className="atras-button">Atras</button>
-                            <button className="adelante-button">Adelante</button>
-                        </div>*/}
                     <div className="bar-ro">
                         <p1 onClick={irAMenuOrganizaciones}>MENU PRINCIPAL</p1>
                     </div>
@@ -148,7 +93,7 @@ const NuevoAutor = () => {
                 </aside>
 
                 <main className="ro-content">
-                    <h2>NUEVO AUTOR</h2>
+                    <h2>EDITAR AUTOR</h2>
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo" >Código </label>
@@ -157,13 +102,34 @@ const NuevoAutor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input disabled type="text" className="inputBloq-field" value={codigo} readOnly size="30" />
+                                <input 
+                                disabled 
+                                type="text" 
+                                className="inputBloq-field" 
+                                value={codigoAutor} 
+                                onChange={handleChange} 
+                                readOnly 
+                                size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input disabled type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                                <input 
+                                disabled 
+                                type="text" 
+                                className="inputBloq-field" 
+                                value={versionAutor}
+                                onChange={handleChange}  
+                                readOnly 
+                                size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input disabled type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
+                                <input 
+                                disabled 
+                                type="text" 
+                                className="inputBloq-field" 
+                                value={fechaCreacionAutor} 
+                                onChange={handleChange}  
+                                readOnly 
+                                size="30" />
                             </div>
                         </div>
                     </section>
@@ -175,21 +141,36 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Apellido Paterno</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoPaterno} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={apellidoPaternoAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Apellido paterno del autor</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>Apellido Materno</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoMaterno} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={apellidoMaternoAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Apellido materno del autor</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Nombres</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={nombreAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Nombres del autor</span>
                                 </span>
                             </div>
@@ -199,21 +180,36 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Alias</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={alias} onChange={(e) => setAlias(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={aliasAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Alias del autor</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>Rol</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={rol} onChange={(e) => setRol(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={rolAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Rol del autor en el proyecto</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Contraseña</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={password} onChange={(e) => setPassword(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={passwordAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Contraseña del autor, este debe tener al menos 6 caracteres</span>
                                 </span>
                             </div>
@@ -223,14 +219,24 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Teléfono</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoAutor} onChange={(e) => setTelefonoAutor(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={telefonoAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">Teléfono del autor, este debe contener 9 dígitos</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>DNI</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={dniAutor} onChange={(e) => setDniAutor(e.target.value)} size="30" />
+                                    <input 
+                                    className="inputnombre-field" 
+                                    type="text" 
+                                    value={dniAutor} 
+                                    onChange={handleChange}  
+                                    size="30" />
                                     <span class="tooltip-text">DNI del autor, este debe contener 8 dígitos</span>
                                 </span>
                             </div>
@@ -245,10 +251,24 @@ const NuevoAutor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input disabled type="text" className="inputBloq-field" value={codigoOrganizacion} readOnly size="30" />
+                                <input 
+                                disabled 
+                                type="text" 
+                                className="inputBloq-field" 
+                                value={codigoOrganizacion}
+                                onChange={handleChange}   
+                                readOnly 
+                                size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input disabled type="text" className="inputBloq-field" value={autorPantilla} readOnly size="30" />
+                                <input 
+                                disabled 
+                                type="text" 
+                                className="inputBloq-field" 
+                                value={autorPantilla} 
+                                onChange={handleChange}  
+                                readOnly 
+                                size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
                                 <select 
@@ -270,12 +290,16 @@ const NuevoAutor = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea 
+                            className="input-fieldtext" 
+                            rows="3" 
+                            value={comentario} 
+                            onChange={(e) => setComentario(e.target.value)} 
+                            placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
                     </section>
 
                     <section className="ro-organizations-section">
-                        {/*
                         <h3>Permiso para ver y editar plantillas</h3>
 
                         <div className="ro-cod-vers">
@@ -379,10 +403,10 @@ const NuevoAutor = () => {
                                 <input disabled type="text" className="inputBloq-field-select" value="Plantilla de Pruebas de Software" readOnly size="60" />
                             </div>
                         </div>
-                        */}
+
                         <div className="ro-buttons">
                             <button onClick={irAAutores} className="ro-button" size="60">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button" size="60">Crear Autor</button>
+                            <button onClick={irAAutores} className="ro-button" size="60">Guardar cambios</button>
                         </div>
                     </section>
                 </main>
@@ -391,4 +415,4 @@ const NuevoAutor = () => {
     );
 };
 
-export default NuevoAutor;
+export default EditarAutor;

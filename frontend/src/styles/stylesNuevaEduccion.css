@@ -12,7 +12,7 @@ body {
     /* Evita scroll de la página en general */
 }
 
-.ro-container {
+.ne-container {
     display: flex;
     flex-direction: column;
     font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@ body {
     /* Ocupa toda la anchura de la ventana */
 }
 
-.rosub-container {
+.nesub-container {
     display: flex;
     flex-grow: 1;
     /* Hace que el contenedor ocupe el espacio disponible */
@@ -32,7 +32,7 @@ body {
     /* Abarca todo el ancho */
 }
 
-.ro-header {
+.ne-header {
     background-color: #E4D2DB;
     color: rgb(0, 0, 0);
     padding: 10px;
@@ -43,19 +43,19 @@ body {
     /* Abarca todo el ancho */
 }
 
-.ro-header h1 {
+.ne-header h1 {
     font-size: 1.5em;
     padding-left: 6%;
 }
 
-.ro-header span {
+.ne-header span {
     cursor: pointer;
     font-size: 1em;
     margin-left: auto;
 }
 
 .logout-button,
-.ro-button {
+.ne-button {
     background-color: #B4508A;
     color: white;
     border: none;
@@ -64,15 +64,9 @@ body {
     margin: 5px;
     border-radius: 5px;
 }
-.estado-input{
-    background-color: #fdffff;
-    text-align: center; 
-    color: black; 
-    border-radius: 5px; 
-    width: 100%; 
-    padding: 5px; 
-    height: 28px; 
-    box-sizing: border-box;
+
+.ne-button {
+    margin-left: 20px;
 }
 
 .sidebar {
@@ -103,7 +97,7 @@ body {
     margin-bottom: 10px;
 }
 
-.bar-ro {
+.bar-ne {
     margin-top: 50px;
     display: flex;
     flex-direction: column;
@@ -127,7 +121,7 @@ body {
 }
 
 /*Seccion contenido general*/
-.ro-content {
+.ne-content {
     margin: 0;
     background-color: white;
     flex-grow: 1;
@@ -138,8 +132,7 @@ body {
     width: calc(100% - 200px);
     /* Ocupa el ancho restante sin la barra lateral */
 }
-
-.ro-content h2 {
+.ne-content h2 {
     margin-top: 10px;
     margin-bottom: 10px;
     text-align: center;
@@ -148,7 +141,7 @@ body {
     margin-bottom: px;
 }
 
-.ro-content h3 {
+.ne-content h3 {
     background: white;
     margin-left: 0;
     padding-left: 3%;
@@ -156,74 +149,130 @@ body {
     border-bottom: 2px solid #771d4b;
     color: #4B125F;
 }
-.ro-content h4 {
-    margin-top: 5px;
+.ne-content h4 {
+    margin: 0;
+    padding-right: 5px;
+    text-align: left;
+    flex-shrink: 0; 
     
 }
-.ro-organization-section,
-.ro-organizations-section {
+.ne-organization-section,
+.ne-organizations-section {
     margin-top: 10px;
 }
 
-.ro-organization {
+
+.ne-organization {
     text-align: center;
-    margin-bottom: 20px;
 }
 
-.ro-codigo {
-    margin-left: -22%;
-}
 
-.ro-version {
-    margin-left: 23%;
-}
-.ro-Fecha{
-    margin-left: 25%;
-}
-
-.ro-cod-vers {
-    margin-top: 2px;
-    margin-bottom: -1px;
+.ne-label-container {
     display: flex;
-    align-items: center; /* Centra verticalmente */
-    gap: 10px; /* Espaciado uniforme */
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.inputBloq-field {
+.ne-label {
+    flex: 1; 
+    text-align: center; 
+}
+
+.ne-input-container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 50px; 
+    margin: 20px;
+}
+
+/* Estilos genéricos de inputs */
+.ne-input {
+    flex: 1; 
     background-color: #E4D2DB;
     text-align: center;
     color: black;
     border-radius: 5px;
-    width: 100px;
-    height: 28px;
-    padding: 5px;
-    box-sizing: border-box;
+    border: 1px solid #ccc;
+    padding: 5px; 
+    height: 30px; /* Ajusta para que el select tenga el mismo alto que los inputs */
+    box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho */
 }
 
-.inputBloq-field-select {
-    background-color: white;
-    text-align: center;
+.custom-select-dropdown {
+    position: relative;
+    flex: 1;
+    
+}
+
+.dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #E4D2DB;
     color: black;
+    border: 1px solid #ccc;
     border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    border: 1px solid #a3616c;
 }
 
-.ro-fiel-cod {
-    margin-left: 100px;
-    margin-right: 0px;
+.dropdown-arrow {
+    margin-left: auto;
+    color: #333; /* Ajusta el color de la flecha */
 }
 
-.ro-fiel-vers {
-    margin-left: 80px;
-}
-.ro-fiel-fecha{
-    margin-left: 80px;
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.dropdown-item input {
+    margin-right: 10px;
+}
+
+.dropdown-item:last-child {
+    margin-bottom: 0;
+}
+.ne-cod-vers {
+    display: flex;
+    align-items: center; 
+    margin-top: 10px; 
+}
 /*comentario*/
 .input-text {
-    margin-top: 15px;
-    margin-left: 100px;
+    width: 100%; 
+    padding: 5px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 
+}
+.estado-input{
+    border: 1px solid #a3616c;
 }
 
 .input-fieldtext {
@@ -233,10 +282,10 @@ body {
     border-radius: 4px;
 }
 
-.ro-buttons {
+.ne-buttons {
     display: flex;
     justify-content: flex-start;
-    margin-left: 1100px;
+    margin-left: 775px;
     margin-top: 5px;
 }
 
@@ -244,12 +293,13 @@ button:hover {
     background-color: #7a1a5e;
 }
 
-.custom-checkbox {
-    margin-right: 5px;
-    margin-top: 8px;
+.fiel-cod{
+    margin-left: 100px;
+    margin-right: 50px;
+    width: 200px;
 }
-
-.ro-fiel-cod-mar {
-    margin-left: 0px;
-    margin-right: 100px;
+.fiel-vers{
+    flex-grow: 1; 
+    display: flex;
+    align-items: center;
 }

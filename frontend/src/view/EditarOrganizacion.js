@@ -1,101 +1,113 @@
-// frontend/src/view/RegistroOrganizacion.js
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate,  useLocation } from "react-router-dom";
 import '../styles/stylesRegistroOrganizacion.css';
 import '../styles/styles.css';
 import axios from "axios";
 
-const RegistroOrganizacion = () => {
+const EditarOrganizacion = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Detectar datos de navegación
-    const organizationToEdit = location.state?.organization || null; // Obtener datos de la organización si existen
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const orgcod = queryParams.get('orgcod');
+      // Obtiene el ID de la organización desde la URL
 
-    const [fecha, setFecha] = useState(() =>
-        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
-    );
-
-    
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState(organizationToEdit?.nombre || "");
-    const [direccion, setDireccion] = useState(organizationToEdit?.direccion || "");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState(organizationToEdit?.telefono || "");
-    const [representanteLegal, setRepresentanteLegal] = useState(organizationToEdit?.representanteLegal || "");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState(organizationToEdit?.telefonoRepresentante || "");
-    const [ruc, setRuc] = useState(organizationToEdit?.ruc || "");
-    const [contacto, setContacto] = useState(organizationToEdit?.contacto || "");
-    const [telefonoContacto, setTelefonoContacto] = useState(organizationToEdit?.telefonoContacto || "");
-    const [estado, setEstado] = useState(organizationToEdit?.estado || "");
-    const [comentario, setComentario] = useState(organizationToEdit?.comentarios || "");
+    const [nombre, setNombre] = useState("");
+    const [direccion, setDireccion] = useState("");
+    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
+    const [representanteLegal, setRepresentanteLegal] = useState("");
+    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
+    const [ruc, setRuc] = useState("");
+    const [contacto, setContacto] = useState("");
+    const [telefonoContacto, setTelefonoContacto] = useState("");
+    const [estado, setEstado] = useState("");
+    const [comentario, setComentario] = useState("");
 
     // Datos automáticos
-    const [codigo, setCodigo] = useState(organizationToEdit?.codigo || "");
-    const [version, setVersion] = useState(organizationToEdit?.version || "0.01");
+    const [codigo, setCodigo] = useState("");
+    const [version, setVersion] = useState("0.01");
+    const [fecha, setFecha] = useState("");
+    const [tipo, setTipo] = useState("Contratante");
+    const [autor, setAutor] = useState("AUT-00.00");
+
     const [error, setError] = useState(null);
 
-    // Datos fijos
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
-
     useEffect(() => {
-        if (!organizationToEdit) {
-            // Si no estamos editando, cargar un nuevo código automáticamente
+        // Si existe orgcod en el URL, es una edición
+        if (orgcod) {
+            // Fetch data de la organización a editar
+            const fetchOrganizationData = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:5000/api/organizations/buscar/${orgcod}`);
+                    const orgData = response.data;
+                    setCodigo(orgData.orgcod);
+                    setVersion(orgData.orgver);
+                    setFecha(orgData.orgfeccrea);
+                    setTipo(orgData.orgtiporgcod);
+                    setAutor(orgData.orgautcod);
+                    setNombre(orgData.orgnom);
+                    setDireccion(orgData.orgdir);
+                    setTelefonoOrganizacion(orgData.orgtel);
+                    setRepresentanteLegal(orgData.orgrepleg);
+                    setTelefonoRepresentante(orgData.orgtelrepleg);
+                    setRuc(orgData.orgruc);
+                    setContacto(orgData.orgcontact);
+                    setTelefonoContacto(orgData.orgtelcon);
+                    setEstado(orgData.orgest);
+                    setComentario(orgData.orgcom);
+                } catch (err) {
+                    setError("Error al obtener los datos de la organización.");
+                }
+            };
+            fetchOrganizationData();
+        } else {
+            // Si no existe orgcod, es un nuevo registro, precargar datos automáticos
             const fetchAutomaticData = async () => {
                 try {
-                    const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
+                    const response = await axios.get("http://localhost:5000/api/organizations/last");
                     const nextCode = response.data.nextCode || "ORG-001";
                     setCodigo(nextCode);
+                    setFecha(new Date().toLocaleDateString());
                 } catch (err) {
-                    console.error("Error al obtener el siguiente código:", err);
+                    console.error("Error al obtener datos automáticos:", err);
                     setError("No se pudieron cargar los datos automáticos.");
                 }
             };
             fetchAutomaticData();
         }
-    }, [API_BASE_URL, organizationToEdit]);
+    }, [orgcod]);
 
+    const irAMenuOrganizaciones = () => {
+        navigate("/menuOrganizaciones");
+    };
 
-    const irAMenuOrganizaciones = () => { navigate("/menuOrganizaciones"); };
-
-    // Función para registrar la organización
-    const handleRegisterOrUpdate = async (e) => {
+    // Función para editar la organización
+    const handleEdit = async (e) => {
         e.preventDefault();
         try {
-            if (organizationToEdit) {
-                // Actualizar organización existente
-                await axios.put(`${API_BASE_URL}/organizations/${organizationToEdit.id}`, {
-                    nombre,
-                    direccion,
-                    telefono: telefonoOrganizacion,
-                    representanteLegal,
-                    telefonoRepresentante,
-                    ruc,
-                    contacto,
-                    telefonoContacto,
-                    estado,
-                    comentarios: comentario,
-                });
-                alert("Organización actualizada correctamente");
-            } else {
-                // Crear una nueva organización
-                await axios.post(`${API_BASE_URL}/organizations`, {
-                    codigo,
-                    version,
-                    nombre,
-                    direccion,
-                    telefono: telefonoOrganizacion,
-                    representanteLegal,
-                    telefonoRepresentante,
-                    ruc,
-                    contacto,
-                    telefonoContacto,
-                    estado,
-                    comentarios: comentario,
-                });
-                alert("Organización registrada correctamente");
+            const response = await axios.put(`http://localhost:5000/api/organizations/${orgcod}`, {
+                orgcod: codigo,
+                orgver: version,
+                orgfeccrea: fecha,
+                orgtiporgcod: tipo,
+                orgautcod: autor,
+                orgnom: nombre,
+                orgdir: direccion,
+                orgtel: telefonoOrganizacion,
+                orgrepleg: representanteLegal,
+                orgtelrepleg: telefonoRepresentante,
+                orgruc: ruc,
+                orgcontact: contacto,
+                orgtelcon: telefonoContacto,
+                orgest: estado,
+                orgcom: comentario,
+            });
+            if (response.status === 200) {
+                alert("Organización editada correctamente");
+                irAMenuOrganizaciones();
             }
-            irAMenuOrganizaciones();
         } catch (err) {
-            console.error("Error al registrar/actualizar la organización:", err);
-            setError(err.response?.data?.error || "Error al registrar/actualizar la organización.");
+            setError("Error al editar la organización: " + err.message);
         }
     };
 
@@ -105,7 +117,7 @@ const RegistroOrganizacion = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                     <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                    <span>Registro de organización</span>
+                    <span>{orgcod ? "Modificar Organización" : "Registrar Organización"}</span>
                 </div>
             </header>
 
@@ -122,7 +134,7 @@ const RegistroOrganizacion = () => {
                 </aside>
 
                 <main className="ro-content">
-                    <h2>NUEVA ORGANIZACIÓN</h2>
+                    <h2>{orgcod ? "MODIFICAR ORGANIZACIÓN" : "EDITAR ORGANIZACIÓN"}</h2>
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo">Código </label>
@@ -137,20 +149,20 @@ const RegistroOrganizacion = () => {
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={organizationToEdit ? organizationToEdit.fechaCreacion : fecha} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
                             </div>
                         </div>
                     </section>
 
                     <section className="ro-organization-section">
                         {/* Formulario editable */}
-                        <h3>Información del Proyecto</h3>
-                        <div className="ro-cod-vers">
+                        <h3>Información de la Organización</h3>
+                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <h4>Nombre</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
-                                    <span class="tooltip-text">Ingresar el nombre del proyecto</span>
+                                    <span class="tooltip-text">Editar el nombre del proyecto</span>
                                 </span>
                                 
                             </div>
@@ -158,14 +170,14 @@ const RegistroOrganizacion = () => {
                                 <h4>Dirección</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} size="30" />
-                                    <span class="tooltip-text">Ingresar la direccion del proyecto </span>
+                                    <span class="tooltip-text">Editar la direccion del proyecto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Teléfono Organización</h4>
                                 <span class="message">
                                 <input className="inputnombre-field" type="text" value={telefonoOrganizacion} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
-                                    <span class="tooltip-text">Ingresar el numero telefonico o celular de la organización </span>
+                                    <span class="tooltip-text">Editar el numero telefonico o celular de la organización </span>
                                 </span>
                             </div>
                         </div>
@@ -175,7 +187,7 @@ const RegistroOrganizacion = () => {
                                 <h4>Representante Legal</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={representanteLegal} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Ingresar apellidos y nombres del representante legal de la organización </span>
+                                    <span class="tooltip-text"> Editar apellidos y nombres del representante legal de la organización </span>
                                 </span>
                                 
                             </div>
@@ -183,7 +195,7 @@ const RegistroOrganizacion = () => {
                                 <h4>Teléfono Representante</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={telefonoRepresentante} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
-                                    <span class="tooltip-text"> Ingresar el numero telefonico o celular del representante legal </span>
+                                    <span class="tooltip-text"> Editar el numero telefonico o celular del representante legal </span>
                                 </span>
                                 
                             </div>
@@ -191,9 +203,9 @@ const RegistroOrganizacion = () => {
                                 <h4>RUC Organización</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={ruc} onChange={(e) => setRuc(e.target.value)} size="30" />  
-                                    <span class="tooltip-text"> Ingresar el numero de Ruc de la organizacion </span>
+                                    <span class="tooltip-text"> Editar el numero de Ruc de la organizacion </span>
                                 </span>
-                                
+                            
                             </div>
                         </div>
 
@@ -202,7 +214,7 @@ const RegistroOrganizacion = () => {
                                 <h4>Contacto (Nombre y Apellido)</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={contacto} onChange={(e) => setContacto(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Ingresar los apellidos y nombres del contacto en la organización </span>
+                                    <span class="tooltip-text"> Editar los apellidos y nombres del contacto en la organización </span>
                                 </span>
                                 
                             </div>
@@ -210,54 +222,35 @@ const RegistroOrganizacion = () => {
                                 <h4>Teléfono del Contacto</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={telefonoContacto} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
+                                    <span class="tooltip-text"> Editar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
                             </div>
-                        </div>
-
-                        <div className="ro-cod-vers">
-                            <div className="ro-fiel-cod">
-                                <h4>Tipo</h4>
-                                <input type="text" className="inputBloq-field" value="Contratante" readOnly size="30" />
-                            </div>
-                            <div className="ro-fiel-vers">
-                                <h4>Autor</h4>
-                                <input type="text" className="inputBloq-field" value="AUT-000" readOnly size="30" />
-                            </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Estado</h4>
-                                <select
-                                    className="inputnombre-field"
-                                    value={estado}
-                                    onChange={(e) => setEstado(e.target.value)}
-                                >
-                                    <option value="Activo">Activo</option>
-                                    <option value="Inactivo">Inactivo</option>
-                                </select>
-
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={estado} onChange={(e) => setEstado(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
+                                    <span class="tooltip-text"> Editar el nuemero teléfonico o celular del contacto </span>
                                 </span>
-
-                            </div>
+                                
+                            </div>   
                         </div>
+                    
                     </section>
-
                     <section className="ro-organizations-section">
                         <h3>Comentario</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} ></textarea>
                         </div>
 
-                        <div className="ro-buttons">
-                            <button onClick={irAMenuOrganizaciones} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegisterOrUpdate} className="ro-button">
-                                {organizationToEdit ? "Actualizar" : "Registrar"}
+                        {error && <div className="error-message">{error}</div>}
+
+                        <div className="ro-cod-vers">
+                            <button className="ro-button" onClick={handleEdit}>
+                                {orgcod ? "Guardar Cambios" : "Registrar Organización"}
                             </button>
+                            <button onClick={irAMenuOrganizaciones} className="ro-button">Cancelar</button>
                         </div>
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>
                 </main>
             </div>
@@ -265,4 +258,4 @@ const RegistroOrganizacion = () => {
     );
 };
 
-export default RegistroOrganizacion;
+export default EditarOrganizacion;

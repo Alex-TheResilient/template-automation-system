@@ -118,12 +118,26 @@ const MenuProyecto = () => {
 
                         <div class="boton-container">
                             <div class="sectionTextBuscar">
-                                <input class="codigoBuscar" type="text" placeholder="Código de autor"
+                                <span class="message">
+                                    <input class="codigoBuscar" type="text" placeholder="Código de autor"
                                     value={codigoAutor}
+                                    size="160"
                                     onChange={manejarBusqueda} />
-                                <input class="plantillaBuscar" type="text" placeholder="Plantilla" />
-                                <input class="estadoBuscar" type="text" placeholder="Estado" />
-                                <input class="fechaBuscar" type="text" placeholder="Fecha" />
+                                <span class="tooltip-text"> Buscar por codigo de autor </span>
+                                </span>
+                                <span class="message">
+                                    <input class="plantillaBuscar" type="text" placeholder="Plantilla" size="160"/>
+                                    <span class="tooltip-text"> Buscar por nombre de plantilla </span>
+                                </span>
+                                <span class="message">
+                                    <input class="estadoBuscar" type="text" placeholder="Estado" size="160"/>
+                                    <span class="tooltip-text"> Buscar por su estado </span>
+                                </span>
+                                <span class="message">
+                                    <input class="fechaBuscar" type="text" placeholder="Fecha" size="160" />
+                                    <span class="tooltip-text"> Buscar por la fecha </span>
+                                </span>
+                                
                                 <button className="search-button" onClick={buscarAutor}>Buscar</button>
                             </div>
                         </div>

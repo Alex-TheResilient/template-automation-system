@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaFolder, FaTrash } from "react-icons/fa";
+import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import '../styles/stylesAutores.css'
 import '../styles/stylesEliminar.css'
 import '../styles/styles.css';
@@ -116,6 +116,9 @@ const Autores = () => {
     const irANuevoAutor = () => {
         navigate("/nuevoAutor");
     };
+    const irAEditarAutor = () => {
+        navigate("/editarAutor");
+    };
     const irALogin = () => {
         navigate("/");
     };
@@ -155,13 +158,16 @@ const Autores = () => {
                         <div className="autor-search-section-bar">
                             <button onClick={irANuevoAutor} className="autor-register-button">Nuevo Autor</button>
                             <div className="autor-sectionTextBuscar">
+                                <span class="message">
                                 <input
                                     className="autor-textBuscar"
                                     type="text"
                                     placeholder="Buscar"
                                     value={searchNombre}
                                     onChange={(e) => setSearchNombre(e.target.value)}
-                                />
+                                    />
+                                    <span class="tooltip-text">Filtrar información por código y/o nombre de autor</span>
+                                </span>
                                 <button className="autor-search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
@@ -190,8 +196,17 @@ const Autores = () => {
                                             <td>{aut.autVer}</td>
                                             <td>{aut.autRol}</td>
                                             <td>
-                                                <button className="botton-crud">
+                                                {/*<button className="botton-crud">
                                                     <FaFolder style={{ color: "orange", cursor: "pointer" }} />
+                                                </button>*/}
+                                                <button
+                                                    className="botton-crud"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                        irAEditarAutor(); // Llama a la función para editar
+                                                    }}
+                                                >
+                                                    <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
                                                 </button>
                                                 <button
                                                     className="botton-crud"
@@ -219,8 +234,14 @@ const Autores = () => {
 
                         <h4 className="autor-h4">Total de registros {authors.length}</h4>
                         <div className="autor-export-buttons">
-                            <button className="autor-export-button" onClick={exportToExcel}>Excel</button>
-                            <button className="autor-export-button" onClick={exportToPDF}>PDF</button>
+                            <span class="message">
+                                <button className="autor-export-button" onClick={exportToExcel}>Excel</button>
+                                <span class="tooltip-text">Generar reporte de la lista de los proyecto en Excel</span>
+                            </span>
+                            <span class="message">
+                                <button className="autor-export-button" onClick={exportToPDF}>PDF</button>
+                                <span class="tooltip-text">Generar reporte de la lista de los proyecto en Pdf</span>
+                            </span>
                         </div>
 
                         <div className="search-section-bar">

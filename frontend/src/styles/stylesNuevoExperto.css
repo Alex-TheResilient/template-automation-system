@@ -64,15 +64,9 @@ body {
     margin: 5px;
     border-radius: 5px;
 }
-.estado-input{
-    background-color: #fdffff;
-    text-align: center; 
-    color: black; 
-    border-radius: 5px; 
-    width: 100%; 
-    padding: 5px; 
-    height: 28px; 
-    box-sizing: border-box;
+
+.ro-button {
+    margin-left: 20px;
 }
 
 .sidebar {
@@ -167,7 +161,6 @@ body {
 
 .ro-organization {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 .ro-codigo {
@@ -185,23 +178,11 @@ body {
     margin-top: 2px;
     margin-bottom: -1px;
     display: flex;
-    align-items: center; /* Centra verticalmente */
-    gap: 10px; /* Espaciado uniforme */
+    align-content: center;
 }
 
 .inputBloq-field {
     background-color: #E4D2DB;
-    text-align: center;
-    color: black;
-    border-radius: 5px;
-    width: 100px;
-    height: 28px;
-    padding: 5px;
-    box-sizing: border-box;
-}
-
-.inputBloq-field-select {
-    background-color: white;
     text-align: center;
     color: black;
     border-radius: 5px;
@@ -236,20 +217,27 @@ body {
 .ro-buttons {
     display: flex;
     justify-content: flex-start;
-    margin-left: 1100px;
+    margin-left: 775px;
     margin-top: 5px;
 }
 
 button:hover {
     background-color: #7a1a5e;
 }
-
-.custom-checkbox {
-    margin-right: 5px;
-    margin-top: 8px;
-}
-
-.ro-fiel-cod-mar {
-    margin-left: 0px;
-    margin-right: 100px;
-}
+  
+select {
+    width: 100%;
+    padding: 4px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #800080; /* Color del texto */
+    outline: none;
+    cursor: pointer;
+  }
+  
+  option {
+    background-color: #ffffff; /* Fondo blanco para las opciones */
+    color: #7a1a5e; /* Texto en morado */
+  }

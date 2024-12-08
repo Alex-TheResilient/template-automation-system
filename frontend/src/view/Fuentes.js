@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
-import "../styles/stylesListaProyectos.css";
+import "../styles/stylesExpertos.css";
 import "../styles/styles.css";
 
-const ListaProyectos = () => {
+const Fuentes = () => {
   // Variables de enrutamiento
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,22 +13,28 @@ const ListaProyectos = () => {
   const irAMenuOrganizaciones = () => {
     navigate("/menuOrganizaciones");
   };
-
+  const irAListaProyecto = () => {
+    navigate("/listaProyectos");
+  };
   const irAMenuProyecto = (code) => {
     navigate(`/menuProyecto?procod=${code}`);
   };
   //Modificar
-  const irAEditarProyecto = (code) => {
-    console.log("ID del proyecto desde listaProyecto:", code);
-    navigate(`/editarProyecto?code=${code}`);
+  const irAEditarProyecto = (projectId) => {
+    console.log("ID del proyecto desde listaProyecto:", projectId);
+    navigate(`/editarProyecto/${projectId}`);
   };
 
-  const irARegistroProyecto = () => {
-    navigate(`/registroProyecto?orgcod=${orgcod}`);
+  const irANuevaFuente = () => {
+    navigate(`/nuevaFuente?orgcod=${orgcod}`);
   };
 
   const irALogin = () => {
     navigate("/");
+  };
+
+  const irAPlantillas = () => {
+    navigate(`/plantillas`);
   };
   // Obtener los parámetros de consulta
   const queryParams = new URLSearchParams(location.search);
@@ -136,64 +142,68 @@ const ListaProyectos = () => {
   };
 
   return (
-    <div className="lista-container">
-      <header className="ro-header">
+    <div className="expe-container">
+      <header className="expe-header">
         <h1>ReqWizards App</h1>
         <div className="flex-container">
           <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-          <span>Mocar Company</span>
+          <span onClick={irAListaProyecto}>Mocar Company /</span>
+          <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
+          <span onClick={irAPlantillas}>Plantillas /</span>
+          <span>Fuentes</span>
+
         </div>
       </header>
 
-      <div className="listasub-container">
-        <aside className="lista-sidebar">
-          <div className="bar-lista">
+      <div className="expesub-container">
+        <aside className="expe-sidebar">
+          <div className="bar-expe">
             <p1 onClick={irAMenuOrganizaciones}>MENU PRINCIPAL</p1>
           </div>
 
-          <div className="lista-profile-section">
-            <div className="lista-profile-icon">👤</div>
+          <div className="expe-profile-section">
+            <div className="expe-profile-icon">👤</div>
             <p2>Nombre Autor - Cod</p2>
-            <button onClick={irALogin} className="lista-logout-button">
+            <button onClick={irALogin} className="expe-logout-button">
               Cerrar Sesión
             </button>
           </div>
         </aside>
 
-        <main className="lista-content">
-          <h2>MOCAR COMPANY</h2>
-          <section className="lista-organizations-section">
-            <div className="lista-search-section-bar">
+        <main className="expe-content">
+          <h2>FUENTES</h2>
+          <section className="expe-organizations-section">
+            <div className="expe-search-section-bar">
               <button
-                onClick={irARegistroProyecto}
-                className="lista-register-button"
+                onClick={irANuevaFuente}
+                className="expe-register-button"
               >
-                Nuevo proyecto
+                Nueva Fuente
               </button>
-              <div className="lista-sectionTextBuscar">
+              <div className="expe-sectionTextBuscar">
                 <span class="message">
                   <input
-                    class="lista-textBuscar"
+                    class="expe-textBuscar"
                     type="text"
                     placeholder="Buscar por nombre"
                     value={searchNombre}
                     onChange={(e) => setSearchNombre(e.target.value)}
                   />
                   <span class="tooltip-text">
-                    Filtro de búsqueda por nombre del proyecto
+                    Filtro de búsqueda por nombre de la Fuente
                   </span>
                 </span>
 
-                <button className="lista-search-button" onClick={handleSearch}>
+                <button className="expe-search-button" onClick={handleSearch}>
                   Buscar
                 </button>
               </div>
             </div>
 
-            <div className="lista-search-section-text">
-              <div className="lista-searchbar">
+            <div className="expe-search-section-text">
+              <div className="expe-searchbar">
                 <select
-                  className="lista-year-input"
+                  className="expe-year-input"
                   value={searchYear}
                   onChange={(e) => setSearchYear(e.target.value)}
                 >
@@ -205,7 +215,7 @@ const ListaProyectos = () => {
                   ))}
                 </select>
                 <select
-                  className="lista-month-input"
+                  className="expe-month-input"
                   value={searchMonth}
                   onChange={(e) => setSearchMonth(e.target.value)}
                 >
@@ -222,14 +232,15 @@ const ListaProyectos = () => {
             {error ? (
               <p>{error}</p>
             ) : (
-              <table className="lista-centertabla">
+              <table className="expe-centertabla">
                 <thead>
                   <tr>
                     <th>Código</th>
                     <th>Nombre</th>
-                    <th>Fecha creación</th>
-                    <th>Fecha modificación</th>
+                    <th>Fecha creacion</th>
+                    <th>Fecha Modificacion</th>
                     <th>Estado</th>
+                    <th>Version</th>
                     <th>Opciones</th>
                   </tr>
                 </thead>
@@ -244,16 +255,16 @@ const ListaProyectos = () => {
                       </td>
                       <td>{pro.status}</td>
                       <td>
-                        {/*<button className="botton-crud">
+                        <button className="botton-crud">
                           <FaFolder
                             style={{ color: "orange", cursor: "pointer" }}
                           />
-                        </button>*/}
+                        </button>
                         <button
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            irAEditarProyecto(pro.code); // Llama a la función para editar
+                            irAEditarProyecto(pro.id); // Llama a la función para editar
                           }}
                         >
                           <FaPencilAlt
@@ -280,7 +291,7 @@ const ListaProyectos = () => {
 
             <div className="ro-buttons">
               <button
-                onClick={irAMenuOrganizaciones}
+                onClick={irAPlantillas}
                 className="ro-button"
                 size="50"
               >
@@ -288,11 +299,11 @@ const ListaProyectos = () => {
               </button>
             </div>
 
-            <h4 className="lista-h4">
+            <h4 className="expe-h4">
               {projects.length === 0 ? (
-                <p>No hay proyectos registrados para esta organización.</p>
+                <p>No hay fuentes registradas.</p>
               ) : (
-                <table className="lista-centertabla">
+                <table className="expe-centertabla">
                   <thead>{/* Encabezados */}</thead>
                   <tbody>
                     {projects.map((pro) => (
@@ -302,9 +313,9 @@ const ListaProyectos = () => {
                 </table>
               )}
             </h4>
-            <div className="lista-export-buttons">
-              <button className="lista-export-button">Excel</button>
-              <button className="lista-export-button">PDF</button>
+            <div className="expe-export-buttons">
+              <button className="expe-export-button">Excel</button>
+              <button className="expe-export-button">PDF</button>
             </div>
           </section>
         </main>
@@ -313,4 +324,4 @@ const ListaProyectos = () => {
   );
 };
 
-export default ListaProyectos;
+export default Fuentes;

@@ -14,8 +14,11 @@ const MenuOrganizaciones = () => {
     const irALogin = () => navigate("/");
     const irAListaProyecto = (orgcod) => navigate(`/listaProyectos?orgcod=${orgcod}`);
     const irARegistroOrganizacion = () => navigate("/registroOrganizaciones");
+    const irAEditarOrganizacion = (orgcod) => {
+        navigate(`/editarOrganizacion?orgcod=${orgcod}`);
+    };
 
-    // Estados
+    // Organizacion 
     const [mainOrganization, setMainOrganization] = useState(null);
     const [organizations, setOrganizations] = useState([]);
     const [error, setError] = useState(null);
@@ -121,6 +124,20 @@ const MenuOrganizaciones = () => {
             setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
+
+     //Funcion para eliminar una organizacion
+     const deleteOrganization = async (orgcod) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar esta organizacion?")) {
+            try {
+                await axios.delete(`http://localhost:5000/api/organizations/${orgcod}`);
+                setOrganizations((prevOrganizations) => prevOrganizations.filter((org) => org.orgcod !== orgcod));
+                alert("Organizacion eliminada correctamente.");
+            } catch (err) {
+                console.error("Error al eliminar la organizacion:", err.response?.data || err.message);
+                alert(`Hubo un error al eliminarla organizacion: ${err.response?.data.error || err.message}`);
+            }
+        }
+    };
     
     return (
         <div className="menu-container">
@@ -167,8 +184,9 @@ const MenuOrganizaciones = () => {
                                             <td>{mainOrganization.fechaCreacion}</td>
                                             <td>{mainOrganization.version}</td>
                                             <td>
-                                                <button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                                {/*<button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                                 <button className="botton-crud"><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
+                                            */}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -182,13 +200,18 @@ const MenuOrganizaciones = () => {
                         <h3>Organizaciones</h3>
 
                         <div className="sectionTextBuscar">
-                            <input
-                                className="textBuscar"
-                                type="text"
-                                placeholder="Buscar por nombre"
-                                value={searchNombre}
-                                onChange={(e) => setSearchNombre(e.target.value)}
-                            />
+                            <span class="message">
+                                <input
+                                    className="textBuscar"
+                                    type="text"
+                                    size="125"
+                                    placeholder="Buscar por nombre"
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
+                                />
+                                <span class="tooltip-text"> Buscar por la fecha </span>
+                            </span>
+                           
                             <button className="search-button" onClick={handleSearch}>Buscar</button>
                         </div>
 
@@ -245,10 +268,10 @@ const MenuOrganizaciones = () => {
                                                 <td>{org.fechaCreacion}</td>
                                                 <td>{org.version}</td>
                                                 <td>
-                                                    <button className="botton-crud">
+                                                    {/* <button className="botton-crud">
                                                         <FaFolder style={{ color: "orange", cursor: "pointer" }} />
-                                                    </button>
-                                                    <button
+                                                     </button> */}
+                                                     <button
                                                         className="botton-crud"
                                                         onClick={(e) => {
                                                             e.stopPropagation(); // Detener la propagación del clic al <tr>
