@@ -62,6 +62,7 @@ export const deleteOrganizacion = async (id: string) => {
     });
 };
 
+// Codigo de Automatizacion
 // Función para generar el próximo código
 const generateCodigo = async (): Promise<string> => {
     const organizaciones = await prisma.organizacion.findMany({
@@ -83,8 +84,7 @@ const incrementVersion = (currentVersion: string): string => {
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
 };
 
-
-// Codigo Especifico para la Organizacion Principal
+// Codigo Especifico para la Organizacion
 // Obtener la organización principal por código
 export const getMainOrganization = async () => {
     return await prisma.organizacion.findUnique({
