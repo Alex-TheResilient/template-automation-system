@@ -50,6 +50,20 @@ const MenuOrganizaciones = () => {
         fetchData();
     }, [API_BASE_URL]);
 
+     // Función para eliminar una organización
+     const handleDelete = async (id) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar esta organización?")) {
+            try {
+                await axios.delete(`${API_BASE_URL}/organizations/${id}`);
+                setOrganizations((prev) => prev.filter((org) => org.id !== id)); // Actualizar la lista localmente
+                alert("Organización eliminada correctamente.");
+            } catch (err) {
+                setError("Error al eliminar la organización.");
+                console.error(err);
+            }
+        }
+    };
+
     // Función para buscar organizaciones
     const handleSearch = async () => {
         if (!searchNombre && !searchYear && !searchMonth) {
@@ -237,8 +251,14 @@ const MenuOrganizaciones = () => {
                                                 <button className="botton-crud">
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
                                                 </button>
-                                                <button className="botton-crud">
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
+                                                <button
+                                                    className="botton-crud"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evitar que el clic en el botón active el clic en la fila
+                                                        handleDelete(org.id);
+                                                    }}
+                                                >
+                                                    <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                                 </button>
                                             </td>
                                             </tr>
