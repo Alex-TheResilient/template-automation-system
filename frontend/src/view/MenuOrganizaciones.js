@@ -14,8 +14,11 @@ const MenuOrganizaciones = () => {
     const irALogin = () => navigate("/");
     const irAListaProyecto = (orgcod) => navigate(`/listaProyectos?orgcod=${orgcod}`);
     const irARegistroOrganizacion = () => navigate("/registroOrganizaciones");
+    const irAEditarOrganizacion = (orgcod) => {
+        navigate(`/editarOrganizacion?orgcod=${orgcod}`);
+    };
 
-    // Estados
+    // Organizacion 
     const [mainOrganization, setMainOrganization] = useState(null);
     const [organizations, setOrganizations] = useState([]);
     const [error, setError] = useState(null);
@@ -105,6 +108,20 @@ const MenuOrganizaciones = () => {
             link.click();
         } catch (err) {
             setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+     //Funcion para eliminar una organizacion
+     const deleteOrganization = async (orgcod) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar esta organizacion?")) {
+            try {
+                await axios.delete(`http://localhost:5000/api/organizations/${orgcod}`);
+                setOrganizations((prevOrganizations) => prevOrganizations.filter((org) => org.orgcod !== orgcod));
+                alert("Organizacion eliminada correctamente.");
+            } catch (err) {
+                console.error("Error al eliminar la organizacion:", err.response?.data || err.message);
+                alert(`Hubo un error al eliminarla organizacion: ${err.response?.data.error || err.message}`);
+            }
         }
     };
     

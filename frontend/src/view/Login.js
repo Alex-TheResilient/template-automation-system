@@ -12,6 +12,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        console.log("Attempting login with:", { username, password }); // Log de depuración
         try {
             const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
                 username,
