@@ -11,74 +11,74 @@ const MenuOrganizaciones = () => {
     // Variables de enrutamiento
     const navigate = useNavigate();
     
+    const irALogin = () => navigate("/");
+    const irAListaProyecto = (orgcod) => navigate(`/listaProyectos?orgcod=${orgcod}`);
+    const irARegistroOrganizacion = () => navigate("/registroOrganizaciones");
 
-    const irALogin = () => {
-        navigate("/");
-    };
-    const irAListaProyecto = (orgcod) => {
-        // Redirige a la página de lista de proyectos con el código de la organización usando parámetros de consulta
-        navigate(`/listaProyectos?orgcod=${orgcod}`);
-    };
-    const irARegistroOrganizacion = () => {
-        navigate("/registroOrganizaciones");
-    };
-
-    // Organizacion 
+    // Estados
     const [mainOrganization, setMainOrganization] = useState(null);
     const [organizations, setOrganizations] = useState([]);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
 
     //Estado para los parámetros de búsqueda
     const [searchNombre, setSearchNombre] = useState();
     const [searchYear, setSearchYear] = useState();
     const [searchMonth, setSearchMonth] = useState();
 
+    // URL Base del API
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+
     useEffect(() => {
-        // Función para obtener la organización principal
-        const fetchMainOrganization = async () => {
+        const fetchData = async () => {
+            console.log(`Fetching: ${API_BASE_URL}/organizations/principal`);
             try {
-                const response = await axios.get('http://localhost:5000/api/organizations/principal');
-                setMainOrganization(response.data);// Establecer los datos de la organización principal en el estado
-            } catch (err) {
-                setError(err.response ? err.response.data.error : 'Error al obtener la organización principal');
-            }
-        };
-        fetchMainOrganization();
+                // Obtener la organización principal
+                const mainOrgResponse = await axios.get(`${API_BASE_URL}/organizations/principal`);
+                setMainOrganization(mainOrgResponse.data);
 
-        //Obtener o listar todas las organizaciones
-        const fetchOrganizations = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/organizations');
-                // Excluir la organización principal
-                setOrganizations(response.data.filter(org => org.orgcod !== "ORG-001")); // Establecer los datos de las organizaciones en el estado
+                // Obtener todas las organizaciones excluyendo la principal
+                const orgsResponse = await axios.get(`${API_BASE_URL}/organizations`);
+                setOrganizations(orgsResponse.data.filter(org => org.codigo !== "ORG-MAIN"));
             } catch (err) {
-                setError(err.response ? err.response.data.error : 'Error al obtener las organizaciones');
+                setError(err.response?.data?.error || "Error al cargar datos");
+            } finally {
+                setLoading(false); // Finaliza la carga
             }
         };
 
-        fetchOrganizations();
-    }, []);
+        fetchData();
+    }, [API_BASE_URL]);
 
-    //Función para buscar organizaciones
+    // Función para buscar organizaciones
     const handleSearch = async () => {
+        if (!searchNombre && !searchYear && !searchMonth) {
+            setError("Ingrese al menos un criterio de búsqueda");
+            return;
+        }
+        setLoading(true);
         try {
-            const response = await axios.get('http://localhost:5000/api/organizations/search', {
+            const response = await axios.get(`${API_BASE_URL}/organizations/search`, {
                 params: {
                     nombre: searchNombre,
                     year: searchYear,
-                    month: searchMonth
-                }
+                    month: searchMonth,
+                },
             });
-            setOrganizations(response.data);// actualizar los datos de busqueda 
+            setOrganizations(response.data);
+            setError(null); // Limpiar errores previos
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al buscar organizaciones');
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
         }
     };
-    //exportar excel
+
+    // Exportar a Excel
     const exportToExcel = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/organizations/export/excel', {
-                responseType: 'blob', // Importante para manejar archivos
+            const response = await axios.get(`${API_BASE_URL}/organizations/export/excel`, {
+                responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
@@ -87,14 +87,15 @@ const MenuOrganizaciones = () => {
             document.body.appendChild(link);
             link.click();
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al exportar a Excel');
+            setError(err.response?.data?.error || "Error al exportar a Excel");
         }
     };
-    // Función para exportar a PDF
+
+    // Exportar a PDF
     const exportToPDF = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/organizations/export/pdf', {
-                responseType: 'blob', // Importante para manejar archivos
+            const response = await axios.get(`${API_BASE_URL}/organizations/export/pdf`, {
+                responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
@@ -103,9 +104,10 @@ const MenuOrganizaciones = () => {
             document.body.appendChild(link);
             link.click();
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al exportar a PDF');
+            setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
+    
     return (
         <div className="menu-container">
             <header className="menu-header">
@@ -146,10 +148,10 @@ const MenuOrganizaciones = () => {
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{mainOrganization.orgcod}</td>
-                                            <td>{mainOrganization.orgnom}</td>
-                                            <td>{mainOrganization.orgfeccrea}</td>
-                                            <td>{mainOrganization.orgver}</td>
+                                            <td>{mainOrganization.codigo}</td>
+                                            <td>{mainOrganization.nombre}</td>
+                                            <td>{mainOrganization.fechaCreacion}</td>
+                                            <td>{mainOrganization.version}</td>
                                             <td>
                                                 <button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                                 <button className="botton-crud"><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
@@ -223,11 +225,11 @@ const MenuOrganizaciones = () => {
                                     </thead>
                                     <tbody>
                                         {organizations.map((org) => (
-                                            <tr key={org.orgcod} onClick={() => irAListaProyecto(org.orgcod)}>
-                                            <td>{org.orgcod}</td>
-                                            <td>{org.orgnom}</td>
-                                            <td>{org.orgfeccrea}</td>
-                                            <td>{org.orgver}</td>
+                                            <tr key={org.codigo} onClick={() => irAListaProyecto(org.orgcod)}>
+                                            <td>{org.codigo}</td>
+                                            <td>{org.nombre}</td>
+                                            <td>{org.fechaCreacion}</td>
+                                            <td>{org.version}</td>
                                             <td>
                                                 <button className="botton-crud">
                                                 <FaFolder style={{ color: "orange", cursor: "pointer" }} />

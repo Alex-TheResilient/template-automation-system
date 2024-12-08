@@ -14,10 +14,10 @@ const Login = () => {
         e.preventDefault();
         console.log("Attempting login with:", { username, password }); // Log de depuración
         try {
-            const response = await axios.post("http://localhost:5000/auth/login", {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
                 username,
                 password,
-            });
+            });            
             console.log("Login successful, token received:", response.data.token);
             localStorage.setItem("token", response.data.token);
             navigate("/menuOrganizaciones");
