@@ -1,80 +1,101 @@
 // frontend/src/view/RegistroOrganizacion.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/stylesRegistroOrganizacion.css';
 import '../styles/styles.css';
 import axios from "axios";
 
 const RegistroOrganizacion = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // Detectar datos de navegación
+    const organizationToEdit = location.state?.organization || null; // Obtener datos de la organización si existen
 
+    const [fecha, setFecha] = useState(() =>
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    );
+
+    
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [nombre, setNombre] = useState(organizationToEdit?.nombre || "");
+    const [direccion, setDireccion] = useState(organizationToEdit?.direccion || "");
+    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState(organizationToEdit?.telefono || "");
+    const [representanteLegal, setRepresentanteLegal] = useState(organizationToEdit?.representanteLegal || "");
+    const [telefonoRepresentante, setTelefonoRepresentante] = useState(organizationToEdit?.telefonoRepresentante || "");
+    const [ruc, setRuc] = useState(organizationToEdit?.ruc || "");
+    const [contacto, setContacto] = useState(organizationToEdit?.contacto || "");
+    const [telefonoContacto, setTelefonoContacto] = useState(organizationToEdit?.telefonoContacto || "");
+    const [estado, setEstado] = useState(organizationToEdit?.estado || "");
+    const [comentario, setComentario] = useState(organizationToEdit?.comentarios || "");
 
     // Datos automáticos
-    const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState("");
+    const [codigo, setCodigo] = useState(organizationToEdit?.codigo || "");
+    const [version, setVersion] = useState(organizationToEdit?.version || "0.01");
     const [error, setError] = useState(null);
 
     // Datos fijos
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
     useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
-                const nextCode = response.data.nextCode || "ORG-001";
-                const localDate = new Date();
-                setFecha(localDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
-                setCodigo(nextCode);
-            } catch (err) {
-                console.error("Error al obtener el siguiente código:", err);
-                setError("No se pudieron cargar los datos automáticos.");
-            }
-        };
-        fetchAutomaticData();
-    }, []);
+        if (!organizationToEdit) {
+            // Si no estamos editando, cargar un nuevo código automáticamente
+            const fetchAutomaticData = async () => {
+                try {
+                    const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
+                    const nextCode = response.data.nextCode || "ORG-001";
+                    setCodigo(nextCode);
+                } catch (err) {
+                    console.error("Error al obtener el siguiente código:", err);
+                    setError("No se pudieron cargar los datos automáticos.");
+                }
+            };
+            fetchAutomaticData();
+        }
+    }, [API_BASE_URL, organizationToEdit]);
+
 
     const irAMenuOrganizaciones = () => { navigate("/menuOrganizaciones"); };
 
     // Función para registrar la organización
-    const handleRegister = async (e) => {
+    const handleRegisterOrUpdate = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${API_BASE_URL}/organizations`, {
-                codigo,               // Generado automáticamente
-                version,              // Versión inicial
-                nombre,
-                direccion,
-                telefono: telefonoOrganizacion,
-                representanteLegal,
-                telefonoRepresentante,
-                ruc,
-                contacto,
-                telefonoContacto,
-                estado,
-                comentarios: comentario,
-            });
-
-            if (response.status === 201) {
+            if (organizationToEdit) {
+                // Actualizar organización existente
+                await axios.put(`${API_BASE_URL}/organizations/${organizationToEdit.id}`, {
+                    nombre,
+                    direccion,
+                    telefono: telefonoOrganizacion,
+                    representanteLegal,
+                    telefonoRepresentante,
+                    ruc,
+                    contacto,
+                    telefonoContacto,
+                    estado,
+                    comentarios: comentario,
+                });
+                alert("Organización actualizada correctamente");
+            } else {
+                // Crear una nueva organización
+                await axios.post(`${API_BASE_URL}/organizations`, {
+                    codigo,
+                    version,
+                    nombre,
+                    direccion,
+                    telefono: telefonoOrganizacion,
+                    representanteLegal,
+                    telefonoRepresentante,
+                    ruc,
+                    contacto,
+                    telefonoContacto,
+                    estado,
+                    comentarios: comentario,
+                });
                 alert("Organización registrada correctamente");
-                irAMenuOrganizaciones();
             }
-
+            irAMenuOrganizaciones();
         } catch (err) {
-            console.error("Error al registrar la organización:", err);
-            setError(err.response?.data?.error || "Error al registrar la organización.");
+            console.error("Error al registrar/actualizar la organización:", err);
+            setError(err.response?.data?.error || "Error al registrar/actualizar la organización.");
         }
     };
 
@@ -116,7 +137,7 @@ const RegistroOrganizacion = () => {
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={new Date(fecha).toLocaleDateString()} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={organizationToEdit ? organizationToEdit.fechaCreacion : fecha} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -197,7 +218,9 @@ const RegistroOrganizacion = () => {
 
                         <div className="ro-buttons">
                             <button onClick={irAMenuOrganizaciones} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button">Registrar</button>
+                            <button onClick={handleRegisterOrUpdate} className="ro-button">
+                                {organizationToEdit ? "Actualizar" : "Registrar"}
+                            </button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

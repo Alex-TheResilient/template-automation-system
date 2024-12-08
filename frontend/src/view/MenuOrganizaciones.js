@@ -240,30 +240,37 @@ const MenuOrganizaciones = () => {
                                     <tbody>
                                         {organizations.map((org) => (
                                             <tr key={org.codigo} onClick={() => irAListaProyecto(org.orgcod)}>
-                                            <td>{org.codigo}</td>
-                                            <td>{org.nombre}</td>
-                                            <td>{org.fechaCreacion}</td>
-                                            <td>{org.version}</td>
-                                            <td>
-                                                <button className="botton-crud">
-                                                <FaFolder style={{ color: "orange", cursor: "pointer" }} />
-                                                </button>
-                                                <button className="botton-crud">
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                                </button>
-                                                <button
-                                                    className="botton-crud"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // Evitar que el clic en el botón active el clic en la fila
-                                                        handleDelete(org.id);
-                                                    }}
-                                                >
-                                                    <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                                </button>
-                                            </td>
+                                                <td>{org.codigo}</td>
+                                                <td>{org.nombre}</td>
+                                                <td>{org.fechaCreacion}</td>
+                                                <td>{org.version}</td>
+                                                <td>
+                                                    <button className="botton-crud">
+                                                        <FaFolder style={{ color: "orange", cursor: "pointer" }} />
+                                                    </button>
+                                                    <button
+                                                        className="botton-crud"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Detener la propagación del clic al <tr>
+                                                            navigate("/registroOrganizaciones", { state: { organization: org } });
+                                                        }}
+                                                    >
+                                                        <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
+                                                    </button>
+                                                    <button
+                                                        className="botton-crud"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Detener la propagación del clic al <tr>
+                                                            handleDelete(org.id);
+                                                        }}
+                                                    >
+                                                        <FaTrash style={{ color: "red", cursor: "pointer" }} />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
+
                                 </table>
                             </div>
                         )}

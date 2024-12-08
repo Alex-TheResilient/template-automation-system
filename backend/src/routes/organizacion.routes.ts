@@ -12,8 +12,8 @@ router.get('/next-code', organizacionController.getNextCode);
 // Rutas CRUD
 router.post('/', organizacionController.createOrganizacion);
 router.delete('/:id', organizacionController.deleteOrganizacion);
+router.put('/:id', organizacionController.updateOrganizacion);
 // router.get('/:id', organizacionController.getOrganizacionById);
-// router.put('/:id', organizacionController.updateOrganizacion);
 
 
 
