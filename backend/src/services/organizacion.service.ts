@@ -38,14 +38,6 @@ export const getOrganizacionById = async (id: string) => {
     });
 };
 
-// Obtener la organización principal por código
-export const getMainOrganization = async () => {
-    return await prisma.organizacion.findUnique({
-        where: { codigo: 'ORG-MAIN' },
-    });
-    
-};
-
 // Actualizar una organización
 export const updateOrganizacion = async (id: string, data: Partial<Organizacion>) => {
     const existingOrganizacion = await prisma.organizacion.findUnique({ where: { id } });
@@ -85,12 +77,20 @@ const generateCodigo = async (): Promise<string> => {
     return `ORG-${(lastCodeNumber + 1).toString().padStart(3, '0')}`; // Generar el siguiente código
 };
 
-
-
 // Incrementar la versión
 const incrementVersion = (currentVersion: string): string => {
     const [major, minor] = currentVersion.split('.').map(Number);
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
+};
+
+
+// Codigo Especifico para la Organizacion Principal
+// Obtener la organización principal por código
+export const getMainOrganization = async () => {
+    return await prisma.organizacion.findUnique({
+        where: { codigo: 'ORG-MAIN' },
+    });
+    
 };
 
 // Función para inicializar la organización principal
