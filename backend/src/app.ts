@@ -2,10 +2,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv'; 
-import { initSystem } from './src/initialization';
-import authRoutes from './src/routes/authRoutes';
-import organizacionRoutes from './src/routes/organizacion.routes';
-import proyectoRoutes from './src/routes/proyecto.routes';
+import { initSystem } from './initialization';
+import authRoutes from './routes/authRoutes';
+import organizacionRoutes from './routes/organizacion.routes';
+import proyectoRoutes from './routes/proyecto.routes';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
 
