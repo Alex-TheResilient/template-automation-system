@@ -1,11 +1,12 @@
 // backend/app.ts
 import express from 'express';
 import cors from 'cors'; // Importar cors
-import authRoutes from './src/routes/authRoutes'; // Importar las rutas de autenticación
-import { createAdminUser } from './src/services/authService'; // Importar la función para crear el admin
 import dotenv from 'dotenv'; // Importar dotenv
-import organizacionRoutes from './src/routes/organizacion.routes';
+import { createAdminUser } from './src/services/authService'; // Importar la función para crear el admin
 import { initializeMainOrganization } from './src/services/organizacion.service';
+import authRoutes from './src/routes/authRoutes';
+import organizacionRoutes from './src/routes/organizacion.routes';
+import proyectoRoutes from './src/routes/proyecto.routes';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
 
@@ -21,6 +22,8 @@ app.use(express.json());
 // Definir rutas
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/organizations', organizacionRoutes);
+app.use('/api/v1/proyectos', proyectoRoutes);
+
 
 // Crear el usuario admin si no existe
 const initSystem = async () => {

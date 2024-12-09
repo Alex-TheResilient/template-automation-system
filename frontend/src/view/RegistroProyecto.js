@@ -8,65 +8,103 @@ import '../styles/styles.css';
 const RegistroProyecto = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const projectToEdit = location.state?.project || null; // Obtener datos del proyecto si existen
+    
+    // Campos controlados por el usuario
+    const [nombre, setNombre] = useState(projectToEdit?.nombre || "");
+    const [descripcion, setDescripcion] = useState(projectToEdit?.descripcion || "");
+    const [estado, setEstado] = useState(projectToEdit?.estado || "Activo");
+    const [comentarios, setComentarios] = useState(projectToEdit?.comentarios || "");
+
+    // Campos automáticos
+    const [codigo, setCodigo] = useState(projectToEdit?.codigo || "");
+    const [version, setVersion] = useState(projectToEdit?.version || "0.01");
+
+    
+    const [error, setError] = useState(null);
+    
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
+    // Fechas del proyecto
+    const [fechaCreacion, setFechaCreacion] = useState(
+        projectToEdit?.fechaCreacion
+        ? new Date(projectToEdit.fechaCreacion).toLocaleDateString("es-ES")
+        : new Date().toLocaleDateString("es-ES") // Fecha actual para un nuevo proyecto
+    );
+    const [fechaModificacion, setFechaModificacion] = useState(
+        projectToEdit?.fechaModificacion
+        ? new Date(projectToEdit.fechaModificacion).toLocaleDateString("es-ES")
+        : "N/A"
+    );
+    
+    const [fecha, setFecha] = useState(() =>
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    );
 
     const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
     const irAListaProyecto = () => navigate(`/listaProyectos?orgcod=${orgcod}`);
     const irALogin = () => navigate("/");
+    const irAMenuProyectos = () => { navigate(`/listaProyectos?orgcod=${organizacionCodigo}`); };
 
     const queryParams = new URLSearchParams(location.search);
-    const orgcod = queryParams.get('orgcod');
-
-    // Estado para los datos del proyecto
-    const [projectData, setProjectData] = useState({
-        code: "",
-        version: "0.01", // Versión inicial
-        creationDate: "",
-        modificationDate: "",
-        name: "",
-        comments: "",
-    });
+    const orgcod = queryParams.get("orgcod");
+    const organizacionCodigo = location.state?.organizacionId || projectToEdit?.organizacionId || orgcod || "";
 
     // Obtener datos predefinidos del backend
     useEffect(() => {
-        const fetchInitialData = async () => {
+        console.log("Valor de orgcod:", orgcod);
+        if (!projectToEdit) {
+          // Si no estamos editando, cargar un nuevo código automáticamente
+          const fetchAutomaticData = async () => {
             try {
-                const initialResponse = await axios.get("http://localhost:5000/api/projects/initial");
-                const { code, creationDate, modificationDate } = initialResponse.data;
-    
-                setProjectData((prevData) => ({
-                    ...prevData,
-                    code,
-                    creationDate,
-                    modificationDate,
-                }));
-            } catch (error) {
-                console.error("Error obteniendo datos iniciales:", error);
+              const response = await axios.get(`${API_BASE_URL}/proyectos/next-code`);
+              const nextCode = response.data.nextCode || "PROJ-001";
+              setCodigo(nextCode);
+            } catch (err) {
+              console.error("Error al obtener el siguiente código:", err);
             }
-        };
-    
-        fetchInitialData();
-    }, []);   
+          };
+          fetchAutomaticData();
+        }
+    }, [API_BASE_URL, projectToEdit]);
 
-    // Manejar cambios en los inputs
-    const handleChange = (e) => {
-        setProjectData({
-            ...projectData,
-            [e.target.name]: e.target.value,
-        });
-    };
 
-    // Registrar proyecto
-    const handleRegisterProject = async () => {
+    // Función para registrar o actualizar el proyecto
+    const handleRegisterOrUpdate = async (e) => {
+        e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/projects", {
-                ...projectData,
-                status: "En proceso",
-                organizationId: orgcod, // Cambia si la organización tiene otro ID
-            });
-            console.log("Proyecto registrado:", response.data);
-            irAListaProyecto();
-        } catch (error) {
-            console.error("Error registrando proyecto:", error);
+            if (!organizacionCodigo) {
+                alert("Es necesario un ID de organización para registrar el proyecto.");
+                return;
+            }
+            if (projectToEdit) {
+                // Actualizar proyecto existente
+                await axios.put(`${API_BASE_URL}/proyectos/${projectToEdit.id}`, {
+                    nombre,
+                    descripcion,
+                    estado,
+                    comentarios,
+                    organizacionCodigo,
+                });
+                alert("Proyecto actualizado correctamente");
+            } else {
+                // Crear un nuevo proyecto
+                await axios.post(`${API_BASE_URL}/proyectos`, {
+                    nombre,
+                    descripcion,
+                    estado,
+                    comentarios,
+                    organizacionCodigo,
+                });
+                alert("Proyecto registrado correctamente");
+            }
+            navigate(`/listaProyectos?orgcod=${organizacionCodigo}`);
+        } catch (err) {
+            console.error("Error al registrar/actualizar el proyecto:", err);
+            if (err.response) {
+                console.log("Respuesta del backend:", err.response.data);
+            }
+            alert("Error al registrar/actualizar el proyecto.");
         }
     };
     
@@ -94,7 +132,7 @@ const RegistroProyecto = () => {
                 </aside>
 
                 <main className="rp-content">
-                    <h2>NUEVO PROYECTO</h2>
+                    <h2>{projectToEdit ? "EDITAR PROYECTO" : "NUEVO PROYECTO"}</h2>
                     <section className="rp-organization">
                         <h3>
                             <label className="rp-codigo">Código </label>
@@ -102,24 +140,10 @@ const RegistroProyecto = () => {
                         </h3>
                         <div className="rp-cod-vers">
                             <div className="fiel-cod">
-                                <input
-                                    disabled
-                                    type="text"
-                                    className="inputBloq-field"
-                                    value={projectData.code}  // Mostrar el código desde el estado
-                                    readOnly
-                                    size="50"
-                                />
+                                <input type="text" className="inputBloq-field" value={codigo} readOnly />
                             </div>
                             <div className="fiel-vers">
-                                <input
-                                    disabled
-                                    type="text"
-                                    className="inputBloq-field"
-                                    value={projectData.version}  // Mostrar la versión desde el estado
-                                    readOnly
-                                    size="50"
-                                />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="50"/>
                             </div>
                         </div>
                     </section>
@@ -131,11 +155,10 @@ const RegistroProyecto = () => {
                                 <h4>Nombre</h4>
                                 <span class="message">
                                     <input
-                                        className="inputnombre-field"
                                         type="text"
-                                        name="name"
-                                        value={projectData.name}  // Mostrar el nombre desde el estado
-                                        onChange={handleChange}
+                                        className="inputnombre-field"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
                                         size="125"
                                     />
                                     <span class="tooltip-text"> Ingresar el nombre del proyecto </span>
@@ -148,10 +171,9 @@ const RegistroProyecto = () => {
                             <div className="fiel-cod">
                                 <h4>Fecha de Creación</h4>
                                 <input
-                                    disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={projectData.creationDate}  // Mostrar la fecha de creación desde el estado
+                                    value={fechaCreacion}
                                     readOnly
                                     size="50"
                                 />
@@ -159,10 +181,9 @@ const RegistroProyecto = () => {
                             <div className="fiel-vers">
                                 <h4>Fecha de Modificación</h4>
                                 <input
-                                    disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={projectData.modificationDate}  // Mostrar la fecha de modificación desde el estado
+                                    value={fechaModificacion}
                                     readOnly
                                     size="50"
                                 />
@@ -190,8 +211,8 @@ const RegistroProyecto = () => {
                             <textarea
                                 className="input-fieldtext"
                                 name="comments"
-                                value={projectData.comments}  // Mostrar los comentarios desde el estado
-                                onChange={handleChange}
+                                value={comentarios}
+                                onChange={(e) => setComentarios(e.target.value)}
                                 rows="3"
                                 placeholder="Añadir comentarios sobre el proyecto"
                             ></textarea>
@@ -199,7 +220,7 @@ const RegistroProyecto = () => {
 
                         <div className="rp-buttons">
                             <button onClick={irAListaProyecto} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={handleRegisterProject} className="rp-button" size="50">Registrar Proyecto</button>
+                            <button onClick={handleRegisterOrUpdate} className="rp-button" size="50">Registrar Proyecto</button>
                         </div>
                     </section>
                 </main>

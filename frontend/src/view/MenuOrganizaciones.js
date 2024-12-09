@@ -124,20 +124,6 @@ const MenuOrganizaciones = () => {
             setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
-
-     //Funcion para eliminar una organizacion
-     const deleteOrganization = async (orgcod) => {
-        if (window.confirm("¿Estás seguro de que deseas eliminar esta organizacion?")) {
-            try {
-                await axios.delete(`http://localhost:5000/api/organizations/${orgcod}`);
-                setOrganizations((prevOrganizations) => prevOrganizations.filter((org) => org.orgcod !== orgcod));
-                alert("Organizacion eliminada correctamente.");
-            } catch (err) {
-                console.error("Error al eliminar la organizacion:", err.response?.data || err.message);
-                alert(`Hubo un error al eliminarla organizacion: ${err.response?.data.error || err.message}`);
-            }
-        }
-    };
     
     return (
         <div className="menu-container">
@@ -262,8 +248,8 @@ const MenuOrganizaciones = () => {
                                     </thead>
                                     <tbody>
                                         {organizations.map((org) => (
-                                            <tr key={org.codigo} onClick={() => irAListaProyecto(org.orgcod)}>
-                                                <td>{org.codigo}</td>
+                                            <tr key={org.codigo} onClick={() => irAListaProyecto(org.codigo)}>
+                                            <td>{org.codigo}</td>
                                                 <td>{org.nombre}</td>
                                                 <td>{org.fechaCreacion}</td>
                                                 <td>{org.version}</td>

@@ -5,35 +5,15 @@ import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import "../styles/stylesListaProyectos.css";
 import "../styles/styles.css";
 
+// URL Base del API
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+
 const ListaProyectos = () => {
   // Variables de enrutamiento
   const location = useLocation();
   const navigate = useNavigate();
-
-  const irAMenuOrganizaciones = () => {
-    navigate("/menuOrganizaciones");
-  };
-
-  const irAMenuProyecto = (code) => {
-    navigate(`/menuProyecto?procod=${code}`);
-  };
-  //Modificar
-  const irAEditarProyecto = (code) => {
-    console.log("ID del proyecto desde listaProyecto:", code);
-    navigate(`/editarProyecto?code=${code}`);
-  };
-
-  const irARegistroProyecto = () => {
-    navigate(`/registroProyecto?orgcod=${orgcod}`);
-  };
-
-  const irALogin = () => {
-    navigate("/");
-  };
-  // Obtener los parámetros de consulta
-  const queryParams = new URLSearchParams(location.search);
-  const orgcod = queryParams.get("orgcod"); // Obtener 'orgcod' de los parámetros de consulta
-
+  
   //Proyecto
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
@@ -42,56 +22,55 @@ const ListaProyectos = () => {
   const [searchNombre, setSearchNombre] = useState("");
   const [searchYear, setSearchYear] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
-
+  
+  // Obtener los parámetros de consulta
+  const queryParams = new URLSearchParams(location.search);
+  const organizacionCodigo = queryParams.get("orgcod") || "";
+  
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
   const months = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  
+  // Navegaciones
+  const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
+  const irAMenuProyecto = (id) => navigate(`/menuProyecto?procod=${id}`);
+  const irAEditarProyecto = (id) => navigate(`/editarProyecto?code=${id}`);
+  const irARegistroProyecto = () => navigate(`/registroProyecto?orgcod=${organizacionCodigo}`);
+  const irALogin = () => navigate("/");
+  
 
+  // Obtener proyectos
   const fetchProjects = useCallback(async () => {
-    //Obtener o listar proyectos de una organizacion
+    if (!organizacionCodigo) {
+      console.error("El código de la organización no es válido.");
+      setError("El código de la organización no es válido.");
+      return;
+    }
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/projects?orgcod=${orgcod}`
-      );
+      const response = await axios.get(`${API_BASE_URL}/proyectos`, {
+        params: { organizacionCodigo },
+      });
       setProjects(response.data);
     } catch (err) {
-      setError(
-        err.response
-          ? err.response.data.error
-          : "Error al obtener los proyectos"
-      );
+      setError(err.response?.data?.error || "Error al obtener los proyectos");
     }
-  }, [orgcod]);
-
+  }, [organizacionCodigo]);
+  
   useEffect(() => {
-    if (orgcod) {
-      fetchProjects();
-    }
-  }, [orgcod, fetchProjects]);
+    fetchProjects();
+  }, [fetchProjects]);
 
   // Función para buscar proyectos
   const handleSearch = async () => {
     try {
       // Construye los parámetros dinámicamente para evitar enviar valores vacíos
-      const params = {
-        orgcod: orgcod || "",
-      };
+      const params = { organizacionCodigo };
 
       if (searchNombre) {
-        params.pronom = searchNombre;
+        params.nombre = searchNombre;
       }
       if (searchYear) {
         params.year = searchYear;
@@ -100,40 +79,31 @@ const ListaProyectos = () => {
         params.month = searchMonth;
       }
 
-      const response = await axios.get(
-        "http://localhost:5000/api/projects/searchByOrganization",
-        {
-          params,
-        }
-      );
+      // Llamada a la API usando la URL base de la variable de entorno
+      const response = await axios.get(`${API_BASE_URL}/proyectos/search`, {
+        params,
+      });
 
       setProjects(response.data); // Actualiza la lista de proyectos con los resultados
     } catch (err) {
-      setError(
-        err.response ? err.response.data.error : "Error al buscar proyectos"
-      );
+      setError(err.response ? err.response.data.error : "Error al buscar proyectos");
     }
   };
+
   // Función para eliminar un proyecto
   const deleteProject = async (procod) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/projects/${procod}`);
-        fetchProjects();
-        alert("Proyecto eliminado correctamente.");
-      } catch (err) {
-        console.error(
-          "Error al eliminar el proyecto:",
-          err.response?.data || err.message
-        );
-        alert(
-          `Hubo un error al eliminar el proyecto: ${
-            err.response?.data.error || err.message
-          }`
-        );
-      }
+        // Llamada a la API usando la URL base de la variable de entorno
+      await axios.delete(`${API_BASE_URL}/projects/${procod}`);
+      fetchProjects();
+      alert("Proyecto eliminado correctamente.");
+    } catch (err) {
+      console.error("Error al eliminar el proyecto:", err.response?.data || err.message);
+      alert(`Hubo un error al eliminar el proyecto: ${err.response?.data?.error || err.message}`);
     }
-  };
+  }
+};
 
   return (
     <div className="lista-container">
@@ -233,48 +203,41 @@ const ListaProyectos = () => {
                     <th>Opciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {projects.map((pro) => (
-                    <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code)}>
-                      <td>{pro.code}</td>
-                      <td>{pro.name}</td>
-                      <td>{new Date(pro.creationDate).toLocaleDateString()}</td>
-                      <td>
-                        {new Date(pro.modificationDate).toLocaleDateString()}
-                      </td>
-                      <td>{pro.status}</td>
-                      <td>
-                        {/*<button className="botton-crud">
-                          <FaFolder
-                            style={{ color: "orange", cursor: "pointer" }}
-                          />
-                        </button>*/}
-                        <button
-                          className="botton-crud"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            irAEditarProyecto(pro.code); // Llama a la función para editar
-                          }}
-                        >
-                          <FaPencilAlt
-                            style={{ color: "blue", cursor: "pointer" }}
-                          />
-                        </button>
-                        <button
-                          className="botton-crud"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            deleteProject(pro.code); // Llama a la función de eliminación
-                          }}
-                        >
-                          <FaTrash
-                            style={{ color: "red", cursor: "pointer" }}
-                          />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                  <tbody>
+                    {projects.map((pro) => (
+                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.codigo)}>
+                        <td>{pro.codigo}</td>
+                        <td>{pro.nombre}</td>
+                        <td>{new Date(pro.fechaCreacion).toLocaleDateString()}</td>
+                        <td>
+                          {pro.fechaModificacion
+                            ? new Date(pro.fechaModificacion).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td>{pro.estado}</td>
+                        <td>
+                          <button
+                            className="botton-crud"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              irAEditarProyecto(pro.codigo);
+                            }}
+                          >
+                            <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
+                          </button>
+                          <button
+                            className="botton-crud"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteProject(pro.codigo);
+                            }}
+                          >
+                            <FaTrash style={{ color: "red", cursor: "pointer" }} />
+                          </button>
+                        </td>
+                      </tr> 
+                    ))}
+                  </tbody>
               </table>
             )}
 
