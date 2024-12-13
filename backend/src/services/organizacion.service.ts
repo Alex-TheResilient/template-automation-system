@@ -128,3 +128,15 @@ export const initializeMainOrganization = async () => {
 export const getNextCodigo = async (): Promise<string> => {
     return await generateCodigo();
 };
+
+//BusquedaPorNombre
+export const searchOrganizacionesByName = async (nombre: string) => {
+    return await prisma.organizacion.findMany({
+        where: {
+            nombre: {
+                contains: nombre,
+                mode: 'insensitive', // Búsqueda sin importar mayúsculas o minúsculas
+            },
+        },
+    });
+};

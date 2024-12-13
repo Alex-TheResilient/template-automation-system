@@ -31,6 +31,7 @@ const MenuOrganizaciones = () => {
 
     // URL Base del API
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+    //console.log("direccion API:", API_BASE_URL);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -90,6 +91,18 @@ const MenuOrganizaciones = () => {
             setLoading(false);
         }
     };
+
+    //BusquedaPorNombre
+    const [searchTerm, setSearchTerm] = useState('');
+    const handleSearchNombre = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/search?nombre=${searchTerm}`);
+            setOrganizations(response.data);
+        } catch (error) {
+            console.error('Error al buscar organizaciones:', error);
+        }
+    };
+
 
     // Exportar a Excel
     const exportToExcel = async () => {
@@ -167,7 +180,9 @@ const MenuOrganizaciones = () => {
                                         <tr>
                                             <td>{mainOrganization.codigo}</td>
                                             <td>{mainOrganization.nombre}</td>
-                                            <td>{mainOrganization.fechaCreacion}</td>
+                                            <td>
+                                            {new Date(mainOrganization.fechaCreacion).toLocaleDateString()}
+                                            </td>
                                             <td>{mainOrganization.version}</td>
                                             <td>
                                                 {/*<button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
@@ -192,13 +207,16 @@ const MenuOrganizaciones = () => {
                                     type="text"
                                     size="125"
                                     placeholder="Buscar por nombre"
-                                    value={searchNombre}
-                                    onChange={(e) => setSearchNombre(e.target.value)}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    /*value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}*/
                                 />
-                                <span class="tooltip-text"> Buscar por la fecha </span>
+                                <span class="tooltip-text"> Buscar por nombre </span>
                             </span>
                            
-                            <button className="search-button" onClick={handleSearch}>Buscar</button>
+                            {/*<button className="search-button" onClick={handleSearch}>Buscar</button>*/}
+                            <button className="search-button" onClick={handleSearchNombre}>Buscar</button>
                         </div>
 
                         {/* Busqueda  */}
@@ -251,7 +269,9 @@ const MenuOrganizaciones = () => {
                                             <tr key={org.codigo} onClick={() => irAListaProyecto(org.codigo)}>
                                             <td>{org.codigo}</td>
                                                 <td>{org.nombre}</td>
-                                                <td>{org.fechaCreacion}</td>
+                                                <td>
+                                                {new Date(org.fechaCreacion).toLocaleDateString()}
+                                                </td>
                                                 <td>{org.version}</td>
                                                 <td>
                                                     {/* <button className="botton-crud">

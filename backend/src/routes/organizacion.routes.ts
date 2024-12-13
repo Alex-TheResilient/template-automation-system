@@ -15,6 +15,9 @@ router.delete('/:id', organizacionController.deleteOrganizacion);
 router.put('/:id', organizacionController.updateOrganizacion);
 // router.get('/:id', organizacionController.getOrganizacionById);
 
+//Busqueda
+router.get('/search', organizacionController.searchOrganizaciones);
+
 
 
 

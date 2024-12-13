@@ -84,3 +84,15 @@ export const getNextCode = async (_req: Request, res: Response) => {
         res.status(500).json({ error: 'Error al obtener el siguiente código.' });
     }
 };
+
+//busquedaPorNombre
+export const searchOrganizaciones = async (req: Request, res: Response) => {
+    try {
+        const { nombre } = req.query;
+        const organizaciones = await organizacionService.searchOrganizacionesByName(nombre as string);
+        res.status(200).json(organizaciones);
+    } catch (error) {
+        const err = error as Error;
+        res.status(500).json({ error: err.message });
+    }
+};
