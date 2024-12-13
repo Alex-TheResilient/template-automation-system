@@ -18,6 +18,9 @@ router.put('/:id', organizacionController.updateOrganizacion);
 //Busqueda
 router.get('/search', organizacionController.searchOrganizaciones);
 
+//Exportar excel y pdf
+router.get('/export/excel', organizacionController.exportToExcel);
+router.get('/export/pdf', organizacionController.exportToPDF);
 
 
 
