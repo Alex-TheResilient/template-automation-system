@@ -30,12 +30,11 @@ const MenuOrganizaciones = () => {
     const [searchMonth, setSearchMonth] = useState();
 
     // URL Base del API
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     //console.log("direccion API:", API_BASE_URL);
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log(`Fetching: ${API_BASE_URL}/organizations/principal`);
             try {
                 // Obtener la organización principal
                 const mainOrgResponse = await axios.get(`${API_BASE_URL}/organizations/principal`);

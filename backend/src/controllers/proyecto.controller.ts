@@ -6,12 +6,19 @@ import * as proyectoService from '../services/proyecto.service';
 export const createProyecto = async (req: Request, res: Response) => {
     try {
         const data = req.body;
+
+        if (!data.organizacionCodigo) {
+            return res.status(400).json({ error: 'El código de la organización (organizacionCodigo) es requerido.' });
+        }
+
         const newProyecto = await proyectoService.createProyecto(data);
         res.status(201).json(newProyecto);
     } catch (error) {
+        console.error('Error al crear el proyecto:', error);
         res.status(500).json({ error: 'Error al crear el proyecto' });
     }
 };
+
 
 export const getProyectos = async (req: Request, res: Response) => {
     try {

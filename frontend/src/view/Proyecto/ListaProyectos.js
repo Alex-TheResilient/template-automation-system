@@ -37,7 +37,13 @@ const ListaProyectos = () => {
   // Navegaciones
   const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
   const irAMenuProyecto = (id) => navigate(`/menuProyecto?procod=${id}`);
-  const irAEditarProyecto = (id) => navigate(`/editarProyecto?code=${id}`);
+  const irAEditarProyecto = (code) => {
+      if (!code) {
+          alert("Código del proyecto no válido.");
+          return;
+      }
+      navigate(`/registroProyecto?code=${code}`);
+  };
   const irARegistroProyecto = () => navigate(`/registroProyecto?orgcod=${organizacionCodigo}`);
   const irALogin = () => navigate("/");
   

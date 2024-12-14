@@ -3,21 +3,36 @@ import { PrismaClient, Proyecto } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const createProyecto = async (data: Partial<Proyecto>) => {
+export const createProyecto = async (data: Partial<Proyecto> & { organizacionCodigo?: string }) => {
   const codigo = await generateCodigo();
   const version = '00.01';
 
-  return prisma.proyecto.create({ 
-    data: {
-      codigo,
-      version,
-      fechaCreacion: new Date(),
-      nombre: data.nombre ?? '',
-      descripcion: data.descripcion || null,
-      fechaModificacion: data.fechaModificacion || null,
-      estado: data.estado || null,
-      organizacion: { connect: { id: data.organizacionId } },
-    }, 
+  // Validar que organizacionCodigo esté presente
+  if (!data.organizacionCodigo) {
+      throw new Error('El código de la organización (organizacionCodigo) es requerido para crear el proyecto.');
+  }
+
+  // Buscar el organizacionId basado en el codigo
+  const organizacion = await prisma.organizacion.findUnique({
+      where: { codigo: data.organizacionCodigo },
+  });
+
+  if (!organizacion) {
+      throw new Error('No se encontró una organización con el código proporcionado.');
+  }
+
+  // Crear el proyecto utilizando el organizacionId encontrado
+  return prisma.proyecto.create({
+      data: {
+          codigo,
+          version,
+          fechaCreacion: new Date(),
+          nombre: data.nombre ?? '',
+          descripcion: data.descripcion || null,
+          estado: data.estado || null,
+          comentarios: data.comentarios || null,
+          organizacion: { connect: { id: organizacion.id } },
+      },
   });
 };
 

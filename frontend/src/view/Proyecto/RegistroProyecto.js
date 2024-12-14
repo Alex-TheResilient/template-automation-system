@@ -19,9 +19,6 @@ const RegistroProyecto = () => {
     // Campos automáticos
     const [codigo, setCodigo] = useState(projectToEdit?.codigo || "");
     const [version, setVersion] = useState(projectToEdit?.version || "0.01");
-
-    
-    const [error, setError] = useState(null);
     
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     
@@ -36,10 +33,6 @@ const RegistroProyecto = () => {
         ? new Date(projectToEdit.fechaModificacion).toLocaleDateString("es-ES")
         : "N/A"
     );
-    
-    const [fecha, setFecha] = useState(() =>
-        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
-    );
 
     const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
     const irAListaProyecto = () => navigate(`/listaProyectos?orgcod=${orgcod}`);
@@ -48,8 +41,14 @@ const RegistroProyecto = () => {
 
     const queryParams = new URLSearchParams(location.search);
     const orgcod = queryParams.get("orgcod");
-    const organizacionCodigo = location.state?.organizacionId || projectToEdit?.organizacionId || orgcod || "";
-
+    const projectCode = queryParams.get("code");
+    
+    const organizacionCodigo = queryParams.get("orgcod") || location.state?.organizacionId || projectToEdit?.organizacionId;
+    if (!organizacionCodigo) {
+        alert("No se encontró un código de organización válido.");
+        navigate("/menuOrganizaciones");
+    }
+    
     // Obtener datos predefinidos del backend
     useEffect(() => {
         console.log("Valor de orgcod:", orgcod);
@@ -100,12 +99,13 @@ const RegistroProyecto = () => {
             }
             navigate(`/listaProyectos?orgcod=${organizacionCodigo}`);
         } catch (err) {
-            console.error("Error al registrar/actualizar el proyecto:", err);
             if (err.response) {
-                console.log("Respuesta del backend:", err.response.data);
+                // Mostrar error específico del backend
+                alert(`Error: ${err.response.data.error || "No se pudo completar la solicitud"}`);
+            } else {
+                alert("Error al registrar/actualizar el proyecto. Inténtalo nuevamente.");
             }
-            alert("Error al registrar/actualizar el proyecto.");
-        }
+        }        
     };
     
     return (
