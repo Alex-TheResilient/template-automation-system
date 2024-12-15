@@ -42,7 +42,6 @@ export const getOrganizaciones = async (req: Request, res: Response) => {
     }
 };
 
-
 export const getOrganizacionById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -59,6 +58,25 @@ export const getOrganizacionById = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error al obtener la organización.' });
     }
 };
+
+export const getOrganizacionByCodigo = async (req: Request, res: Response) => {
+    try {
+        const { orgcod } = req.params;
+
+        const organizacion = await organizacionService.getOrganizacionByCodigo(orgcod);
+
+        if (!organizacion) {
+            return res.status(404).json({ error: 'Organización no encontrada' });
+        }
+
+        res.status(200).json(organizacion);
+    } catch (error) {
+        const err = error as Error;
+        console.error('Error al obtener la organización por código:', err.message);
+        res.status(500).json({ error: 'Error al buscar la organización.' });
+    }
+};
+
 
 export const updateOrganizacion = async (req: Request, res: Response) => {
     try {

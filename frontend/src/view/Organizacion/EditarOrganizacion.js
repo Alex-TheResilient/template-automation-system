@@ -8,10 +8,10 @@ const EditarOrganizacion = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const orgcod = queryParams.get('orgcod');
-      // Obtiene el ID de la organización desde la URL
+    const orgcod = queryParams.get("orgcod"); // Código de la organización desde la URL
 
-    // Datos controlados por el usuario
+    // Estados para los datos de la organización
+    const [id, setId] = useState(""); // Estado para almacenar el ID único
     const [nombre, setNombre] = useState("");
     const [direccion, setDireccion] = useState("");
     const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
@@ -23,93 +23,75 @@ const EditarOrganizacion = () => {
     const [estado, setEstado] = useState("");
     const [comentario, setComentario] = useState("");
 
-    // Datos automáticos
+    // Datos automáticos (no editables)
     const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
+    const [version, setVersion] = useState("");
     const [fecha, setFecha] = useState("");
     const [tipo, setTipo] = useState("Contratante");
     const [autor, setAutor] = useState("AUT-00.00");
 
     const [error, setError] = useState(null);
 
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
     useEffect(() => {
-        // Si existe orgcod en el URL, es una edición
-        if (orgcod) {
-            // Fetch data de la organización a editar
-            const fetchOrganizationData = async () => {
-                try {
-                    const response = await axios.get(`http://localhost:5000/api/organizations/buscar/${orgcod}`);
-                    const orgData = response.data;
-                    setCodigo(orgData.orgcod);
-                    setVersion(orgData.orgver);
-                    setFecha(orgData.orgfeccrea);
-                    setTipo(orgData.orgtiporgcod);
-                    setAutor(orgData.orgautcod);
-                    setNombre(orgData.orgnom);
-                    setDireccion(orgData.orgdir);
-                    setTelefonoOrganizacion(orgData.orgtel);
-                    setRepresentanteLegal(orgData.orgrepleg);
-                    setTelefonoRepresentante(orgData.orgtelrepleg);
-                    setRuc(orgData.orgruc);
-                    setContacto(orgData.orgcontact);
-                    setTelefonoContacto(orgData.orgtelcon);
-                    setEstado(orgData.orgest);
-                    setComentario(orgData.orgcom);
-                } catch (err) {
-                    setError("Error al obtener los datos de la organización.");
-                }
-            };
-            fetchOrganizationData();
-        } else {
-            // Si no existe orgcod, es un nuevo registro, precargar datos automáticos
-            const fetchAutomaticData = async () => {
-                try {
-                    const response = await axios.get("http://localhost:5000/api/organizations/last");
-                    const nextCode = response.data.nextCode || "ORG-001";
-                    setCodigo(nextCode);
-                    setFecha(new Date().toLocaleDateString());
-                } catch (err) {
-                    console.error("Error al obtener datos automáticos:", err);
-                    setError("No se pudieron cargar los datos automáticos.");
-                }
-            };
-            fetchAutomaticData();
-        }
-    }, [orgcod]);
+        // Obtener los datos de la organización para editar
+        const fetchOrganizationData = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/organizations/buscar-por-codigo/${orgcod}`);
+                const orgData = response.data;
+
+                // Actualizar estados con los datos obtenidos
+                setId(orgData.id); // Almacenar el ID único
+                setCodigo(orgData.codigo);
+                setVersion(orgData.version);
+                setFecha(new Date(orgData.fechaCreacion).toLocaleDateString());
+                setNombre(orgData.nombre);
+                setDireccion(orgData.direccion);
+                setTelefonoOrganizacion(orgData.telefono);
+                setRepresentanteLegal(orgData.representanteLegal);
+                setTelefonoRepresentante(orgData.telefonoRepresentante);
+                setRuc(orgData.ruc);
+                setContacto(orgData.contacto);
+                setTelefonoContacto(orgData.telefonoContacto);
+                setEstado(orgData.estado);
+                setComentario(orgData.comentarios);
+            } catch (err) {
+                console.error("Error al obtener los datos de la organización:", err);
+                setError("No se pudieron cargar los datos de la organización.");
+            }
+        };
+        fetchOrganizationData();
+    }, [API_BASE_URL, orgcod]);
 
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
     };
 
     // Función para editar la organización
+    // Función para actualizar la organización
     const handleEdit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.put(`http://localhost:5000/api/organizations/${orgcod}`, {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
+            await axios.put(`${API_BASE_URL}/organizations/${id}`, {
+                nombre,
+                direccion,
+                telefono: telefonoOrganizacion,
+                representanteLegal,
+                telefonoRepresentante,
+                ruc,
+                contacto,
+                telefonoContacto,
+                estado,
+                comentarios: comentario,
             });
-            if (response.status === 200) {
-                alert("Organización editada correctamente");
-                irAMenuOrganizaciones();
-            }
+            alert("Organización editada correctamente");
+            navigate("/menuOrganizaciones");
         } catch (err) {
-            setError("Error al editar la organización: " + err.message);
+            console.error("Error al editar la organización:", err);
+            setError("Error al editar la organización.");
         }
-    };
+    };   
 
     return (
         <div className="ro-container">

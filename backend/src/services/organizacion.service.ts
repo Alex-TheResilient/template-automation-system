@@ -29,6 +29,11 @@ export const createOrganizacion = async (data: Partial<Organizacion>) => {
     );
 };
 
+export const getOrganizacionByCodigo = async (codigo: string) => {
+    return await prisma.organizacion.findUnique({
+        where: { codigo },
+    });
+};
 
 // Obtener todas las organizaciones
 export const getOrganizaciones = async (page: number, limit: number) => {

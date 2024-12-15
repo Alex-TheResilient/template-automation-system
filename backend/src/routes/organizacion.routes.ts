@@ -7,6 +7,7 @@ const router = Router();
 router.get('/principal', organizacionController.getMainOrganization); // Obtener la organización principal
 router.get('/next-code', organizacionController.getNextCode); // Obtener el siguiente código único
 router.get('/:id/proyectos', organizacionController.getOrganizacionWithProyectos); // Listar proyectos de una organización específica
+router.get('/buscar-por-codigo/:orgcod', organizacionController.getOrganizacionByCodigo);
 
 // CRUD Operations
 router.post('/', organizacionController.createOrganizacion); // Crear una nueva organización

@@ -16,7 +16,7 @@ const MenuOrganizaciones = () => {
     const irARegistroOrganizacion = () => navigate("/registroOrganizaciones");
     const irAEditarOrganizacion = (orgcod) => {
         navigate(`/editarOrganizacion?orgcod=${orgcod}`);
-    };
+    };    
 
     // Organizacion 
     const [mainOrganization, setMainOrganization] = useState(null);
@@ -281,11 +281,12 @@ const MenuOrganizaciones = () => {
                                                         className="botton-crud"
                                                         onClick={(e) => {
                                                             e.stopPropagation(); // Detener la propagación del clic al <tr>
-                                                            navigate("/registroOrganizaciones", { state: { organization: org } });
+                                                            irAEditarOrganizacion(org.codigo); // Cambiar al uso de la función existente
                                                         }}
                                                     >
                                                         <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
                                                     </button>
+
                                                     <button
                                                         className="botton-crud"
                                                         onClick={(e) => {
