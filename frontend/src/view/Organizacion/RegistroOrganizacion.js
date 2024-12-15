@@ -7,95 +7,86 @@ import axios from "axios";
 
 const RegistroOrganizacion = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Detectar datos de navegación
-    const organizationToEdit = location.state?.organization || null; // Obtener datos de la organización si existen
-
-    const [fecha, setFecha] = useState(() =>
+    
+    // Datos automáticos
+    const [codigo, setCodigo] = useState("");
+    const [version, setVersion] = useState("00.01");
+    const [fecha, setFecha] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     );
 
-    
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState(organizationToEdit?.nombre || "");
-    const [direccion, setDireccion] = useState(organizationToEdit?.direccion || "");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState(organizationToEdit?.telefono || "");
-    const [representanteLegal, setRepresentanteLegal] = useState(organizationToEdit?.representanteLegal || "");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState(organizationToEdit?.telefonoRepresentante || "");
-    const [ruc, setRuc] = useState(organizationToEdit?.ruc || "");
-    const [contacto, setContacto] = useState(organizationToEdit?.contacto || "");
-    const [telefonoContacto, setTelefonoContacto] = useState(organizationToEdit?.telefonoContacto || "");
-    const [estado, setEstado] = useState(organizationToEdit?.estado || "");
-    const [comentario, setComentario] = useState(organizationToEdit?.comentarios || "");
+    const [nombre, setNombre] = useState("");
+    const [direccion, setDireccion] = useState("");
+    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
+    const [representanteLegal, setRepresentanteLegal] = useState("");
+    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
+    const [ruc, setRuc] = useState("");
+    const [contacto, setContacto] = useState("");
+    const [telefonoContacto, setTelefonoContacto] = useState("");
+    const [estado, setEstado] = useState("");
+    const [comentario, setComentario] = useState("");
 
-    // Datos automáticos
-    const [codigo, setCodigo] = useState(organizationToEdit?.codigo || "");
-    const [version, setVersion] = useState(organizationToEdit?.version || "0.01");
+    // Estados para manejar errores y carga
     const [error, setError] = useState(null);
-
+    const [isLoading, setIsLoading] = useState(false);
+    
     // Datos fijos
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
+    // Obtener el siguiente código al cargar la interfaz
     useEffect(() => {
-        if (!organizationToEdit) {
-            // Si no estamos editando, cargar un nuevo código automáticamente
-            const fetchAutomaticData = async () => {
-                try {
-                    const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
-                    const nextCode = response.data.nextCode || "ORG-001";
-                    setCodigo(nextCode);
-                } catch (err) {
-                    console.error("Error al obtener el siguiente código:", err);
-                    setError("No se pudieron cargar los datos automáticos.");
-                }
-            };
-            fetchAutomaticData();
-        }
-    }, [API_BASE_URL, organizationToEdit]);
-
+        const fetchNextCode = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${API_BASE_URL}/organizations/next-code`);
+                setCodigo(response.data.nextCode || "ORG-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código:", err);
+                setError("No se pudo cargar el código. Intenta más tarde.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchNextCode();
+    }, [API_BASE_URL]);
 
     const irAMenuOrganizaciones = () => { navigate("/menuOrganizaciones"); };
 
-    // Función para registrar la organización
-    const handleRegisterOrUpdate = async (e) => {
+    // Registrar una nueva organización
+    const handleRegister = async (e) => {
         e.preventDefault();
+
+        // Validaciones básicas
+        if (!nombre.trim()) {
+            setError("El nombre de la organización es obligatorio.");
+            return;
+        }
+        if (telefonoOrganizacion && isNaN(Number(telefonoOrganizacion))) {
+            setError("El teléfono de la organización debe ser un número válido.");
+            return;
+        }
+
         try {
-            if (organizationToEdit) {
-                // Actualizar organización existente
-                await axios.put(`${API_BASE_URL}/organizations/${organizationToEdit.id}`, {
-                    nombre,
-                    direccion,
-                    telefono: telefonoOrganizacion,
-                    representanteLegal,
-                    telefonoRepresentante,
-                    ruc,
-                    contacto,
-                    telefonoContacto,
-                    estado,
-                    comentarios: comentario,
-                });
-                alert("Organización actualizada correctamente");
-            } else {
-                // Crear una nueva organización
-                await axios.post(`${API_BASE_URL}/organizations`, {
-                    codigo,
-                    version,
-                    nombre,
-                    direccion,
-                    telefono: telefonoOrganizacion,
-                    representanteLegal,
-                    telefonoRepresentante,
-                    ruc,
-                    contacto,
-                    telefonoContacto,
-                    estado,
-                    comentarios: comentario,
-                });
-                alert("Organización registrada correctamente");
-            }
+            await axios.post(`${API_BASE_URL}/organizations`, {
+                codigo,
+                version,
+                nombre,
+                direccion,
+                telefono: telefonoOrganizacion,
+                representanteLegal,
+                telefonoRepresentante,
+                ruc,
+                contacto,
+                telefonoContacto,
+                estado,
+                comentarios: comentario,
+            });
+            alert("Organización registrada correctamente");
             irAMenuOrganizaciones();
         } catch (err) {
-            console.error("Error al registrar/actualizar la organización:", err);
-            setError(err.response?.data?.error || "Error al registrar/actualizar la organización.");
+            console.error("Error al registrar la organización:", err);
+            setError(err.response?.data?.error || "Error al registrar la organización.");
         }
     };
 
@@ -131,13 +122,13 @@ const RegistroOrganizacion = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={codigo} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={isLoading ? "Cargando..." : codigo} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={organizationToEdit ? organizationToEdit.fechaCreacion : fecha} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -235,12 +226,6 @@ const RegistroOrganizacion = () => {
                                     <option value="Activo">Activo</option>
                                     <option value="Inactivo">Inactivo</option>
                                 </select>
-
-                                <span class="message">
-                                    <input className="inputnombre-field" type="text" value={estado} onChange={(e) => setEstado(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
-                                </span>
-
                             </div>
                         </div>
                     </section>
@@ -253,9 +238,7 @@ const RegistroOrganizacion = () => {
 
                         <div className="ro-buttons">
                             <button onClick={irAMenuOrganizaciones} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegisterOrUpdate} className="ro-button">
-                                {organizationToEdit ? "Actualizar" : "Registrar"}
-                            </button>
+                            <button onClick={handleRegister} className="ro-button">Registrar</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

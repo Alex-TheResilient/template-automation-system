@@ -1,34 +1,42 @@
 // backend/src/services/organizacion.service.ts
-import { prisma } from '../prisma';
-import { Organizacion } from '@prisma/client';
+import { PrismaClient, Organizacion } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Crear una nueva organización
 export const createOrganizacion = async (data: Partial<Organizacion>) => {
     const codigo = await generateCodigo();
     const version = '00.01';
 
-    return await prisma.organizacion.create({
-        data: {
-            codigo, // Campo obligatorio generado automáticamente
-            version, // Versión inicial generada automáticamente
-            fechaCreacion: new Date(), // Fecha de creación
-            nombre: data.nombre ?? '', // Validar que `nombre` esté definido
-            direccion: data.direccion || null,
-            telefono: data.telefono || null,
-            representanteLegal: data.representanteLegal || null,
-            telefonoRepresentante: data.telefonoRepresentante || null,
-            ruc: data.ruc || null,
-            contacto: data.contacto || null,
-            telefonoContacto: data.telefonoContacto || null,
-            estado: data.estado || null,
-            comentarios: data.comentarios || null,
-        },
-    });
+    return handlePrismaError(() =>
+        prisma.organizacion.create({
+            data: {
+                codigo,
+                version,
+                fechaCreacion: new Date(),
+                nombre: data.nombre ?? '',
+                direccion: data.direccion || null,
+                telefono: data.telefono || null,
+                representanteLegal: data.representanteLegal || null,
+                telefonoRepresentante: data.telefonoRepresentante || null,
+                ruc: data.ruc || null,
+                contacto: data.contacto || null,
+                telefonoContacto: data.telefonoContacto || null,
+                estado: data.estado || null,
+                comentarios: data.comentarios || null,
+            },
+        })
+    );
 };
 
+
 // Obtener todas las organizaciones
-export const getOrganizaciones = async () => {
-    return await prisma.organizacion.findMany();
+export const getOrganizaciones = async (page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    return await prisma.organizacion.findMany({
+        skip,
+        take: limit,
+    });
 };
 
 // Obtener una organización por ID
@@ -65,18 +73,37 @@ export const deleteOrganizacion = async (id: string) => {
 // Codigo de Automatizacion
 // Función para generar el próximo código
 const generateCodigo = async (): Promise<string> => {
-    const organizaciones = await prisma.organizacion.findMany({
-        orderBy: { fechaCreacion: 'desc' }, // Ordenar por fecha de creación como alternativa confiable
+    const entidad = 'organizacion';
+    const contextoId = 'GLOBAL'; // Valor fijo para organizaciones sin contexto
+
+    const contador = await prisma.contador.upsert({
+        where: { entidad_contextoId: { entidad, contextoId } },
+        create: {
+            entidad,
+            contextoId,
+            contador: 1,
+        },
+        update: {
+            contador: { increment: 1 },
+        },
     });
 
-    if (organizaciones.length === 0) {
-        return 'ORG-001'; // Si no hay organizaciones, empezar en ORG-001
-    }
-
-    const lastCodigo = organizaciones[0].codigo; // Obtener el último código creado
-    const lastCodeNumber = parseInt(lastCodigo.split('-')[1], 10); // Extraer el número del código
-    return `ORG-${(lastCodeNumber + 1).toString().padStart(3, '0')}`; // Generar el siguiente código
+    return `ORG-${contador.contador.toString().padStart(3, '0')}`;
 };
+
+// Agregar esta función para reutilizar la lógica de generateCodigo
+export const getNextCode = async (): Promise<string> => {
+    const entidad = 'organizacion';
+    const contextoId = 'GLOBAL';
+
+    const contador = await prisma.contador.findUnique({
+        where: { entidad_contextoId: { entidad, contextoId } },
+    });
+
+    const nextCodeNumber = (contador?.contador || 0) + 1;
+    return `ORG-${nextCodeNumber.toString().padStart(3, '0')}`;
+};
+
 
 // Incrementar la versión
 const incrementVersion = (currentVersion: string): string => {
@@ -124,11 +151,6 @@ export const initializeMainOrganization = async () => {
     console.log('Organización principal creada:', mainOrganization.nombre);
 };
 
-// Agregar esta función para reutilizar la lógica de generateCodigo
-export const getNextCodigo = async (): Promise<string> => {
-    return await generateCodigo();
-};
-
 //BusquedaPorNombre
 export const searchOrganizacionesByName = async (nombre: string) => {
     return await prisma.organizacion.findMany({
@@ -138,5 +160,22 @@ export const searchOrganizacionesByName = async (nombre: string) => {
                 mode: 'insensitive', // Búsqueda sin importar mayúsculas o minúsculas
             },
         },
+    });
+};
+
+const handlePrismaError = async (operation: () => Promise<any>) => {
+    try {
+        return await operation();
+    } catch (error) {
+        console.error('Error en la operación de Prisma:', error);
+        throw new Error('Error en la operación de base de datos.');
+    }
+};
+
+// Obtener una Organización con sus Proyectos:
+export const getOrganizacionWithProyectos = async (id: string) => {
+    return await prisma.organizacion.findUnique({
+        where: { id },
+        include: { proyectos: true },
     });
 };

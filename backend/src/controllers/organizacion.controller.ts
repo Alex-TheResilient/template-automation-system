@@ -7,56 +7,95 @@ import PDFDocument from 'pdfkit';
 
 export const createOrganizacion = async (req: Request, res: Response) => {
     try {
+        const { nombre } = req.body;
+        if (!nombre || nombre.trim() === '') {
+            return res.status(400).json({ error: 'El nombre es obligatorio.' });
+        }
+
         const data = req.body;
         const newOrganizacion = await organizacionService.createOrganizacion(data);
-        res.status(201).json(newOrganizacion);
+
+        res.status(201).json({
+            message: 'Organización creada con éxito.',
+            organizacion: newOrganizacion,
+        });
     } catch (error) {
-        const err = error as Error; // Conversión explícita
-        res.status(500).json({ error: err.message });
+        const err = error as Error;
+        console.error('Error al crear la organización:', err.message);
+        res.status(500).json({ error: 'Error al crear la organización.' });
     }
 };
 
-export const getOrganizaciones = async (_req: Request, res: Response) => {
+export const getOrganizaciones = async (req: Request, res: Response) => {
     try {
-        const organizaciones = await organizacionService.getOrganizaciones();
+        const { page = 1, limit = 10 } = req.query;
+        const organizaciones = await organizacionService.getOrganizaciones(
+            parseInt(page as string),
+            parseInt(limit as string)
+        );
+
         res.status(200).json(organizaciones);
     } catch (error) {
-        const err = error as Error; // Conversión explícita
-        res.status(500).json({ error: err.message });
+        const err = error as Error;
+        console.error('Error al obtener las organizaciones:', err.message);
+        res.status(500).json({ error: 'Error al obtener las organizaciones.' });
     }
 };
+
 
 export const getOrganizacionById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const organizacion = await organizacionService.getOrganizacionById(id);
-        if (!organizacion) return res.status(404).json({ error: 'No encontrada' });
+
+        if (!organizacion) {
+            return res.status(404).json({ error: `Organización con ID ${id} no encontrada.` });
+        }
+
         res.status(200).json(organizacion);
     } catch (error) {
-        const err = error as Error; // Conversión explícita
-        res.status(500).json({ error: err.message });    }
+        const err = error as Error;
+        console.error('Error al obtener la organización:', err.message);
+        res.status(500).json({ error: 'Error al obtener la organización.' });
+    }
 };
 
 export const updateOrganizacion = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const data = req.body;
+
+        if (data.nombre && data.nombre.trim() === '') {
+            return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
+        }
+
         const updatedOrganizacion = await organizacionService.updateOrganizacion(id, data);
-        res.status(200).json(updatedOrganizacion);
+        res.status(200).json({
+            message: 'Organización actualizada con éxito.',
+            organizacion: updatedOrganizacion,
+        });
     } catch (error) {
-        const err = error as Error; // Conversión explícita
-        res.status(500).json({ error: err.message });    
+        const err = error as Error;
+        console.error('Error al actualizar la organización:', err.message);
+        res.status(500).json({ error: 'Error al actualizar la organización.' });
     }
 };
 
 export const deleteOrganizacion = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        const organizacion = await organizacionService.getOrganizacionById(id);
+
+        if (!organizacion) {
+            return res.status(404).json({ error: `Organización con ID ${id} no encontrada.` });
+        }
+
         await organizacionService.deleteOrganizacion(id);
         res.status(204).send();
     } catch (error) {
-        const err = error as Error; // Conversión explícita
-        res.status(500).json({ error: err.message });    
+        const err = error as Error;
+        console.error('Error al eliminar la organización:', err.message);
+        res.status(500).json({ error: 'Error al eliminar la organización.' });
     }
 };
 
@@ -78,7 +117,7 @@ export const getMainOrganization = async (_req: Request, res: Response) => {
 
 export const getNextCode = async (_req: Request, res: Response) => {
     try {
-        const nextCode = await organizacionService.getNextCodigo();
+        const nextCode = await organizacionService.getNextCode();
         res.status(200).json({ nextCode });
     } catch (error) {
         const err = error as Error;
@@ -102,7 +141,7 @@ export const searchOrganizaciones = async (req: Request, res: Response) => {
 // Exportar Organizaciones a Excel
 export const exportToExcel = async (_req: Request, res: Response) => {
     try {
-        const organizaciones = await organizacionService.getOrganizaciones();
+        const organizaciones = await organizacionService.getOrganizaciones(1, 1000);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Organizaciones');
@@ -143,7 +182,7 @@ export const exportToExcel = async (_req: Request, res: Response) => {
 // Exportar Organizaciones a PDF
 export const exportToPDF = async (_req: Request, res: Response) => {
     try {
-        const organizaciones = await organizacionService.getOrganizaciones();
+        const organizaciones = await organizacionService.getOrganizaciones(1, 1000);
         const doc = new PDFDocument({  size: 'A4',margin: 30 });
 
         // Configurar encabezados de respuesta
@@ -195,5 +234,24 @@ export const exportToPDF = async (_req: Request, res: Response) => {
     } catch (error) {
         console.error('Error al exportar a PDF:', error);
         res.status(500).json({ error: 'Error al exportar a PDF' });
+    }
+};
+
+
+export const getOrganizacionWithProyectos = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const organizacion = await organizacionService.getOrganizacionWithProyectos(id);
+
+        if (!organizacion) {
+            return res.status(404).json({ error: `Organización con ID ${id} no encontrada.` });
+        }
+
+        res.status(200).json(organizacion);
+    } catch (error) {
+        const err = error as Error;
+        console.error('Error al obtener la organización con proyectos:', err.message);
+        res.status(500).json({ error: 'Error al obtener la organización con proyectos.' });
     }
 };

@@ -1,27 +1,25 @@
-// backend/src/routes/organizacion.routes.ts
 import { Router } from 'express';
 import * as organizacionController from '../controllers/organizacion.controller';
 
 const router = Router();
 
-// Ruta para obtener la organización principal
-router.get('/principal', organizacionController.getMainOrganization);
-router.get('/', organizacionController.getOrganizaciones);
-router.get('/next-code', organizacionController.getNextCode);
+// Additional Functionality
+router.get('/principal', organizacionController.getMainOrganization); // Obtener la organización principal
+router.get('/next-code', organizacionController.getNextCode); // Obtener el siguiente código único
+router.get('/:id/proyectos', organizacionController.getOrganizacionWithProyectos); // Listar proyectos de una organización específica
 
-// Rutas CRUD
-router.post('/', organizacionController.createOrganizacion);
-router.delete('/:id', organizacionController.deleteOrganizacion);
-router.put('/:id', organizacionController.updateOrganizacion);
-// router.get('/:id', organizacionController.getOrganizacionById);
+// CRUD Operations
+router.post('/', organizacionController.createOrganizacion); // Crear una nueva organización
+router.put('/:id', organizacionController.updateOrganizacion); // Actualizar una organización existente
+router.delete('/:id', organizacionController.deleteOrganizacion); // Eliminar una organización por ID
+router.get('/:id', organizacionController.getOrganizacionById); // Obtener detalles de una organización por ID
+router.get('/', organizacionController.getOrganizaciones); // Listar todas las organizaciones
 
-//Busqueda
-router.get('/search', organizacionController.searchOrganizaciones);
+// Export Routes
+router.get('/exports/excel', organizacionController.exportToExcel); // Exportar organizaciones a Excel
+router.get('/exports/pdf', organizacionController.exportToPDF); // Exportar organizaciones a PDF
 
-//Exportar excel y pdf
-router.get('/export/excel', organizacionController.exportToExcel);
-router.get('/export/pdf', organizacionController.exportToPDF);
-
-
+// Search
+router.get('/search', organizacionController.searchOrganizaciones); // Buscar organizaciones por nombre
 
 export default router;

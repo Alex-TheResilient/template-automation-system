@@ -38,8 +38,8 @@ model Organizacion {
 
 model Proyecto {
   id                String                     @id @default(uuid())
-  codigo            String                     @unique
-  version           String
+  codigo            String
+  version           String  @default("00.01") // Asigna un valor por defecto
   nombre            String
   descripcion       String?
   fechaCreacion     DateTime                   @default(now())
@@ -47,6 +47,8 @@ model Proyecto {
   estado            String?
   comentarios       String?
   organizacionId    String
+  organizacion      Organizacion               @relation(fields: [organizacionId], references: [id])
+
   actas             ActaAceptacion[]
   actores           Actor[]
   educciones        Educcion[]
@@ -54,10 +56,11 @@ model Proyecto {
   expertos          Experto[]
   fuentes           Fuente[]
   interfaces        Interfaz[]
-  organizacion      Organizacion               @relation(fields: [organizacionId], references: [id])
   relaciones        RelacionEntidad[]
   rnfs              RequerimientoNoFuncional[]
   riesgos           Riesgo[]
+
+  @@unique([codigo, organizacionId]) // Restricción compuesta: código único por organización
 }
 
 model ActaAceptacion {
@@ -284,4 +287,12 @@ model Artefacto {
   id       String @id @default(uuid())
   nombre   String @unique
   nemonico String @unique
+}
+
+model Contador {
+  id         String   @id @default(uuid())
+  entidad    String   // Nombre de la tabla hija, como "educcion", "ilacion", etc.
+  contextoId String   // ID del "padre", como "proyectoId"
+  contador   Int      @default(0) // Valor del contador
+  @@unique([entidad, contextoId]) // Un contador único por entidad y contexto
 }

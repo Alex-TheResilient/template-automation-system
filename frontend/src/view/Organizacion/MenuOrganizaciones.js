@@ -91,6 +91,7 @@ const MenuOrganizaciones = () => {
         }
     };
 
+
     //BusquedaPorNombre
     const [searchTerm, setSearchTerm] = useState('');
     const handleSearchNombre = async () => {
