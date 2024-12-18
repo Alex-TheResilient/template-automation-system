@@ -1,14 +1,19 @@
 // backend/src/routes/proyecto.routes.ts
-import express from 'express';
+import { Router } from 'express';
 import * as proyectoController from '../controllers/proyecto.controller';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/', proyectoController.getProyectos); // Leer todos los proyectos
-router.get('/next-code', proyectoController.getNextCode);
-router.post('/', proyectoController.createProyecto); // Crear un proyecto
-router.put('/:id', proyectoController.updateProyecto); // Actualizar un proyecto
-router.delete('/:id', proyectoController.deleteProyecto); // Eliminar un proyecto
-router.get('/:id', proyectoController.getProyectoById); // Leer un proyecto por ID
+router.get('/organizations/:orgcod/projects', proyectoController.getProyectosByOrganizacion); // Listar proyectos
+
+// CRUD de Proyectos
+router.post('/organizations/:orgcod/projects', proyectoController.createProyecto); // Crear proyecto
+router.get('/organizations/:orgcod/projects/:projcod', proyectoController.getProyectoByOrgAndCode); // Detalles de proyecto
+router.put('/organizations/:orgcod/projects/:projcod', proyectoController.updateProyecto); // Actualizar proyecto
+router.delete('/organizations/:orgcod/projects/:projcod', proyectoController.deleteProyecto); // Eliminar proyecto
+
+// Otros endpoints
+router.get('/organizations/:orgcod/next-code', proyectoController.getNextCode);
+// router.get('/organizations/:orgcod/proyectos, royectoController.getProyectosByOrganizacion);
 
 export default router;

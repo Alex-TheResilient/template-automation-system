@@ -77,6 +77,26 @@ export const getOrganizacionByCodigo = async (req: Request, res: Response) => {
     }
 };
 
+export const getProyectosByOrganizacion = async (req: Request, res: Response) => {
+    try {
+        const { orgcod } = req.params;
+
+        // Busca la organización y sus proyectos
+        const proyectos = await organizacionService.getProyectosByOrganizacion(orgcod);
+
+        if (!proyectos) {
+            return res
+                .status(404)
+                .json({ error: `No se encontraron proyectos para la organización ${orgcod}.` });
+        }
+
+        res.status(200).json(proyectos);
+    } catch (error) {
+        const err = error as Error;
+        console.error('Error al obtener proyectos por organización:', err.message);
+        res.status(500).json({ error: 'Error al obtener los proyectos de la organización.' });
+    }
+};
 
 export const updateOrganizacion = async (req: Request, res: Response) => {
     try {
@@ -255,21 +275,23 @@ export const exportToPDF = async (_req: Request, res: Response) => {
     }
 };
 
+// export const getProyectoByCodigo = async (req: Request, res: Response) => {
+//     try {
+//         const { orgcod, procod } = req.params;
 
-export const getOrganizacionWithProyectos = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
+//         // Llama al servicio para obtener el proyecto
+//         const proyecto = await organizacionService.getProyectoByCodigo(orgcod, procod);
 
-        const organizacion = await organizacionService.getOrganizacionWithProyectos(id);
+//         if (!proyecto) {
+//             return res
+//                 .status(404)
+//                 .json({ error: `No se encontró el proyecto ${procod} en la organización ${orgcod}.` });
+//         }
 
-        if (!organizacion) {
-            return res.status(404).json({ error: `Organización con ID ${id} no encontrada.` });
-        }
-
-        res.status(200).json(organizacion);
-    } catch (error) {
-        const err = error as Error;
-        console.error('Error al obtener la organización con proyectos:', err.message);
-        res.status(500).json({ error: 'Error al obtener la organización con proyectos.' });
-    }
-};
+//         res.status(200).json(proyecto);
+//     } catch (error) {
+//         const err = error as Error;
+//         console.error('Error al obtener el proyecto por código:', err.message);
+//         res.status(500).json({ error: 'Error al obtener el proyecto.' });
+//     }
+// };

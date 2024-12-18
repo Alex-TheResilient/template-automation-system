@@ -8,25 +8,31 @@ import "../../styles/styles.css";
 // URL Base del API
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
-
 const ListaProyectos = () => {
   // Variables de enrutamiento
   const location = useLocation();
   const navigate = useNavigate();
-  
-  //Proyecto
+
+  // Estado de proyectos y errores
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Obtener el código de organización desde los parámetros de consulta
+  const queryParams = new URLSearchParams(location.search);
+  const organizacionCodigo = queryParams.get("orgcod");
+
+  // Validar si existe el código de la organización
+  if (!organizacionCodigo) {
+    alert("No se encontró un código de organización válido.");
+    navigate("/menuOrganizaciones");
+  }
 
   // Estado para los parámetros de búsqueda
   const [searchNombre, setSearchNombre] = useState("");
   const [searchYear, setSearchYear] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
-  
-  // Obtener los parámetros de consulta
-  const queryParams = new URLSearchParams(location.search);
-  const organizacionCodigo = queryParams.get("orgcod") || "";
-  
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
   const months = [
@@ -36,34 +42,34 @@ const ListaProyectos = () => {
   
   // Navegaciones
   const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-  const irAMenuProyecto = (id) => navigate(`/menuProyecto?procod=${id}`);
-  const irAEditarProyecto = (code) => {
-      if (!code) {
-          alert("Código del proyecto no válido.");
-          return;
-      }
-      navigate(`/registroProyecto?code=${code}`);
-  };
+  const irAEditarProyecto = (orgcod, procod) => {
+    if (!orgcod || !procod) {
+        alert("Código de la organización o del proyecto no válido.");
+        return;
+    }
+    navigate(`/editarProyecto?orgcod=${orgcod}&procod=${procod}`);
+};
   const irARegistroProyecto = () => navigate(`/registroProyecto?orgcod=${organizacionCodigo}`);
   const irALogin = () => navigate("/");
+  const irAMenuProyecto = (id) => navigate(`/menuProyecto?procod=${id}`);
   
 
-  // Obtener proyectos
+  // Obtener proyectos asociados a la organización
   const fetchProjects = useCallback(async () => {
     if (!organizacionCodigo) {
-      console.error("El código de la organización no es válido.");
-      setError("El código de la organización no es válido.");
-      return;
+        console.error("El código de la organización no es válido.");
+        setError("El código de la organización no es válido.");
+        return;
     }
     try {
-      const response = await axios.get(`${API_BASE_URL}/proyectos`, {
-        params: { organizacionCodigo },
-      });
-      setProjects(response.data);
+        const response = await axios.get(`${API_BASE_URL}/organizations/${organizacionCodigo}/proyectos`);
+        setProjects(response.data || []); // Aquí asumimos que el backend devuelve un arreglo plano
+        setLoading(false); // Finalizar la carga
     } catch (err) {
-      setError(err.response?.data?.error || "Error al obtener los proyectos");
+        setError(err.response?.data?.error || "Error al obtener los proyectos");
+        setLoading(false); // Finalizar la carga en caso de error
     }
-  }, [organizacionCodigo]);
+}, [organizacionCodigo]);
   
   useEffect(() => {
     fetchProjects();
@@ -96,20 +102,19 @@ const ListaProyectos = () => {
     }
   };
 
-  // Función para eliminar un proyecto
-  const deleteProject = async (procod) => {
+  // Eliminar un proyecto
+  const deleteProject = async (codigo) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
       try {
-        // Llamada a la API usando la URL base de la variable de entorno
-      await axios.delete(`${API_BASE_URL}/projects/${procod}`);
-      fetchProjects();
-      alert("Proyecto eliminado correctamente.");
-    } catch (err) {
-      console.error("Error al eliminar el proyecto:", err.response?.data || err.message);
-      alert(`Hubo un error al eliminar el proyecto: ${err.response?.data?.error || err.message}`);
+        await axios.delete(`${API_BASE_URL}/proyectos/${codigo}`);
+        fetchProjects(); // Actualizar la lista después de eliminar
+        alert("Proyecto eliminado correctamente.");
+      } catch (err) {
+        console.error("Error al eliminar el proyecto:", err.response?.data || err.message);
+        alert(`Error al eliminar el proyecto: ${err.response?.data?.error || err.message}`);
+      }
     }
-  }
-};
+  };
 
   return (
     <div className="lista-container">
@@ -137,7 +142,7 @@ const ListaProyectos = () => {
         </aside>
 
         <main className="lista-content">
-          <h2>MOCAR COMPANY</h2>
+          <h2>Proyectos de la Organización {organizacionCodigo}</h2>
           <section className="lista-organizations-section">
             <div className="lista-search-section-bar">
               <button
@@ -226,7 +231,7 @@ const ListaProyectos = () => {
                             className="botton-crud"
                             onClick={(e) => {
                               e.stopPropagation();
-                              irAEditarProyecto(pro.codigo);
+                              irAEditarProyecto(organizacionCodigo, pro.codigo);
                             }}
                           >
                             <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -258,7 +263,11 @@ const ListaProyectos = () => {
             </div>
 
             <h4 className="lista-h4">
-              {projects.length === 0 ? (
+              {loading ? (
+                <p>Cargando proyectos...</p>
+              ) : error ? (
+                <p className="error-message">{error}</p>
+              ) : projects.length === 0 ? (
                 <p>No hay proyectos registrados para esta organización.</p>
               ) : (
                 <table className="lista-centertabla">

@@ -8,105 +8,73 @@ import '../../styles/styles.css';
 const RegistroProyecto = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const projectToEdit = location.state?.project || null; // Obtener datos del proyecto si existen
     
-    // Campos controlados por el usuario
-    const [nombre, setNombre] = useState(projectToEdit?.nombre || "");
-    const [descripcion, setDescripcion] = useState(projectToEdit?.descripcion || "");
-    const [estado, setEstado] = useState(projectToEdit?.estado || "Activo");
-    const [comentarios, setComentarios] = useState(projectToEdit?.comentarios || "");
-
-    // Campos automáticos
-    const [codigo, setCodigo] = useState(projectToEdit?.codigo || "");
-    const [version, setVersion] = useState(projectToEdit?.version || "0.01");
-    
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
-    
-    // Fechas del proyecto
-    const [fechaCreacion, setFechaCreacion] = useState(
-        projectToEdit?.fechaCreacion
-        ? new Date(projectToEdit.fechaCreacion).toLocaleDateString("es-ES")
-        : new Date().toLocaleDateString("es-ES") // Fecha actual para un nuevo proyecto
-    );
-    const [fechaModificacion, setFechaModificacion] = useState(
-        projectToEdit?.fechaModificacion
-        ? new Date(projectToEdit.fechaModificacion).toLocaleDateString("es-ES")
-        : "N/A"
-    );
-
-    const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-    const irAListaProyecto = () => navigate(`/listaProyectos?orgcod=${orgcod}`);
-    const irALogin = () => navigate("/");
-    const irAMenuProyectos = () => { navigate(`/listaProyectos?orgcod=${organizacionCodigo}`); };
-
+    // Obtener el código de organización desde los parámetros de la URL
     const queryParams = new URLSearchParams(location.search);
-    const orgcod = queryParams.get("orgcod");
-    const projectCode = queryParams.get("code");
+    const organizacionCodigo = queryParams.get("orgcod");
     
-    const organizacionCodigo = queryParams.get("orgcod") || location.state?.organizacionId || projectToEdit?.organizacionId;
     if (!organizacionCodigo) {
         alert("No se encontró un código de organización válido.");
         navigate("/menuOrganizaciones");
     }
+
+    // Estados controlados por el usuario
+    const [nombre, setNombre] = useState("");
+    const [descripcion, setDescripcion] = useState("");
+    const [estado, setEstado] = useState("Activo");
+    const [comentarios, setComentarios] = useState("");
+
+    // Estados automáticos
+    const [codigo, setCodigo] = useState("");
+    const [version, setVersion] = useState("00.01");
+    const [fechaCreacion, setFechaCreacion] = useState(
+        new Date().toLocaleDateString("es-ES")
+    );
+    const [fechaModificacion] = useState("No aplica"); // Valor predeterminado para nuevos proyectos
     
-    // Obtener datos predefinidos del backend
+    const [error, setError] = useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
+    // Obtener el siguiente código del proyecto automáticamente al cargar
     useEffect(() => {
-        console.log("Valor de orgcod:", orgcod);
-        if (!projectToEdit) {
-          // Si no estamos editando, cargar un nuevo código automáticamente
-          const fetchAutomaticData = async () => {
+        const fetchNextCodigo = async () => {
             try {
-              const response = await axios.get(`${API_BASE_URL}/proyectos/next-code`);
-              const nextCode = response.data.nextCode || "PROJ-001";
-              setCodigo(nextCode);
+                const response = await axios.get(`${API_BASE_URL}/proyectos/next-code/${organizacionCodigo}`);
+                setCodigo(response.data.nextCode || "PROY-001");
             } catch (err) {
-              console.error("Error al obtener el siguiente código:", err);
+                console.error("Error al obtener el siguiente código:", err);
+                setError("No se pudo cargar el siguiente código del proyecto.");
             }
-          };
-          fetchAutomaticData();
-        }
-    }, [API_BASE_URL, projectToEdit]);
+        };
+        fetchNextCodigo();
+    }, [API_BASE_URL, organizacionCodigo]); 
 
-
-    // Función para registrar o actualizar el proyecto
-    const handleRegisterOrUpdate = async (e) => {
+    // Función para registrar el proyecto
+    const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            if (!organizacionCodigo) {
-                alert("Es necesario un ID de organización para registrar el proyecto.");
-                return;
-            }
-            if (projectToEdit) {
-                // Actualizar proyecto existente
-                await axios.put(`${API_BASE_URL}/proyectos/${projectToEdit.id}`, {
-                    nombre,
-                    descripcion,
-                    estado,
-                    comentarios,
-                    organizacionCodigo,
-                });
-                alert("Proyecto actualizado correctamente");
-            } else {
-                // Crear un nuevo proyecto
-                await axios.post(`${API_BASE_URL}/proyectos`, {
-                    nombre,
-                    descripcion,
-                    estado,
-                    comentarios,
-                    organizacionCodigo,
-                });
-                alert("Proyecto registrado correctamente");
-            }
+            await axios.post(`${API_BASE_URL}/proyectos`, {
+                nombre,
+                descripcion,
+                estado,
+                comentarios,
+                organizacionCodigo,
+            });
+            alert("Proyecto registrado correctamente");
             navigate(`/listaProyectos?orgcod=${organizacionCodigo}`);
         } catch (err) {
-            if (err.response) {
-                // Mostrar error específico del backend
-                alert(`Error: ${err.response.data.error || "No se pudo completar la solicitud"}`);
-            } else {
-                alert("Error al registrar/actualizar el proyecto. Inténtalo nuevamente.");
-            }
-        }        
+            console.error("Error al registrar el proyecto:", err);
+            setError(
+                err.response?.data?.error || "No se pudo registrar el proyecto. Inténtalo nuevamente."
+            );
+        }
     };
+        
+    const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
+    const irAMenuProyectos = () => { navigate(`/listaProyectos?orgcod=${organizacionCodigo}`); };
+    const irAListaProyecto = () => navigate(`/listaProyectos?orgcod=${organizacionCodigo}`);
+    const irALogin = () => navigate("/");
     
     return (
         <div className="rp-container">
@@ -132,7 +100,7 @@ const RegistroProyecto = () => {
                 </aside>
 
                 <main className="rp-content">
-                    <h2>{projectToEdit ? "EDITAR PROYECTO" : "NUEVO PROYECTO"}</h2>
+                    <h2>Nuevo Proyecto</h2>
                     <section className="rp-organization">
                         <h3>
                             <label className="rp-codigo">Código </label>
@@ -220,7 +188,7 @@ const RegistroProyecto = () => {
 
                         <div className="rp-buttons">
                             <button onClick={irAListaProyecto} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={handleRegisterOrUpdate} className="rp-button" size="50">Registrar Proyecto</button>
+                            <button onClick={handleRegister} className="rp-button">Registrar Proyecto</button>
                         </div>
                     </section>
                 </main>

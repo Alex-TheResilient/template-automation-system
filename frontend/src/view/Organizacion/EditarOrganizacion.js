@@ -1,14 +1,13 @@
+// frontend/src/view/Organizacion/EditarOrganizacion.js
 import React, { useState, useEffect } from "react";
-import { useNavigate,  useLocation } from "react-router-dom";
+import { useNavigate,  useLocation, useParams } from "react-router-dom";
 import '../../styles/stylesRegistroOrganizacion.css';
 import '../../styles/styles.css';
 import axios from "axios";
 
 const EditarOrganizacion = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const orgcod = queryParams.get("orgcod"); // Código de la organización desde la URL
+    const { orgcod } = useParams(); // Extraer orgcod desde la URL dinamica
 
     // Estados para los datos de la organización
     const [id, setId] = useState(""); // Estado para almacenar el ID único
@@ -38,7 +37,7 @@ const EditarOrganizacion = () => {
         // Obtener los datos de la organización para editar
         const fetchOrganizationData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/organizations/buscar-por-codigo/${orgcod}`);
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}`);
                 const orgData = response.data;
 
                 // Actualizar estados con los datos obtenidos
@@ -64,16 +63,16 @@ const EditarOrganizacion = () => {
         fetchOrganizationData();
     }, [API_BASE_URL, orgcod]);
 
+    // Redirigir al menú de organizaciones
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
 
-    // Función para editar la organización
     // Función para actualizar la organización
     const handleEdit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${API_BASE_URL}/organizations/${id}`, {
+            await axios.put(`${API_BASE_URL}/organizations/${orgcod}`, {
                 nombre,
                 direccion,
                 telefono: telefonoOrganizacion,
@@ -86,7 +85,7 @@ const EditarOrganizacion = () => {
                 comentarios: comentario,
             });
             alert("Organización editada correctamente");
-            navigate("/menuOrganizaciones");
+            navigate("/organizations");
         } catch (err) {
             console.error("Error al editar la organización:", err);
             setError("Error al editar la organización.");
@@ -228,9 +227,7 @@ const EditarOrganizacion = () => {
                         {error && <div className="error-message">{error}</div>}
 
                         <div className="ro-cod-vers">
-                            <button className="ro-button" onClick={handleEdit}>
-                                {orgcod ? "Guardar Cambios" : "Registrar Organización"}
-                            </button>
+                            <button className="ro-button" onClick={handleEdit}>Guardar Cambios</button>
                             <button onClick={irAMenuOrganizaciones} className="ro-button">Cancelar</button>
                         </div>
                     </section>

@@ -6,94 +6,85 @@ import '../../styles/stylesRegistroProyecto.css';
 import '../../styles/styles.css';
 
 const EditarProyecto = () => {
-    
     const navigate = useNavigate();
-    const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-    const irAListaProyecto = () => navigate("/listaProyectos");
-    const irALogin = () => navigate("/");
-
     const location = useLocation();
+    
     const queryParams = new URLSearchParams(location.search);
-    const code = queryParams.get('code');
-      // Obtiene el ID de la organización desde la URL
+    const orgcod = queryParams.get('orgcod'); // Código de la organización
+    const procod = queryParams.get('procod'); // Código del proyecto
 
-    //const { id } = useParams(); // Obtener el ID del proyecto desde la URL
-    console.log("ID del proyecto:", code);
-    // Valores iniciales
+    // Estados del proyecto
     const [codigoProyecto, setCodigoProyecto] = useState("");
-    const [versionProyecto, setVersionProyecto] = useState("0.01");
-    const [nombreProyecto, setNombreProyecto] = useState(""); 
+    const [versionProyecto, setVersionProyecto] = useState("");
+    const [nombreProyecto, setNombreProyecto] = useState("");
     const [fechaCreacionProyecto, setFechaCreacionProyecto] = useState("");
     const [fechaModificacionProyecto, setFechaModificacionProyecto] = useState("");
     const [estadoProyecto, setEstadoProyecto] = useState("");
     const [comentariosProyecto, setComentariosProyecto] = useState("");
 
+    const [error, setError] = useState(null);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
+    const irAListaProyecto = () => navigate("/listaProyectos");
+    const irALogin = () => navigate("/");
+
     // Cargar los datos del proyecto al montar el componente
     useEffect(() => {
-        if (code) {
-            // Fetch data de la organización a editar
-            const fetchOrganizationData = async () => {
+        if (orgcod && procod) {
+            const fetchProjectData = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/projects/buscar/${code}`);
-                    const proyData = response.data;
-                    setCodigoProyecto(proyData.code);
-                    setNombreProyecto(proyData.name);
-                    setFechaCreacionProyecto(proyData.creationDate);
-                    setFechaModificacionProyecto(proyData.modificationDate);
-                    setEstadoProyecto(proyData.status);
-                    setComentariosProyecto(proyData.comments);
-                    console.log("Proyecto extraido:", response.data);
-                    
-                } catch (error) {
-                    console.error("Error al cargar el proyecto:", error);
-                    alert("Error al cargar el proyecto");
+                    const response = await axios.get(
+                        `${API_BASE_URL}/organizations/${orgcod}/proyectos/${procod}`
+                    );
+                    const project = response.data;
+                    setCodigoProyecto(project.codigo);
+                    setNombreProyecto(project.nombre);
+                    setVersionProyecto(project.version);
+                    setFechaCreacionProyecto(
+                        new Date(project.fechaCreacion).toLocaleDateString()
+                    );
+                    setFechaModificacionProyecto(
+                        project.fechaModificacion
+                            ? new Date(project.fechaModificacion).toLocaleDateString()
+                            : "N/A"
+                    );
+                    setEstadoProyecto(project.estado || "Activo");
+                    setComentariosProyecto(project.comentarios || "");
+                } catch (err) {
+                    console.error("Error al cargar los datos del proyecto:", err);
+                    setError("Error al cargar los datos del proyecto.");
                 }
+            };
 
-            };
-            fetchOrganizationData();
-           
+            fetchProjectData();
         } else {
-            // Si no existe orgcod, es un nuevo registro, precargar datos automáticos
-            const fetchAutomaticData = async () => {
-                try {
-                    const response = await axios.get("http://localhost:5000/api/projects/last");
-                    const nextCode = response.data.nextCode || "PROJ-001";
-                    setCodigoProyecto(nextCode);
-                    setFechaModificacionProyecto(new Date().toLocaleDateString());
-                } catch (error) {
-                    console.error("Error al obtener datos automáticos:", error);
-                    alert("No se pudieron cargar los datos automáticos.");
-                }
-            };
-            fetchAutomaticData();
+            alert("Código de organización o proyecto no encontrado.");
+            navigate("/menuOrganizaciones");
         }
-    }, [code]);
+    }, [orgcod, procod, API_BASE_URL, navigate]);
 
     // Manejar la actualización del proyecto
     const handleUpdate = async (e) => {
-        //console.log("ID del proyecto para modificar:", code);
-        //console.log("Endpoint:", `http://localhost:5000/api/projects/${code}`);
-        //console.log("Datos enviados:", proyData);
         e.preventDefault();
         try {
-            const response = await axios.put(`http://localhost:5000/api/projects/proyectos/${code}`, {
-                code: codigoProyecto,
-                name: nombreProyecto,
-                creationDate: fechaCreacionProyecto,
-                modificationDate: fechaModificacionProyecto,
-                status: estadoProyecto,
-                comments: comentariosProyecto,
-                
-            });
-            console.log("Proyecto modificados:", response.data);
-            if (response.status === 200) {
-                alert("Proyecto editada correctamente");
-                irAListaProyecto();
-            }
-        } catch (error) {
-            console.error("Error al editar el proyecto: " + error);
+            await axios.put(
+                `${API_BASE_URL}/organizations/${orgcod}/proyectos/${procod}`,
+                {
+                    nombre: nombreProyecto,
+                    estado: estadoProyecto,
+                    comentarios: comentariosProyecto,
+                    fechaModificacion: new Date().toISOString(), // Actualizar automáticamente la fecha
+                }
+            );
+            alert("Proyecto actualizado correctamente");
+            navigate(`/listaProyectos?orgcod=${orgcod}`);
+        } catch (err) {
+            console.error("Error al actualizar el proyecto:", err);
+            setError("Error al actualizar el proyecto.");
         }
     };
+    
     return (
         <div className="rp-container">
             <header className="rp-header">
@@ -130,7 +121,7 @@ const EditarProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={codigoProyecto}  
+                                    value={procod}  
                                     readOnly
                                     size="50"
                                 />
@@ -221,8 +212,8 @@ const EditarProyecto = () => {
                             ></textarea>
                         </div>
                         <div className="rp-buttons">
-                    <button onClick={() => navigate("/listaProyectos")} className="rp-button">Cancelar</button>
-                    <button onClick={handleUpdate} className="rp-button">{code? "Guardar Cambios" : "Registrar Proyecto"}</button>
+                    <button onClick={() => navigate(`/listaProyectos?orgcod=${orgcod}`)} className="rp-button">Cancelar</button>
+                    <button onClick={handleUpdate} className="rp-button">{procod? "Guardar Cambios" : "Registrar Proyecto"}</button>
                 </div>
                     </section>
                 </main>

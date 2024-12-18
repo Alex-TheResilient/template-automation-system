@@ -20,7 +20,7 @@ const Login = () => {
             });            
             console.log("Login successful, token received:", response.data.token);
             localStorage.setItem("token", response.data.token);
-            navigate("/menuOrganizaciones");
+            navigate("/organizations");
         } catch (err) {
             console.error("Login error:", err);
             setError(err.response ? err.response.data.message : "Login failed");

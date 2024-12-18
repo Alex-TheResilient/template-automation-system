@@ -1,3 +1,4 @@
+// frontend/src/view/Organizacion/MenuOrganizaciones.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -12,11 +13,10 @@ const MenuOrganizaciones = () => {
     const navigate = useNavigate();
     
     const irALogin = () => navigate("/");
-    const irAListaProyecto = (orgcod) => navigate(`/listaProyectos?orgcod=${orgcod}`);
-    const irARegistroOrganizacion = () => navigate("/registroOrganizaciones");
-    const irAEditarOrganizacion = (orgcod) => {
-        navigate(`/editarOrganizacion?orgcod=${orgcod}`);
-    };    
+    const irAListaProyecto = (orgcod) => navigate(`/organizations/${orgcod}/projects`);
+    const irARegistroOrganizacion = () => navigate("/organizations/new");
+    const irAEditarOrganizacion = (orgcod) => navigate(`/organizations/${orgcod}`);
+   
 
     // Organizacion 
     const [mainOrganization, setMainOrganization] = useState(null);

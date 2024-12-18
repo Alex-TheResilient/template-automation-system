@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 // Definir rutas
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/organizations', organizacionRoutes);
-app.use('/api/v1/proyectos', proyectoRoutes);
+app.use('/api/v1', proyectoRoutes); // Rutas de proyectos y educciones
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
 initSystem()

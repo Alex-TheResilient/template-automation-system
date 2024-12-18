@@ -51,6 +51,21 @@ export const getOrganizacionById = async (id: string) => {
     });
 };
 
+export const getProyectosByOrganizacion = async (orgcod: string) => {
+    // Buscar la organización por su código
+    const organizacion = await prisma.organizacion.findUnique({
+        where: { codigo: orgcod },
+        include: { proyectos: true }, // Incluye los proyectos relacionados
+    });
+
+    if (!organizacion) {
+        throw new Error(`Organización con código ${orgcod} no encontrada.`);
+    }
+
+    return organizacion.proyectos; // Devuelve solo los proyectos
+};
+
+
 // Actualizar una organización
 export const updateOrganizacion = async (id: string, data: Partial<Organizacion>) => {
     const existingOrganizacion = await prisma.organizacion.findUnique({ where: { id } });
@@ -178,9 +193,29 @@ const handlePrismaError = async (operation: () => Promise<any>) => {
 };
 
 // Obtener una Organización con sus Proyectos:
-export const getOrganizacionWithProyectos = async (id: string) => {
+export const getOrganizacionWithProyectosByCodigo = async (codigo: string) => {
     return await prisma.organizacion.findUnique({
-        where: { id },
-        include: { proyectos: true },
+        where: { codigo }, // Buscar por el campo `codigo`
+        include: { proyectos: true }, // Incluir los proyectos asociados
     });
 };
+
+// export const getProyectoByCodigo = async (orgcod: string, procod: string) => {
+//     // Buscar la organización por su código
+//     const organizacion = await prisma.organizacion.findUnique({
+//         where: { codigo: orgcod },
+//     });
+
+//     if (!organizacion) {
+//         throw new Error(`Organización con código ${orgcod} no encontrada.`);
+//     }
+
+//     // Buscar el proyecto dentro de la organización
+//     return await prisma.proyecto.findFirst({
+//         where: {
+//             codigo: procod,
+//             organizacionId: organizacion.id, // Usar el ID de la organización
+//         },
+//     });
+// };
+

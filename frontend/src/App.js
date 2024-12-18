@@ -42,17 +42,31 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/organizations" element={<MenuOrganizaciones />} />
+          <Route path="/organizations/new" element={<RegistroOrganizacion />} />
+          <Route path="/organizations/:orgcod" element={<EditarOrganizacion />} />
+
           <Route
-                path="/menuOrganizaciones"
-                element={
-                    <PrivateRoute>
-                        <MenuOrganizaciones />
-                    </PrivateRoute>
-                }
+            path="/organizations/:orgcod/projects"
+            element={<ListaProyectos />}
           />
+          <Route
+              path="/organizations/:orgcod/projects/new"
+              element={<RegistroProyecto />}
+          />
+          <Route
+            path="/organizations/:orgcod/projects/:projcod"
+            element={<EditarProyecto />}
+          />
+          <Route
+            path="/projects/:projcod/educciones"
+            element={<MenuProyecto />}
+          />
+          {/* <Route path="/listaProyectos" element={<ListaProyectos />} />
           <Route path="/registroOrganizaciones" element={<RegistroOrganizacion />} />
-          <Route path="/listaProyectos" element={<ListaProyectos />} />
-          <Route path="/registroProyecto" element={<RegistroProyecto />} />
+          <Route path="/editarOrganizacion" element={<EditarOrganizacion />} />
+          <Route path="/editarProyecto" element={<EditarProyecto />} />
+          <Route path="/registroProyecto" element={<RegistroProyecto />} /> */}
           <Route path="/menuProyecto" element={<MenuProyecto />} />
           <Route path="/actaAceptacion" element={<ActaAceptacion />} />
           <Route path="/autores" element={<Autores />} />
@@ -64,8 +78,6 @@ function App() {
           <Route path="/entrevistas" element={<Entrevistas />} />
           <Route path="/nuevaEntrevista" element={<NuevaEntrevista />} />
           <Route path="/editarEntrevista" element={<EditarEntrevista />} />
-          <Route path="/editarOrganizacion" element={<EditarOrganizacion />} />
-          <Route path="/editarProyecto/:id" element={<EditarProyecto />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/plantillas" element={<Plantillas />} />

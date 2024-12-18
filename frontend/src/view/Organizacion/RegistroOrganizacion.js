@@ -51,7 +51,8 @@ const RegistroOrganizacion = () => {
         fetchNextCode();
     }, [API_BASE_URL]);
 
-    const irAMenuOrganizaciones = () => { navigate("/menuOrganizaciones"); };
+    // Redirigir a la lista de organizaciones
+    const irAMenuOrganizaciones = () => { navigate("/organizations"); };
 
     // Registrar una nueva organización
     const handleRegister = async (e) => {
