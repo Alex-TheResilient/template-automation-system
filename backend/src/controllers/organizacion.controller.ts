@@ -100,14 +100,17 @@ export const getProyectosByOrganizacion = async (req: Request, res: Response) =>
 
 export const updateOrganizacion = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const { orgcod } = req.params; // Extraer orgcod de los parámetros
         const data = req.body;
 
+        // Validar que el nombre no sea vacío
         if (data.nombre && data.nombre.trim() === '') {
             return res.status(400).json({ error: 'El nombre no puede estar vacío.' });
         }
 
-        const updatedOrganizacion = await organizacionService.updateOrganizacion(id, data);
+        // Llamar al servicio para actualizar la organización por orgcod
+        const updatedOrganizacion = await organizacionService.updateOrganizacionByCodigo(orgcod, data);
+
         res.status(200).json({
             message: 'Organización actualizada con éxito.',
             organizacion: updatedOrganizacion,

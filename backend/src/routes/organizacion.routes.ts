@@ -14,7 +14,7 @@ router.get('/:orgcod/proyectos', organizacionController.getProyectosByOrganizaci
 // CRUD Operations
 router.get('/', organizacionController.getOrganizaciones); // Listar todas las organizaciones
 router.post('/', organizacionController.createOrganizacion); // Crear una nueva organización
-router.put('/:orgcod', organizacionController.updateOrganizacion);
+router.put('/:orgcod', organizacionController.updateOrganizacion); // Actualizar organización por código
 router.delete('/:id', organizacionController.deleteOrganizacion); // Eliminar una organización por ID
 router.get('/:id', organizacionController.getOrganizacionById); // Obtener detalles de una organización por ID
 

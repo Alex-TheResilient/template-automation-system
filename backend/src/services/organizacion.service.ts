@@ -66,15 +66,20 @@ export const getProyectosByOrganizacion = async (orgcod: string) => {
 };
 
 
-// Actualizar una organización
-export const updateOrganizacion = async (id: string, data: Partial<Organizacion>) => {
-    const existingOrganizacion = await prisma.organizacion.findUnique({ where: { id } });
-    if (!existingOrganizacion) throw new Error('Organización no encontrada');
+// Actualizar una organización por código
+export const updateOrganizacionByCodigo = async (codigo: string, data: Partial<Organizacion>) => {
+    const existingOrganizacion = await prisma.organizacion.findUnique({
+        where: { codigo }, // Buscar por código (orgcod)
+    });
 
-    const newVersion = incrementVersion(existingOrganizacion.version); // Incrementar la versión
+    if (!existingOrganizacion) {
+        throw new Error('Organización no encontrada');
+    }
+
+    const newVersion = incrementVersion(existingOrganizacion.version); // Incrementar versión
 
     return await prisma.organizacion.update({
-        where: { id },
+        where: { codigo }, // Actualizar por código (orgcod)
         data: {
             ...data,
             version: newVersion, // Actualizar versión
