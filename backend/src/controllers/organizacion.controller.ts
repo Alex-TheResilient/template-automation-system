@@ -171,11 +171,17 @@ export const getNextCode = async (_req: Request, res: Response) => {
 export const searchOrganizaciones = async (req: Request, res: Response) => {
     try {
         const { nombre } = req.query;
+        
+        console.log('Término de búsqueda:', nombre); // Para depuración
+        
         const organizaciones = await organizacionService.searchOrganizacionesByName(nombre as string);
+        
+        console.log('Resultados encontrados:', organizaciones.length); // Para depuración
+        
         res.status(200).json(organizaciones);
     } catch (error) {
-        const err = error as Error;
-        res.status(500).json({ error: err.message });
+        console.error('Error en la búsqueda:', error);
+        res.status(500).json({ error: 'Error al buscar organizaciones' });
     }
 };
 

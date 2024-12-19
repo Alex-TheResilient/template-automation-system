@@ -177,14 +177,27 @@ export const initializeMainOrganization = async () => {
 };
 
 //BusquedaPorNombre
-export const searchOrganizacionesByName = async (nombre: string) => {
+export const searchOrganizacionesByName = async (nombre: string | undefined) => {
+    // Si no hay nombre o está vacío, retornar todas las organizaciones
+    if (!nombre || nombre.trim() === '') {
+        return await prisma.organizacion.findMany({
+            orderBy: {
+                nombre: 'asc'
+            }
+        });
+    }
+
+    // Buscar organizaciones que coincidan con el nombre (parcial)
     return await prisma.organizacion.findMany({
         where: {
             nombre: {
                 contains: nombre,
-                mode: 'insensitive', // Búsqueda sin importar mayúsculas o minúsculas
-            },
+                mode: 'insensitive' // No distingue entre mayúsculas y minúsculas
+            }
         },
+        orderBy: {
+            nombre: 'asc'
+        }
     });
 };
 
