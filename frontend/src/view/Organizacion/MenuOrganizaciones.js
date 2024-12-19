@@ -94,12 +94,18 @@ const MenuOrganizaciones = () => {
 
     //BusquedaPorNombre
     const [searchTerm, setSearchTerm] = useState('');
+    const [noResult, setNotResult] = useState(false);
+
     const handleSearchNombre = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/organizations/search?nombre=${searchTerm}`);
             setOrganizations(response.data);
+            
+            setNotResult(response.data.length === 0);
+            setError(null);
         } catch (error) {
             console.error('Error al buscar organizaciones:', error);
+            setError(error.response?.data?.error || "Error al buscar organizaciones");
         }
     };
 
@@ -249,9 +255,15 @@ const MenuOrganizaciones = () => {
                             </div>
                         </div>
                         {/* Listar Organizaciones  */}
-                        {error ? (
-                            <p>{error}</p>
-                        ) : (
+                        {error && <p>{error}</p>}
+                        {!error && noResult && (
+                            <div className="menu-tabla-center">
+                                <div className="no-result-message">
+                                    <p>No se encontraron organizaciones con el nombre "{searchTerm}"</p>
+                                    </div>
+                            </div>
+                        )}
+                        {!error && !noResult && (
                             <div className="menu-tabla-center">
                                 <table className="menu-centertabla">
                                     <thead>
@@ -262,7 +274,6 @@ const MenuOrganizaciones = () => {
                                             <th>Versión</th>
                                             <th>Opciones</th>
                                         </tr>
-
                                     </thead>
                                     <tbody>
                                         {organizations.map((org) => (
