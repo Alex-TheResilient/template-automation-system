@@ -10,6 +10,7 @@ router.get('/next-code', organizacionController.getNextCode); // Siguiente códi
 
 // Search
 router.get('/search', organizacionController.searchOrganizaciones); // Buscar organizaciones por nombre
+router.get('/search/date', organizacionController.searchOrganizacionesByDate); // Buscar organizaciones por fecha(mes y año)
 // Export Routes
 router.get('/exports/excel', organizacionController.exportToExcel); // Exportar organizaciones a Excel
 router.get('/exports/pdf', organizacionController.exportToPDF); // Exportar organizaciones a PDF

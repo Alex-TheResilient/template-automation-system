@@ -1,5 +1,6 @@
 // backend/src/services/organizacion.service.ts
 import { PrismaClient, Organizacion } from '@prisma/client';
+import { parse } from 'path';
 
 const prisma = new PrismaClient();
 
@@ -142,37 +143,37 @@ export const getMainOrganization = async () => {
     return await prisma.organizacion.findUnique({
         where: { codigo: 'ORG-MAIN' },
     });
-    
+
 };
 
 // Función para inicializar la organización principal
 export const initializeMainOrganization = async () => {
     const mainOrgCode = 'ORG-MAIN'; // Código único para la organización principal
-  
+
     // Verificar si la organización principal ya existe
     const existingOrg = await prisma.organizacion.findUnique({
         where: { codigo: mainOrgCode },
     });
-  
+
     if (existingOrg) {
         console.log('La organización principal ya existe:', existingOrg.nombre);
         return;
     }
-  
+
     // Crear la organización principal si no existe
     const mainOrganization = await prisma.organizacion.create({
-      data: {
-        codigo: mainOrgCode,
-        version: '00.00', // Versión inicial
-        fechaCreacion: new Date(),
-        nombre: 'ReqWizard', // Nombre inicial
-        direccion: 'Dirección de la organización principal',
-        telefono: '777-0000',
-        estado: 'Activo',
-        comentarios: 'Esta es la organización principal del sistema.',
-      },
+        data: {
+            codigo: mainOrgCode,
+            version: '00.00', // Versión inicial
+            fechaCreacion: new Date(),
+            nombre: 'ReqWizard', // Nombre inicial
+            direccion: 'Dirección de la organización principal',
+            telefono: '777-0000',
+            estado: 'Activo',
+            comentarios: 'Esta es la organización principal del sistema.',
+        },
     });
-  
+
     console.log('Organización principal creada:', mainOrganization.nombre);
 };
 
@@ -197,6 +198,56 @@ export const searchOrganizacionesByName = async (nombre: string | undefined) => 
         },
         orderBy: {
             nombre: 'asc'
+        }
+    });
+};
+
+//Busqueda por mes y año
+export const searchOrganizacionesByDate = async (year?: string, month?: string) => {
+    //si no hay año ni mes, retorna todas las organizaciones
+    if (!year && !month) {
+        return await prisma.organizacion.findMany({
+            where:{
+                codigo: {not: 'ORG-MAIN'} //excluye la organizacion principal
+            },
+            orderBy: {
+                fechaCreacion: 'desc'
+            }
+        });
+    }
+    let startDate: Date;
+    let endDate: Date;
+
+    if (year && month) {
+        //busqueda por año y mes en especifico
+        startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        endDate = new Date(parseInt(year), parseInt(month), 0);
+    } else if (year) {
+        //busqueda solo por año
+        startDate = new Date(parseInt(year), 0, 1);
+        endDate = new Date(parseInt(year), 11, 31);
+    } else {
+        //busqueda solo por mes
+        const currentYear = new Date().getFullYear();
+        startDate = new Date(parseInt(year || currentYear.toString()), parseInt(month!) - 1, 1);
+        endDate = new Date(parseInt(year || currentYear.toString()), parseInt(month!), 0);
+    }
+    return await prisma.organizacion.findMany({
+        where: {
+            AND:[
+                {
+                    codigo : {not: 'ORG-MAIN'} //excluye la organizacion principal
+                }, 
+                {
+                    fechaCreacion: {
+                        gte: startDate,
+                        lte: endDate
+                    }
+                }
+            ]
+        },
+        orderBy: {
+            fechaCreacion: 'desc'
         }
     });
 };

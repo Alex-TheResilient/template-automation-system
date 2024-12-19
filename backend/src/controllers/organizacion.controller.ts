@@ -185,6 +185,27 @@ export const searchOrganizaciones = async (req: Request, res: Response) => {
     }
 };
 
+//busqueda por fecha(año y mes)
+export const searchOrganizacionesByDate = async (req: Request, res: Response) => {
+    try{
+        const {year, month} = req.query;
+        //si no hay criterio de busqueda, retorna todas las organizaciones
+        if(!year && !month){
+            const organizaciones = await organizacionService.searchOrganizacionesByDate();
+            res.status(200).json(organizaciones);   
+        }
+        const organizaciones = await organizacionService.searchOrganizacionesByDate(
+            year as string,
+            month as string
+        );
+        res.status(200).json(organizaciones);
+    }catch(error){
+        console.error('Error en la búsqueda por fecha', error);
+        res.status(500).json({ error: 'Error al buscar organizaciones por fecha' });
+    }
+};
+
+
 // Exportar Organizaciones a Excel
 export const exportToExcel = async (_req: Request, res: Response) => {
     try {
