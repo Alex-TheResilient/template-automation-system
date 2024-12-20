@@ -4,16 +4,14 @@ import * as proyectoController from '../controllers/proyecto.controller';
 
 const router = Router();
 
-router.get('/organizations/:orgcod/projects', proyectoController.getProyectosByOrganizacion); // Listar proyectos
+// Rutas relacionadas con Proyectos
+router.get('/organizations/:orgcod/projects', proyectoController.getProyectosByOrganizacion); // Listar proyectos de una organización
+router.post('/organizations/:orgcod/projects', proyectoController.createProyecto); // Crear un nuevo proyecto en una organización
+router.get('/organizations/:orgcod/projects/:projcod', proyectoController.getProyectoByOrgAndCode); // Obtener detalles de un proyecto específico
+router.put('/organizations/:orgcod/projects/:projcod', proyectoController.updateProyecto); // Actualizar un proyecto específico
+router.delete('/organizations/:orgcod/projects/:projcod', proyectoController.deleteProyecto); // Eliminar un proyecto específico
 
-// CRUD de Proyectos
-router.post('/organizations/:orgcod/projects', proyectoController.createProyecto); // Crear proyecto
-router.get('/organizations/:orgcod/projects/:projcod', proyectoController.getProyectoByOrgAndCode); // Detalles de proyecto
-router.put('/organizations/:orgcod/projects/:projcod', proyectoController.updateProyecto); // Actualizar proyecto
-router.delete('/organizations/:orgcod/projects/:projcod', proyectoController.deleteProyecto); // Eliminar proyecto
-
-// Otros endpoints
-router.get('/organizations/:orgcod/next-code', proyectoController.getNextCode);
-// router.get('/organizations/:orgcod/proyectos, royectoController.getProyectosByOrganizacion);
+// Endpoint para generar el siguiente código único para un proyecto
+router.get('/organizations/:orgcod/projects/next-code', proyectoController.getNextCode); // Obtener el siguiente código único para un proyecto
 
 export default router;

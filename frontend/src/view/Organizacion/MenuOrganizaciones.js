@@ -11,7 +11,7 @@ const MenuOrganizaciones = () => {
     const navigate = useNavigate();
     
     const irALogin = () => navigate("/");
-    const irAListaProyecto = (orgcod) => navigate(`/organizations/${orgcod}/projects`);
+    const irAListaProyectos = (orgcod) => navigate(`/organizations/${orgcod}/projects`);
     const irARegistroOrganizacion = () => navigate("/organizations/new");
     const irAEditarOrganizacion = (orgcod) => navigate(`/organizations/${orgcod}`);
    
@@ -280,8 +280,8 @@ const MenuOrganizaciones = () => {
                                     </thead>
                                     <tbody>
                                         {organizations.map((org) => (
-                                            <tr key={org.codigo} onClick={() => irAListaProyecto(org.codigo)}>
-                                                <td>{org.codigo}</td>
+                                            <tr key={org.codigo} onClick={() => irAListaProyectos(org.codigo)}>
+                                            <td>{org.codigo}</td>
                                                 <td>{org.nombre}</td>
                                                 <td>
                                                     {new Date(org.fechaCreacion).toLocaleDateString()}

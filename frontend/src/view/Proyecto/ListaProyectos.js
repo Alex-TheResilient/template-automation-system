@@ -1,37 +1,65 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import "../../styles/stylesListaProyectos.css";
 import "../../styles/styles.css";
 
-// URL Base del API
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
-
 const ListaProyectos = () => {
-  // Variables de enrutamiento
-  const location = useLocation();
-  const navigate = useNavigate();
-
+  const { orgcod } = useParams(); // Extraer el parámetro de la URL
+  
   // Estado de proyectos y errores
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Obtener el código de organización desde los parámetros de consulta
-  const queryParams = new URLSearchParams(location.search);
-  const organizacionCodigo = queryParams.get("orgcod");
-
-  // Validar si existe el código de la organización
-  if (!organizacionCodigo) {
-    alert("No se encontró un código de organización válido.");
-    navigate("/menuOrganizaciones");
-  }
-
+  
   // Estado para los parámetros de búsqueda
   const [searchNombre, setSearchNombre] = useState("");
   const [searchYear, setSearchYear] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
+
+  // Variables de enrutamiento
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+  // Navegaciones
+  const irAMenuOrganizaciones = () => navigate("/organizations");
+  const irAEditarProyecto = (orgcod, procod) => {
+    if (!orgcod || !procod) {
+        alert("Código de la organización o del proyecto no válido.");
+        return;
+    }
+    navigate(`/organizations/${orgcod}/projects/${procod}`);
+  };
+  const irARegistroProyecto = () => navigate(`/organizations/${orgcod}/projects/new`);
+  const irALogin = () => navigate("/");
+  const irAMenuProyecto = (orgcod, procod) => navigate(`/organizations/${orgcod}/projects/${procod}`);
+    
+  // Obtener proyectos asociados a la organización
+  const fetchProjects = useCallback(async () => {
+    if (!orgcod) {
+        console.error("El código de la organización no es válido.");
+        setError("El código de la organización no es válido.");
+        return;
+    }
+    try {
+        const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects`);
+        setProjects(response.data || []); // Aquí asumimos que el backend devuelve un arreglo plano
+        setLoading(false); // Finalizar la carga
+    } catch (err) {
+        setError(err.response?.data?.error || "Error al obtener los proyectos");
+        setLoading(false); // Finalizar la carga en caso de error
+    }
+  }, [orgcod, API_BASE_URL]);
+  
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div>{error}</div>;
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -39,68 +67,6 @@ const ListaProyectos = () => {
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
-  
-  // Navegaciones
-  const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-  const irAEditarProyecto = (orgcod, procod) => {
-    if (!orgcod || !procod) {
-        alert("Código de la organización o del proyecto no válido.");
-        return;
-    }
-    navigate(`/editarProyecto?orgcod=${orgcod}&procod=${procod}`);
-};
-  const irARegistroProyecto = () => navigate(`/registroProyecto?orgcod=${organizacionCodigo}`);
-  const irALogin = () => navigate("/");
-  const irAMenuProyecto = (id) => navigate(`/menuProyecto?procod=${id}`);
-  
-
-  // Obtener proyectos asociados a la organización
-  const fetchProjects = useCallback(async () => {
-    if (!organizacionCodigo) {
-        console.error("El código de la organización no es válido.");
-        setError("El código de la organización no es válido.");
-        return;
-    }
-    try {
-        const response = await axios.get(`${API_BASE_URL}/organizations/${organizacionCodigo}/proyectos`);
-        setProjects(response.data || []); // Aquí asumimos que el backend devuelve un arreglo plano
-        setLoading(false); // Finalizar la carga
-    } catch (err) {
-        setError(err.response?.data?.error || "Error al obtener los proyectos");
-        setLoading(false); // Finalizar la carga en caso de error
-    }
-}, [organizacionCodigo]);
-  
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-
-  // Función para buscar proyectos
-  const handleSearch = async () => {
-    try {
-      // Construye los parámetros dinámicamente para evitar enviar valores vacíos
-      const params = { organizacionCodigo };
-
-      if (searchNombre) {
-        params.nombre = searchNombre;
-      }
-      if (searchYear) {
-        params.year = searchYear;
-      }
-      if (searchMonth) {
-        params.month = searchMonth;
-      }
-
-      // Llamada a la API usando la URL base de la variable de entorno
-      const response = await axios.get(`${API_BASE_URL}/proyectos/search`, {
-        params,
-      });
-
-      setProjects(response.data); // Actualiza la lista de proyectos con los resultados
-    } catch (err) {
-      setError(err.response ? err.response.data.error : "Error al buscar proyectos");
-    }
-  };
 
   // Eliminar un proyecto
   const deleteProject = async (codigo) => {
@@ -115,6 +81,33 @@ const ListaProyectos = () => {
       }
     }
   };
+
+// Función para buscar proyectos
+const handleSearch = async () => {
+  try {
+    // Construye los parámetros dinámicamente para evitar enviar valores vacíos
+    const params = { orgcod };
+
+    if (searchNombre) {
+      params.nombre = searchNombre;
+    }
+    if (searchYear) {
+      params.year = searchYear;
+    }
+    if (searchMonth) {
+      params.month = searchMonth;
+    }
+
+    // Llamada a la API usando la URL base de la variable de entorno
+    const response = await axios.get(`${API_BASE_URL}/proyectos/search`, {
+      params,
+    });
+
+    setProjects(response.data); // Actualiza la lista de proyectos con los resultados
+  } catch (err) {
+    setError(err.response ? err.response.data.error : "Error al buscar proyectos");
+  }
+};
 
   return (
     <div className="lista-container">
@@ -142,7 +135,7 @@ const ListaProyectos = () => {
         </aside>
 
         <main className="lista-content">
-          <h2>Proyectos de la Organización {organizacionCodigo}</h2>
+          <h2>Proyectos de la Organización {orgcod}</h2>
           <section className="lista-organizations-section">
             <div className="lista-search-section-bar">
               <button
@@ -216,7 +209,7 @@ const ListaProyectos = () => {
                 </thead>
                   <tbody>
                     {projects.map((pro) => (
-                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.codigo)}>
+                      <tr key={pro.id} onClick={() => irAMenuProyecto(orgcod, pro.codigo)}>
                         <td>{pro.codigo}</td>
                         <td>{pro.nombre}</td>
                         <td>{new Date(pro.fechaCreacion).toLocaleDateString()}</td>
@@ -227,15 +220,17 @@ const ListaProyectos = () => {
                         </td>
                         <td>{pro.estado}</td>
                         <td>
+                          {/* Boton para editar un proyecto */}
                           <button
                             className="botton-crud"
                             onClick={(e) => {
                               e.stopPropagation();
-                              irAEditarProyecto(organizacionCodigo, pro.codigo);
+                              irAEditarProyecto(orgcod, pro.codigo);
                             }}
                           >
                             <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
                           </button>
+                          {/* Boton para eliminar un proyecto */}
                           <button
                             className="botton-crud"
                             onClick={(e) => {

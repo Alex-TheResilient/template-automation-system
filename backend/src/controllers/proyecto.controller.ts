@@ -1,15 +1,14 @@
 // backend/src/controllers/proyecto.controller.ts
 import { Request, Response } from 'express';
 import * as proyectoService from '../services/proyecto.service';
-import * as organizacionService from '../services/organizacion.service';
 
+// Crear un nuevo proyecto
 export const createProyecto = async (req: Request, res: Response) => {
     try {
         const { orgcod } = req.params;
-        const { codigo, nombre, descripcion, estado, comentarios } = req.body;
+        const { nombre, descripcion, estado, comentarios } = req.body;
 
         const newProyecto = await proyectoService.createProyecto(orgcod, {
-            codigo,
             nombre,
             descripcion,
             estado,
@@ -23,6 +22,7 @@ export const createProyecto = async (req: Request, res: Response) => {
     }
 };
 
+// Obtener un proyecto por ID
 export const getProyectoById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -35,56 +35,37 @@ export const getProyectoById = async (req: Request, res: Response) => {
     }
 };
 
+// Actualizar un proyecto
 export const updateProyecto = async (req: Request, res: Response) => {
+    const { orgcod, projcod } = req.params;
+    const data = req.body;
+
     try {
-        const { orgcod, procod } = req.params;
-        const { nombre, estado, comentarios } = req.body;
-
-        // Simula logs para depurar
-        console.log(`Actualizando proyecto: orgcod=${orgcod}, procod=${procod}`);
-
-        const organizacion = await organizacionService.getOrganizacionByCodigo(orgcod);
-        if (!organizacion) {
-            console.error(`Organización con código ${orgcod} no encontrada.`);
-            return res.status(404).json({ error: `Organización con código ${orgcod} no encontrada.` });
-        }
-
-        const proyecto = await proyectoService.getProyectoByCodigoAndOrganizacionId(
-            procod,
-            organizacion.id
-        );
-        if (!proyecto) {
-            console.error(`Proyecto con código ${procod} no encontrado en la organización ${orgcod}.`);
-            return res.status(404).json({
-                error: `Proyecto con código ${procod} no encontrado en la organización ${orgcod}.`,
-            });
-        }
-
-        const updatedProyecto = await proyectoService.updateProyecto(proyecto.id, {
-            nombre,
-            estado,
-            comentarios,
-            fechaModificacion: new Date(),
+        const proyectoActualizado = await proyectoService.updateProyecto(orgcod, projcod, data);
+        res.status(200).json({
+            message: 'Proyecto actualizado con éxito.',
+            proyecto: proyectoActualizado,
         });
-
-        res.status(200).json(updatedProyecto);
     } catch (err) {
-        console.error('Error al actualizar el proyecto:', err);
+        console.error('Error al actualizar proyecto:', err);
         res.status(500).json({ error: 'Error al actualizar el proyecto.' });
     }
 };
 
+// Eliminar un proyecto
 export const deleteProyecto = async (req: Request, res: Response) => {
+    const { orgcod, projcod } = req.params;
+
     try {
-        const { id } = req.params;
-        await proyectoService.deleteProyecto(id);
-        res.status(204).send();
+        const result = await proyectoService.deleteProyecto(orgcod, projcod);
+        res.status(200).json({ message: 'Proyecto eliminado exitosamente.' });
     } catch (error) {
         console.error('Error al eliminar el proyecto:', error);
         res.status(500).json({ error: 'Error al eliminar el proyecto' });
     }
 };
 
+// Obtener el siguiente código único para un proyecto
 export const getNextCode = async (req: Request, res: Response) => {
     try {
         const { orgcod } = req.params;
@@ -96,32 +77,13 @@ export const getNextCode = async (req: Request, res: Response) => {
     }
 };
 
+// Obtener detalles de un proyecto específico
 export const getProyectoByOrgAndCode = async (req: Request, res: Response) => {
+    const { orgcod, projcod } = req.params;
+
     try {
-        const { orgcod, procod } = req.params;
-
-        const proyecto = await proyectoService.getProyectoByOrgAndCode(orgcod, procod);
-
-        if (!proyecto) {
-            return res.status(404).json({ error: "Proyecto no encontrado." });
-        }
-
-        res.status(200).json(proyecto);
-    } catch (error) {
-        console.error("Error al obtener el proyecto:", error);
-        res.status(500).json({ error: "Error al obtener el proyecto." });
-    }
-};
-
-export const getProyectoByCodigo = async (req: Request, res: Response) => {
-    try {
-        const { orgcod, procod } = req.params;
-        const proyecto = await proyectoService.getProyectoByCodigo(procod, orgcod);
-
-        if (!proyecto) {
-            return res.status(404).json({ error: 'Proyecto no encontrado' });
-        }
-
+        const proyecto = await proyectoService.getProyectoByOrgAndCode(orgcod, projcod);
+        if (!proyecto) return res.status(404).json({ error: 'Proyecto no encontrado' });
         res.status(200).json(proyecto);
     } catch (error) {
         console.error('Error al obtener el proyecto:', error);
@@ -129,23 +91,15 @@ export const getProyectoByCodigo = async (req: Request, res: Response) => {
     }
 };
 
+// Obtener todos los proyectos de una organización
 export const getProyectosByOrganizacion = async (req: Request, res: Response) => {
+    const { orgcod } = req.params;
+
     try {
-        const { orgcod } = req.params;
-
-        // Busca la organización y sus proyectos
-        const proyectos = await organizacionService.getProyectosByOrganizacion(orgcod);
-
-        if (!proyectos) {
-            return res
-                .status(404)
-                .json({ error: `No se encontraron proyectos para la organización ${orgcod}.` });
-        }
-
+        const proyectos = await proyectoService.getProyectosByOrganizacion(orgcod);
         res.status(200).json(proyectos);
-    } catch (error) {
-        const err = error as Error;
-        console.error('Error al obtener proyectos por organización:', err.message);
-        res.status(500).json({ error: 'Error al obtener los proyectos de la organización.' });
+    } catch (err) {
+        console.error('Error al obtener los proyectos:', err);
+        res.status(500).json({ error: 'Error al obtener los proyectos' });
     }
 };
