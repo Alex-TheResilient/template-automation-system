@@ -1,17 +1,13 @@
 // frontend/src/view/EditarProyecto.js
 import React, { useState, useEffect } from "react";
-import {useLocation, useNavigate } from "react-router-dom";
+import {useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import '../../styles/stylesRegistroProyecto.css';
 import '../../styles/styles.css';
 
 const EditarProyecto = () => {
+    const { orgcod, projcod } = useParams(); // Extraer los parámetros de la URL
     const navigate = useNavigate();
-    const location = useLocation();
-    
-    const queryParams = new URLSearchParams(location.search);
-    const orgcod = queryParams.get('orgcod'); // Código de la organización
-    const procod = queryParams.get('procod'); // Código del proyecto
 
     // Estados del proyecto
     const [codigoProyecto, setCodigoProyecto] = useState("");
@@ -25,51 +21,43 @@ const EditarProyecto = () => {
     const [error, setError] = useState(null);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
-    const irAMenuOrganizaciones = () => navigate("/menuOrganizaciones");
-    const irAListaProyecto = () => navigate("/listaProyectos");
+    const irAMenuOrganizaciones = () => navigate("/organizations");
+    const irAListaProyectos = () => navigate(`/organizations/${orgcod}/projects`);
     const irALogin = () => navigate("/");
 
     // Cargar los datos del proyecto al montar el componente
     useEffect(() => {
-        if (orgcod && procod) {
+        if (orgcod && projcod) {
             const fetchProjectData = async () => {
                 try {
                     const response = await axios.get(
-                        `${API_BASE_URL}/organizations/${orgcod}/proyectos/${procod}`
+                        `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`
                     );
                     const project = response.data;
                     setCodigoProyecto(project.codigo);
                     setNombreProyecto(project.nombre);
                     setVersionProyecto(project.version);
-                    setFechaCreacionProyecto(
-                        new Date(project.fechaCreacion).toLocaleDateString()
-                    );
+                    setFechaCreacionProyecto(project.fechaCreacion);
                     setFechaModificacionProyecto(
                         project.fechaModificacion
                             ? new Date(project.fechaModificacion).toLocaleDateString()
                             : "N/A"
                     );
-                    setEstadoProyecto(project.estado || "Activo");
-                    setComentariosProyecto(project.comentarios || "");
+                    setEstadoProyecto(project.estado);
+                    setComentariosProyecto(project.comentarios);
                 } catch (err) {
-                    console.error("Error al cargar los datos del proyecto:", err);
-                    setError("Error al cargar los datos del proyecto.");
+                    setError(err.response?.data?.error || "Error al obtener los datos del proyecto");
                 }
             };
-
             fetchProjectData();
-        } else {
-            alert("Código de organización o proyecto no encontrado.");
-            navigate("/menuOrganizaciones");
         }
-    }, [orgcod, procod, API_BASE_URL, navigate]);
-
+    }, [orgcod, projcod, API_BASE_URL]);
+      
     // Manejar la actualización del proyecto
     const handleUpdate = async (e) => {
-        e.preventDefault();
         try {
             await axios.put(
-                `${API_BASE_URL}/organizations/${orgcod}/proyectos/${procod}`,
+                `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`,
                 {
                     nombre: nombreProyecto,
                     estado: estadoProyecto,
@@ -77,11 +65,9 @@ const EditarProyecto = () => {
                     fechaModificacion: new Date().toISOString(), // Actualizar automáticamente la fecha
                 }
             );
-            alert("Proyecto actualizado correctamente");
-            navigate(`/listaProyectos?orgcod=${orgcod}`);
+            irAListaProyectos();
         } catch (err) {
-            console.error("Error al actualizar el proyecto:", err);
-            setError("Error al actualizar el proyecto.");
+            setError(err.response?.data?.error || "Error al actualizar el proyecto");
         }
     };
     
@@ -91,7 +77,7 @@ const EditarProyecto = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                     <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                    <span onClick={irAListaProyecto}>Mocar Company /</span>
+                    <span onClick={irAListaProyectos}>Mocar Company /</span>
                     <span>Editar Proyecto</span>
                 </div>
             </header>
@@ -121,7 +107,7 @@ const EditarProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={procod}  
+                                    value={projcod}  
                                     readOnly
                                     size="50"
                                 />
@@ -187,14 +173,13 @@ const EditarProyecto = () => {
                         <div className="rp-cod-vers">
                             <div className="fiel-cod">
                                 <h4>Estado</h4>
-                                <input
-                                    disabled
-                                    type="text"
-                                    className="inputBloq-field"
+                                <select
                                     value={estadoProyecto}
-                                    readOnly
-                                    size="50"
-                                />
+                                    onChange={(e) => setEstadoProyecto(e.target.value)}
+                                >
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
                             </div>
                         </div>
                     </section>
@@ -212,8 +197,8 @@ const EditarProyecto = () => {
                             ></textarea>
                         </div>
                         <div className="rp-buttons">
-                    <button onClick={() => navigate(`/listaProyectos?orgcod=${orgcod}`)} className="rp-button">Cancelar</button>
-                    <button onClick={handleUpdate} className="rp-button">{procod? "Guardar Cambios" : "Registrar Proyecto"}</button>
+                    <button onClick={irAListaProyectos} className="rp-button">Cancelar</button>
+                    <button onClick={handleUpdate} className="rp-button">{projcod? "Guardar Cambios" : "Registrar Proyecto"}</button>
                 </div>
                     </section>
                 </main>

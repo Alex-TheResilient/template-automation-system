@@ -58,8 +58,6 @@ const ListaProyectos = () => {
     fetchProjects();
   }, [fetchProjects]);
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>{error}</div>;
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -70,17 +68,17 @@ const ListaProyectos = () => {
 
   // Eliminar un proyecto
   const deleteProject = async (codigo) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
-      try {
-        await axios.delete(`${API_BASE_URL}/proyectos/${codigo}`);
-        fetchProjects(); // Actualizar la lista después de eliminar
-        alert("Proyecto eliminado correctamente.");
-      } catch (err) {
-        console.error("Error al eliminar el proyecto:", err.response?.data || err.message);
-        alert(`Error al eliminar el proyecto: ${err.response?.data?.error || err.message}`);
-      }
+    try {
+      await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${codigo}`);
+      fetchProjects(); // Refrescar la lista de proyectos después de eliminar uno
+    } catch (err) {
+      console.error("Error al eliminar el proyecto:", err);
+      setError(err.response?.data?.error || "Error al eliminar el proyecto");
     }
   };
+
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div>{error}</div>;
 
 // Función para buscar proyectos
 const handleSearch = async () => {

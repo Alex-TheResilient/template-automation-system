@@ -5,8 +5,6 @@ import '../../styles/stylesMenuProyecto.css'
 import '../../styles/styles.css';
 import axios from "axios";
 
-
-
 const MenuProyecto = () => {
     const navigate = useNavigate();
     const location = useLocation();
