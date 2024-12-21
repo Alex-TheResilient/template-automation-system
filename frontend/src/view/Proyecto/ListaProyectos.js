@@ -79,26 +79,42 @@ const ListaProyectos = () => {
 
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
-
-// Función para buscar proyectos
+//funcion para buscaar proyectos por fecha y nombre
 const handleSearch = async () => {
-  try{
-    if(searchNombre){
-      const response = await axios.get(
-        `${API_BASE_URL}/organizations/${orgcod}/projects/search`,{
-          params: { 
-            nombre: searchNombre 
-          }
-        });
-        setProjects(response.data);
-      }else{
-        fetchProjects();
+  try {
+      setLoading(true);
+      let endpoint;
+      let params = {};
+
+      // Determinar qué tipo de búsqueda realizar
+      if (searchNombre) {
+          // Búsqueda por nombre
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/search`;
+          params.nombre = searchNombre;
+      } else if (searchYear || searchMonth) {
+          // Búsqueda por fecha
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/search/date`;
+          if (searchYear) params.year = searchYear;
+          if (searchMonth) params.month = searchMonth;
+      } else {
+          // Si no hay criterios de búsqueda, cargar todos los proyectos
+          await fetchProjects();
+          return;
       }
-  }catch(err){
-    console.error("Error al buscar proyectos:", err);
-    setError(err.response?.data?.error || "Error al buscar proyectos");
+
+      const response = await axios.get(endpoint, { params });
+      setProjects(response.data);
+      setError(null);
+  } catch (err) {
+      console.error("Error en la búsqueda:", err);
+      setError(err.response?.data?.error || "Error al buscar proyectos");
+      setProjects([]);
+  } finally {
+      setLoading(false);
   }
 };
+
+
 const handleKeyPress = (event) => {
   if (event.key === 'Enter') {
     handleSearch();

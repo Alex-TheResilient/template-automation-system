@@ -226,4 +226,51 @@ export const searchProyectosByNombre = async (orgcod: string, nombre: string) =>
         }
     });
 }
+// buscar proyectos por fecha(month and year)
+export const searchProyectosByDate = async (orgcod: string, year?: string, month?: string) => {
+    const organizacion = await prisma.organizacion.findUnique({
+        where: { codigo: orgcod }
+    });
 
+    if (!organizacion) {
+        throw new Error(`Organización con código ${orgcod} no encontrada.`);
+    }
+
+    let dateFilter = {};
+
+    if (year && month) {
+        // Filtrar por año y mes
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const endDate = new Date(parseInt(year), parseInt(month), 0);
+        dateFilter = {
+            fechaCreacion: {
+                gte: startDate,
+                lte: endDate
+            }
+        };
+    } else if (year) {
+        // Solo filtrar por año
+        dateFilter = {
+            fechaCreacion: {
+                gte: new Date(parseInt(year), 0, 1),
+                lt: new Date(parseInt(year) + 1, 0, 1)
+            }
+        };
+    } else if (month) {
+        // Solo filtrar por mes (en el año actual)
+        const currentYear = new Date().getFullYear();
+        dateFilter = {
+            fechaCreacion: {
+                gte: new Date(currentYear, parseInt(month) - 1, 1),
+                lt: new Date(currentYear, parseInt(month), 0)
+            }
+        };
+    }
+
+    return await prisma.proyecto.findMany({
+        where: {
+            organizacionId: organizacion.id,
+            ...dateFilter
+        }
+    });
+};

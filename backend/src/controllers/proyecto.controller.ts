@@ -104,7 +104,7 @@ export const getProyectosByOrganizacion = async (req: Request, res: Response) =>
     }
 };
 
-// Buscar proyectos
+// Buscar proyectos por nombre
 export const searchProyectos = async (req: Request, res: Response) => {
     try{
         const {orgcod} = req.params;
@@ -118,6 +118,37 @@ export const searchProyectos = async (req: Request, res: Response) => {
     }
     catch (error){
         console.error('Error al buscar proyectos:', error);
+        res.status(500).json({ error: 'Error al buscar proyectos' });
+    }
+};
+//buscar proyectos por fecha(month and year)
+export const searchProyectosByDate = async (req: Request, res: Response) => {
+    try {
+        const { orgcod } = req.params;
+        const { year, month } = req.query;
+
+        // Validar que al menos uno de los parámetros esté presente
+        if (!year && !month) {
+            return res.status(400).json({ error: 'Debe proporcionar al menos año o mes' });
+        }
+
+        // Validar formato de año y mes si están presentes
+        if (year && !/^\d{4}$/.test(year as string)) {
+            return res.status(400).json({ error: 'Formato de año inválido' });
+        }
+
+        if (month && (parseInt(month as string) < 1 || parseInt(month as string) > 12)) {
+            return res.status(400).json({ error: 'Mes debe estar entre 1 y 12' });
+        }
+
+        const proyectos = await proyectoService.searchProyectosByDate(
+            orgcod,
+            year as string,
+            month as string
+        );
+        res.status(200).json(proyectos);
+    } catch (error) {
+        console.error('Error en la búsqueda de proyectos:', error);
         res.status(500).json({ error: 'Error al buscar proyectos' });
     }
 };
