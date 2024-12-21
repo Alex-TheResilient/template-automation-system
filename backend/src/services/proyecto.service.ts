@@ -208,3 +208,22 @@ export const getProyectoByCodigoAndOrganizacionId = async (
     });
 };
 
+//busqueda de proyectos por nombre
+export const searchProyectosByNombre = async (orgcod: string, nombre: string) => {
+    const organizacion = await prisma.organizacion.findUnique({
+        where: { codigo: orgcod }
+    });
+    if(!organizacion){
+        throw new Error(`Organización con código ${orgcod} no encontrada.`);
+    }
+    return await prisma.proyecto.findMany({
+        where: {
+            organizacionId: organizacion.id,
+            nombre: {
+                contains: nombre,
+                mode: 'insensitive'
+            }
+        }
+    });
+}
+
