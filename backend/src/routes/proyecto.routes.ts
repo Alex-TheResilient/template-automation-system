@@ -15,4 +15,8 @@ router.delete('/organizations/:orgcod/projects/:projcod', proyectoController.del
 // Endpoint para generar el siguiente código único para un proyecto
 router.get('/organizations/:orgcod/projects/next-code', proyectoController.getNextCode); // Obtener el siguiente código único para un proyecto
 
+// Export Routes
+router.get('/organizations/:orgcod/projects/exports/excel', proyectoController.exportToExcel); // Exportar organizaciones a Excel
+router.get('/organizations/:orgcod/projects/exports/pdf', proyectoController.exportToPDF); // Exportar organizaciones a PDF
+
 export default router;

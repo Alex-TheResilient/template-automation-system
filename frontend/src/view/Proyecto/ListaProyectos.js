@@ -107,6 +107,43 @@ const handleSearch = async () => {
   }
 };
 
+// Exportar a Excel
+const exportToExcel = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/exports/excel`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `projects_de_${orgcod}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Eliminar el enlace después de la descarga
+  } catch (err) {
+    setError(err.response?.data?.error || 'Error al exportar a Excel');
+  }
+};
+
+// Exportar a PDF
+const exportToPDF = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/exports/pdf`, {
+      responseType: 'blob', // Cambiar la ruta a la del PDF
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `projects_de_${orgcod}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Eliminar el enlace después de la descarga
+  } catch (err) {
+    setError(err.response?.data?.error || 'Error al exportar a PDF');
+  }
+};
+
+
   return (
     <div className="lista-container">
       <header className="ro-header">
@@ -274,8 +311,8 @@ const handleSearch = async () => {
               )}
             </h4>
             <div className="lista-export-buttons">
-              <button className="lista-export-button">Excel</button>
-              <button className="lista-export-button">PDF</button>
+              <button className="export-button" onClick={exportToExcel}>Excel</button>
+              <button className="export-button" onClick={exportToPDF}>PDF</button>
             </div>
           </section>
         </main>
