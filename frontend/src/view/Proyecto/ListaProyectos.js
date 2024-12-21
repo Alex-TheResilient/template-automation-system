@@ -82,30 +82,28 @@ const ListaProyectos = () => {
 
 // Función para buscar proyectos
 const handleSearch = async () => {
-  try {
-    // Construye los parámetros dinámicamente para evitar enviar valores vacíos
-    const params = { orgcod };
-
-    if (searchNombre) {
-      params.nombre = searchNombre;
-    }
-    if (searchYear) {
-      params.year = searchYear;
-    }
-    if (searchMonth) {
-      params.month = searchMonth;
-    }
-
-    // Llamada a la API usando la URL base de la variable de entorno
-    const response = await axios.get(`${API_BASE_URL}/proyectos/search`, {
-      params,
-    });
-
-    setProjects(response.data); // Actualiza la lista de proyectos con los resultados
-  } catch (err) {
-    setError(err.response ? err.response.data.error : "Error al buscar proyectos");
+  try{
+    if(searchNombre){
+      const response = await axios.get(
+        `${API_BASE_URL}/organizations/${orgcod}/projects/search`,{
+          params: { 
+            nombre: searchNombre 
+          }
+        });
+        setProjects(response.data);
+      }else{
+        fetchProjects();
+      }
+  }catch(err){
+    console.error("Error al buscar proyectos:", err);
+    setError(err.response?.data?.error || "Error al buscar proyectos");
   }
 };
+const handleKeyPress = (event) => {
+  if (event.key === 'Enter') {
+    handleSearch();
+  }
+}
 
   return (
     <div className="lista-container">
@@ -150,6 +148,7 @@ const handleSearch = async () => {
                     placeholder="Buscar por nombre"
                     value={searchNombre}
                     onChange={(e) => setSearchNombre(e.target.value)}
+                    onKeyPress={handleKeyPress}
                   />
                   <span class="tooltip-text">
                     Filtro de búsqueda por nombre del proyecto

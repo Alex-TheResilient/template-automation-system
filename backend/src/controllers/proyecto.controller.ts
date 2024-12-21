@@ -103,3 +103,21 @@ export const getProyectosByOrganizacion = async (req: Request, res: Response) =>
         res.status(500).json({ error: 'Error al obtener los proyectos' });
     }
 };
+
+// Buscar proyectos
+export const searchProyectos = async (req: Request, res: Response) => {
+    try{
+        const {orgcod} = req.params;
+        const {nombre} = req.query;
+
+        if(typeof nombre !== 'string'){
+            return res.status(400).json({error: 'Parámetros inválidos'});
+        }
+        const proyectos = await proyectoService.searchProyectosByNombre(orgcod, nombre);
+        res.status(200).json(proyectos);   
+    }
+    catch (error){
+        console.error('Error al buscar proyectos:', error);
+        res.status(500).json({ error: 'Error al buscar proyectos' });
+    }
+};
