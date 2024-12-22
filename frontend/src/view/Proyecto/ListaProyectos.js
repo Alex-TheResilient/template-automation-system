@@ -19,7 +19,6 @@ const ListaProyectos = () => {
   const [searchMonth, setSearchMonth] = useState("");
 
   // Variables de enrutamiento
-  const location = useLocation();
   const navigate = useNavigate();
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -35,8 +34,10 @@ const ListaProyectos = () => {
   };
   const irARegistroProyecto = () => navigate(`/organizations/${orgcod}/projects/new`);
   const irALogin = () => navigate("/");
-  const irAMenuProyecto = (orgcod, procod) => navigate(`/organizations/${orgcod}/projects/${procod}`);
-    
+  const irAMenuProyecto = (projcod) => {
+    navigate(`/projects/${projcod}/menuProyecto`);
+  };    
+
   // Obtener proyectos asociados a la organización
   const fetchProjects = useCallback(async () => {
     if (!orgcod) {
@@ -257,7 +258,7 @@ const exportToPDF = async () => {
                 </thead>
                   <tbody>
                     {projects.map((pro) => (
-                      <tr key={pro.id} onClick={() => irAMenuProyecto(orgcod, pro.codigo)}>
+                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.codigo)}>
                         <td>{pro.codigo}</td>
                         <td>{pro.nombre}</td>
                         <td>{new Date(pro.fechaCreacion).toLocaleDateString()}</td>

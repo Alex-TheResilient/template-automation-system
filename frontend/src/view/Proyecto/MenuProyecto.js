@@ -1,5 +1,5 @@
-import React, {useState} from "react"
-import { useNavigate, useLocation } from "react-router-dom";
+import React, {useState, useEffect} from "react"
+import { useNavigate, useParams } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import '../../styles/stylesMenuProyecto.css'
 import '../../styles/styles.css';
@@ -7,29 +7,46 @@ import axios from "axios";
 
 const MenuProyecto = () => {
     const navigate = useNavigate();
-    const location = useLocation();
+    const { projcod } = useParams(); // Obtener el código del proyecto desde la URL
+
+    const [proyecto, setProyecto] = useState({});
 
     const [codigoAutor, setCodigoAutor] = useState("");
     const [resultados, setResultados] = useState([]);
     const [mensaje, setMensaje] = useState("");
 
+    useEffect(() => {
+        // Obtener la información del proyecto usando el código del proyecto
+        const obtenerProyecto = async () => {
+            try {
+                const response = await axios.get(`/api/projects/${projcod}`);
+                setProyecto(response.data);
+            } catch (error) {
+                console.log("Error al obtener el proyecto:", error);
+            }
+        };
+        obtenerProyecto();
+    }, [projcod]);
+
     const irALogin = () => {
         navigate("/");
     };
+
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
     };
+
     const irAActaAceptacion = () => {
-        navigate(`/actaAceptacion?code=${codigo}`);
+    navigate(`/actaAceptacion?code=${projcod}`);
     };
     const irAAutores = () => {
-        navigate("/autores");
+        navigate(`/autores?projcod=${projcod}`);
     };
     const irAEntrevistas = () => {
-        navigate("/entrevistas");
+        navigate(`/entrevistas?projcod=${projcod}`);
     };
     const irARoles = () => {
-        navigate("/roles");
+        navigate(`/roles?projcod=${projcod}`);
     };
     const irAPlantillas = () => {
         navigate("/plantillas");
@@ -37,10 +54,6 @@ const MenuProyecto = () => {
     const irAListaProyecto = () => {
         navigate("/listaProyectos");
     };
-
-    // Obtener los parámetros de consulta
-    const queryParams = new URLSearchParams(location.search);
-    const codigo = queryParams.get('procod');
 
     const manejarBusqueda = (e) => {
         setCodigoAutor(e.target.value);
