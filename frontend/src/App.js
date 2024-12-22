@@ -24,7 +24,11 @@ import EditarEntrevista from './view/Proyecto/Entrevistas/EditarEntrevista.js';
 import NuevaEvidencia from './view/Proyecto/Entrevistas/NuevaEvidencia.js';
 import Plantillas from './view/Plantillas/Plantillas.js';
 import Educcion from './view/Plantillas/Educcion/Educcion.js';
+import Ilacion from './view/Plantillas/Ilacion/Ilacion.js';
 import NuevaEduccion from './view/Plantillas/Educcion/NuevaEduccion.js';
+import NuevaIlacion from './view/Plantillas/Ilacion/NuevaIlacion.js';
+import EditarIlacion from './view/Plantillas/Ilacion/EditarIlacion.js';
+import Artefactos from './view/Plantillas/Artefactos/Artefactos.js';
 import RegistroRiesgo from './view/Plantillas/Riesgos/RegistroRiesgo.js';
 import Actores from './view/Plantillas/Actores/Actores.js';
 import NuevoActor from './view/Plantillas/Actores/NuevoActor.js';
@@ -34,6 +38,7 @@ import EditarExperto from './view/Plantillas/Expertos/EditarExperto.js';
 import Fuentes from './view/Plantillas/Fuentes/Fuentes.js';
 import NuevaFuente from './view/Plantillas/Fuentes/NuevaFuente.js';
 import EditarFuente from './view/Plantillas/Fuentes/EditarFuente.js';
+
 
 
 function App() {
@@ -82,7 +87,11 @@ function App() {
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
+          <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
+          <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
+          <Route path="/editarIlacion" element={<EditarIlacion />} />
+          <Route path="/artefacto" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
@@ -92,6 +101,7 @@ function App() {
           <Route path="/editarFuente" element={<EditarFuente />} /> 
           <Route path="/nuevoExperto" element={<NuevoExperto />} /> 
           <Route path="/editarExperto" element={<EditarExperto />} /> 
+
         </Routes>
       </div>
     </Router>
