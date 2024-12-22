@@ -74,7 +74,6 @@ model ActaAceptacion {
 
 model Entrevista {
   id                 String       @id @default(uuid())
-  codigo             String       @unique
   version            String
   fechaEntrevista    DateTime
   autorId            String
