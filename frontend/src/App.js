@@ -47,32 +47,35 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/" element={<Login />} />
+          
+          {/* Organizaciones */}
           <Route path="/organizations" element={<MenuOrganizaciones />} />
           <Route path="/organizations/new" element={<RegistroOrganizacion />} />
           <Route path="/organizations/:orgcod" element={<EditarOrganizacion />} />
+          
+          {/* Proyectos */}
+          <Route path="/organizations/:orgcod/projects" element={<ListaProyectos />} />
+          <Route path="/organizations/:orgcod/projects/new" element={<RegistroProyecto />} />
+          <Route path="/organizations/:orgcod/projects/:projcod" element={<EditarProyecto />} />
+          <Route path="/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
 
-          <Route
-            path="/organizations/:orgcod/projects"
-            element={<ListaProyectos />}
-          />
-          <Route
-              path="/organizations/:orgcod/projects/new"
-              element={<RegistroProyecto />}
-          />
-          <Route
-            path="/organizations/:orgcod/projects/:projcod"
-            element={<EditarProyecto />}
-          />
-          <Route
-            path="/projects/:projcod/educciones"
-            element={<MenuProyecto />}
-          />
-          {/* <Route path="/listaProyectos" element={<ListaProyectos />} />
-          <Route path="/registroOrganizaciones" element={<RegistroOrganizacion />} />
-          <Route path="/editarOrganizacion" element={<EditarOrganizacion />} />
-          <Route path="/editarProyecto" element={<EditarProyecto />} />
-          <Route path="/registroProyecto" element={<RegistroProyecto />} /> */}
-          <Route path="/menuProyecto" element={<MenuProyecto />} />
+          {/* Educciones */}
+          <Route path="/projects/:projcod/educciones" element={<Educcion />} />
+          <Route path="/projects/:projcod/educciones/new" element={<NuevaEduccion />} />
+          {/* <Route path="/projects/:projcod/educciones/:educod" element={<EditarEduccion />} /> */}
+          {/* <Route path="/educcion" element={<Educcion />} />
+          <Route path="/nuevaEduccion" element={<NuevaEduccion />} /> */}
+
+          {/* Ilaciones */}
+          {/* <Route path="/educciones/:educod/ilaciones" element={<ListaIlaciones />} />
+          <Route path="/educciones/:educod/ilaciones/new" element={<NuevaIlacion />} />
+          <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} /> */}
+
+          {/* Especificaciones */}
+          {/* <Route path="/ilaciones/:ilacod/especificaciones" element={<ListaEspecificaciones />} />
+          <Route path="/ilaciones/:ilacod/especificaciones/new" element={<NuevaEspecificacion />} />
+          <Route path="/ilaciones/:ilacod/especificaciones/:especod" element={<EditarEspecificacion />} /> */}
+
           <Route path="/actaAceptacion" element={<ActaAceptacion />} />
           <Route path="/autores" element={<Autores />} />
           <Route path="/nuevoAutor" element={<NuevoAutor />} />
