@@ -250,53 +250,59 @@ export const exportToExcel = async (_req: Request, res: Response) => {
 // Exportar Organizaciones a PDF
 export const exportToPDF = async (_req: Request, res: Response) => {
     try {
-        const organizaciones = await organizacionService.getOrganizaciones(1, 1000);
-        const doc = new PDFDocument({  size: 'A4',margin: 30 });
+        // Obtener datos de la organización principal y las organizaciones
+        const organizacionPrincipal = await organizacionService.getOrganizacionPrincipal();
+        let organizaciones = await organizacionService.getOrganizaciones(1, 1000);
+
+        // Filtrar la organización principal de la lista de organizaciones
+        organizaciones = organizaciones.filter(org => org.codigo !== organizacionPrincipal.codigo);
+
+        const doc = new PDFDocument({ size: 'A4', margin: 30 });
 
         // Configurar encabezados de respuesta
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=organizaciones.pdf');
 
-        // Encabezado
+        // Encabezado del documento
         doc.fontSize(18).text('Lista de Organizaciones', { align: 'center' });
         doc.moveDown();
 
-        // Crear la tabla con los datos de las organizaciones
-        const tableTop = doc.y;
-        const table = {
-            headers: ['Código', 'Nombre', 'Fecha Modificación', 'Versión'],
-            rows: organizaciones.map(org => [
-                org.codigo,
-                org.nombre,
-                org.fechaCreacion.toLocaleDateString(),
-                org.version
-            ])
-        };
-        const columnWidths = [80, 150, 100, 60, 80];
-        const rowHeight = 20;
-        const startY = tableTop;
-        // Función para dibujar la tabla
-        const drawTable = () => {
-            let y = startY;
-            // Dibuja los encabezados
-            doc.fontSize(10).font('Helvetica-Bold');
-            table.headers.forEach((header, index) => {
-                const x = columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 100;
-                doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
-            });
-            y += rowHeight;
-            // Dibuja las filas de datos
-            doc.font('Helvetica');
-            table.rows.forEach((row: any[]) => {
-                row.forEach((cell, index) => {
-                    const x = columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 100;
-                    doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
-                });
-                y += rowHeight;
-            });
-        };
-        // Dibujar la tabla en el PDF
-        drawTable();
+        // Título para la tabla de la organización principal
+        doc.fontSize(14).text('Organización Principal', { align: 'center' });
+        doc.moveDown(0.5);
+
+        const principalHeaders = ['Código', 'Nombre', 'Fecha Creación', 'Versión'];
+        const principalData = [
+            [
+                organizacionPrincipal.codigo,
+                organizacionPrincipal.nombre,
+                organizacionPrincipal.fechaCreacion.toLocaleDateString(),
+                organizacionPrincipal.version
+            ]
+        ];
+
+        drawTable(doc, principalHeaders, principalData);
+
+        doc.moveDown(2);
+
+        // Título para la tabla de las organizaciones (centrado manualmente)
+        const pageWidth = 595.28; // Ancho de página A4 en puntos
+        const textWidth = doc.widthOfString('Organizaciones');
+        const textX = (pageWidth - textWidth) / 2; // Calcular posición X para centrar el texto
+        doc.fontSize(14).text('Organizaciones', textX, doc.y); // Posición Y actual de doc.y
+        doc.moveDown(0.5);
+
+        const orgHeaders = ['Código', 'Nombre', 'Fecha Creación', 'Versión'];
+        const orgData = organizaciones.map(org => [
+            org.codigo,
+            org.nombre,
+            org.fechaCreacion.toLocaleDateString(),
+            org.version
+        ]);
+
+        drawTable(doc, orgHeaders, orgData);
+
+        // Finalizar el documento
         doc.end();
         doc.pipe(res);
     } catch (error) {
@@ -304,6 +310,37 @@ export const exportToPDF = async (_req: Request, res: Response) => {
         res.status(500).json({ error: 'Error al exportar a PDF' });
     }
 };
+
+// Función para dibujar tablas
+const drawTable = (doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) => {
+    const columnWidths = [80, 150, 120, 60]; // Ajuste de anchos de columna
+    const tableMargin = 30; // Margen izquierdo
+    const rowHeight = 20;
+    let y = doc.y; // Posición inicial en Y
+
+    // Dibujar los encabezados
+    doc.fontSize(10).font('Helvetica-Bold');
+    headers.forEach((header, index) => {
+        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 60);
+        doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
+    });
+
+    y += rowHeight;
+
+    // Dibujar las filas de datos
+    doc.font('Helvetica');
+    rows.forEach(row => {
+        row.forEach((cell, index) => {
+            const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 60);
+            doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
+        });
+        y += rowHeight;
+    });
+};
+
+
+
+
 
 // export const getProyectoByCodigo = async (req: Request, res: Response) => {
 //     try {

@@ -269,6 +269,32 @@ export const getOrganizacionWithProyectosByCodigo = async (codigo: string) => {
     });
 };
 
+// Servicio para obtener la organización principal
+export const getOrganizacionPrincipal = async (): Promise<any> => {
+    try {
+        // Buscar la organización principal en la base de datos
+        const organizacionPrincipal = await prisma.organizacion.findUnique({
+            where: { codigo: 'ORG-MAIN' }, // Aquí asumimos que 'ORG-MAIN' identifica la principal
+        });
+
+        if (!organizacionPrincipal) {
+            throw new Error('No se encontró la organización principal');
+        }
+
+        return {
+            codigo: organizacionPrincipal.codigo,
+            nombre: organizacionPrincipal.nombre,
+            fechaCreacion: organizacionPrincipal.fechaCreacion,
+            version: organizacionPrincipal.version,
+        };
+    } catch (error) {
+        console.error('Error al obtener la organización principal:', error);
+        throw error;
+    }
+};
+
+
+
 // export const getProyectoByCodigo = async (orgcod: string, procod: string) => {
 //     // Buscar la organización por su código
 //     const organizacion = await prisma.organizacion.findUnique({
