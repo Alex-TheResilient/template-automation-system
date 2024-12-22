@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
-import '../../../styles/stylesArtefactos.css'
+import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
 
 
-const Educcion = () => {
+const Artefactos = () => {
     const navigate = useNavigate();
 
     const irALogin = () => {
@@ -14,15 +14,6 @@ const Educcion = () => {
     };
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
-    };
-    const irAVerEduccion = () => {
-        navigate("/verEduccion");
-    };
-    const irANuevaEduccion = () => {
-        navigate("/nuevaEduccion");
-    };
-    const irAEditarEduccion = () => {
-        navigate("/editarEduccion");
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -54,15 +45,10 @@ const Educcion = () => {
       setMostrarPopup(false);
     };
   
-    const eliminarEduccion = () => {
-      console.log("Educcion eliminada");
+    const eliminarNemonico = () => {
+      console.log("Nemonico eliminado");
       cerrarPopup();
     };
-
-    const eliminarRiesgo = () => {
-        console.log("Riesgo eliminado");
-        cerrarPopup();
-      };
 
     return (
         <div className="menu-container">
@@ -97,11 +83,11 @@ const Educcion = () => {
 
                 <main className="main-content">
                     <h2>ARTEFACTOS</h2>
-                    <section className="educcion-section">
+                    <section className="pp-section">
                         <h3>Neumonicos de los Artefactos</h3>
 
                         <div className="search-section-bar">
-                            <button /*onClick={irANuevaEduccion}*/ className="nueva-educcion-button">Nueva Nemonico</button>
+                            <button /*onClick={irANuevaEduccion}*/ className="nuevo-pp-button">Nueva Nemonico</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -135,7 +121,7 @@ const Educcion = () => {
                             </table>                                          
                         </div>                          
                     </section>
-                    <section className="riesgos-section">
+                    <section className="pp-section">
                         <h3>Catalogo de Requisitos</h3>
                                       
                         <div className="menu-tabla-center">
@@ -182,8 +168,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
+                                    <p>¿Está seguro de eliminar este catalogo de requisitos?</p>
+                                    <button onClick={eliminarNemonico} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -194,8 +180,8 @@ const Educcion = () => {
                             )}
                         </div>             
                     </section>
-                    <section className="riesgos-section">
-                        <h3>Artefacto Educcion</h3>                                
+                    <section className="pp-section">
+                        <h3>Artefacto Educción</h3>                                
                         <div className="menu-tabla-center">
                             <table className="menu-centertabla">
                                 <thead>
@@ -240,8 +226,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
+                                    <p>¿Está seguro de eliminar este artefacto educción?</p>
+                                    <button onClick={eliminarNemonico} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -253,7 +239,7 @@ const Educcion = () => {
                         </div>             
                     </section>
                     <section className="riesgos-section">
-                        <h3>Artefacto Ilacion </h3>
+                        <h3>Artefacto Ilación </h3>
                         <div className="menu-tabla-center">
                             <table className="menu-centertabla">
                                 <thead>
@@ -298,8 +284,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
+                                    <p>¿Está seguro de eliminar este artefacto ilación?</p>
+                                    <button onClick={eliminarNemonico} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -311,7 +297,7 @@ const Educcion = () => {
                         </div>             
                     </section>
                     <section className="riesgos-section">
-                        <h3>Artefacto Especificacion</h3>
+                        <h3>Artefacto Especificación</h3>
                                       
                         <div className="menu-tabla-center">
                             <table className="menu-centertabla">
@@ -326,7 +312,7 @@ const Educcion = () => {
                                 </thead>
                                 <tbody onClick={irAVerRiesgo}>
                                     <tr>
-                                        <td>Artefacto Especificacion</td>
+                                        <td>Artefacto Especificación</td>
                                         <td>00.01</td>
                                         <td>26/10/2023</td>
                                         <td>EnProceso</td>
@@ -357,8 +343,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
+                                    <p>¿Está seguro de eliminar este artefacto especificación?</p>
+                                    <button onClick={eliminarNemonico} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -369,10 +355,10 @@ const Educcion = () => {
                             )}
                         </div>             
                     </section>
-                    <section className="riesgos-section">
+                    <section className="pp-section">
                         <h3>Interfaces Graficas de Usuarios</h3>
                         <div className="search-section-bar">
-                            <button onClick={irARegistrarRiesgo} className="nuevo-riesgo-button">Subir Interfaz</button>
+                            <button onClick={irARegistrarRiesgo} className="nuevo-pp-button">Subir Interfaz</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -388,9 +374,9 @@ const Educcion = () => {
                             </div>
                         </div>
 
-                        <div className="educ-search-section-text">
-                            <div className="educ-searchbar">
-                                <select className="educ-year-input">
+                        <div className="pp-search-section-text">
+                            <div className="pp-searchbar">
+                                <select className="pp-year-input">
                                     <option value="">AÑO</option>
                                     {[2024, 2023, 2022, 2021, 2020].map((year) => (
                                         <option key={year} value={year}>
@@ -398,7 +384,7 @@ const Educcion = () => {
                                         </option>
                                     ))}
                                 </select>
-                                <select className="educ-month-input">
+                                <select className="pp-month-input">
                                     <option value="">MES</option>
                                     {[
                                         "Enero", 
@@ -495,8 +481,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
+                                    <p>¿Está seguro de eliminar esta interfaz?</p>
+                                    <button onClick={eliminarNemonico} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -522,4 +508,4 @@ const Educcion = () => {
     );
 };
 
-export default Educcion;
+export default Artefactos;

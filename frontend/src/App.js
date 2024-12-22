@@ -38,6 +38,7 @@ import EditarExperto from './view/Plantillas/Expertos/EditarExperto.js';
 import Fuentes from './view/Plantillas/Fuentes/Fuentes.js';
 import NuevaFuente from './view/Plantillas/Fuentes/NuevaFuente.js';
 import EditarFuente from './view/Plantillas/Fuentes/EditarFuente.js';
+import Especificacion from './view/Plantillas/Especificacion/Especificacion.js';
 
 
 
@@ -67,9 +68,9 @@ function App() {
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} /> */}
 
           {/* Ilaciones */}
-          {/* <Route path="/educciones/:educod/ilaciones" element={<ListaIlaciones />} />
+          {/*<Route path="/educciones/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/educciones/:educod/ilaciones/new" element={<NuevaIlacion />} />
-          <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} /> */}
+          <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />*/}
 
           {/* Especificaciones */}
           {/* <Route path="/ilaciones/:ilacod/especificaciones" element={<ListaEspecificaciones />} />
@@ -90,11 +91,11 @@ function App() {
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
-          <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
+          <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
           <Route path="/editarIlacion" element={<EditarIlacion />} />
-          <Route path="/artefacto" element={<Artefactos />} />
+          <Route path="/artefactos" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
@@ -104,6 +105,7 @@ function App() {
           <Route path="/editarFuente" element={<EditarFuente />} /> 
           <Route path="/nuevoExperto" element={<NuevoExperto />} /> 
           <Route path="/editarExperto" element={<EditarExperto />} /> 
+          <Route path="/especificacion" element={<Especificacion />} />
 
         </Routes>
       </div>
