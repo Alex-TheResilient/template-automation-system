@@ -144,12 +144,12 @@ body {
     margin-top: 10px;
 }
 
-.fiel-cod {
+.fiel-cod2 {
     margin-left: 100px;
     margin-right: 100px; /* Añadir margen derecho para los inputs */
     width: calc(100% - 200px); /* Asegura que el input ocupe el espacio restante */
 }
-.fiel-cod h4 {
+.fiel-cod2 h4 {
     margin-bottom: 8px; /* Ajusta el espacio entre el título y el input */
     text-align: left; /* Alinea el título a la izquierda */
     color: #4B125F;

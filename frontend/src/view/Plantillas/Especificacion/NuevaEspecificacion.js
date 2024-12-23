@@ -107,7 +107,7 @@ const NuevaEspecificacion = () => {
                 </aside>
 
                 <main className="ne-content">
-                    <h2>NUEVA ILACIÓN</h2>
+                    <h2>NUEVA ESPECIFICACIÓN</h2>
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
                             <label className="ne-label">Código Especificación* </label>

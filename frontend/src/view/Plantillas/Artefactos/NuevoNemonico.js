@@ -74,7 +74,7 @@ const NuevoNemonico = () => {
                   
                     <section className="rr-organization-section">
                         <h3>Informacion del Nemónico</h3>
-                        <div className="fiel-cod">
+                        <div className="fiel-cod2">
                                 <h4>Artefacto*</h4>
                                 <span class="message">
                                     <input  className="inputnombre-field" type="text" placeholder=""  size="400" />
@@ -82,7 +82,7 @@ const NuevoNemonico = () => {
                                 </span>
                         </div>
 
-                        <div className="fiel-cod">
+                        <div className="fiel-cod2">
                                 <h4>Nemónico*</h4>
                                 <span class="message">
                                     <input  className="inputnombre-field" type="text" placeholder=""  size="400" />
