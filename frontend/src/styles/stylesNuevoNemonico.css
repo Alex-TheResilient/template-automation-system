@@ -9,30 +9,25 @@ body {
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    /* Evita scroll de la página en general */
 }
 
-.ne-container {
+.rr-container {
     display: flex;
     flex-direction: column;
     font-family: Arial, sans-serif;
     color: #4B125F;
     border: 4px solid #771d4b;
     height: 100vh;
-    /* Ocupa toda la altura de la ventana */
     width: 100vw;
-    /* Ocupa toda la anchura de la ventana */
 }
 
-.nesub-container {
+.rrsub-container {
     display: flex;
     flex-grow: 1;
-    /* Hace que el contenedor ocupe el espacio disponible */
     width: 100%;
-    /* Abarca todo el ancho */
 }
 
-.ne-header {
+.rr-header {
     background-color: #E4D2DB;
     color: rgb(0, 0, 0);
     padding: 10px;
@@ -40,22 +35,21 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    /* Abarca todo el ancho */
 }
 
-.ne-header h1 {
+.rr-header h1 {
     font-size: 1.5em;
     padding-left: 6%;
 }
 
-.ne-header span {
+.rr-header span {
     cursor: pointer;
     font-size: 1em;
     margin-left: auto;
 }
 
 .logout-button,
-.ne-button {
+.rr-button {
     background-color: #B4508A;
     color: white;
     border: none;
@@ -65,7 +59,7 @@ body {
     border-radius: 5px;
 }
 
-.ne-button {
+.rr-button {
     margin-left: 20px;
 }
 
@@ -78,9 +72,7 @@ body {
     border-top: 3px solid #771d4b;
     border-right: 3px solid #771d4b;
     height: 100%;
-    /* Ajusta la altura para que ocupe toda la pantalla */
     flex-shrink: 0;
-    /* Evita que la barra lateral se reduzca */
 }
 
 .profile-section {
@@ -97,7 +89,7 @@ body {
     margin-bottom: 10px;
 }
 
-.bar-ne {
+.bar-rr {
     margin-top: 50px;
     display: flex;
     flex-direction: column;
@@ -117,31 +109,28 @@ body {
     align-items: center;
     margin-top: 2px;
     color: #ffffff;
-    
+    cursor: pointer;
 }
 
-/*Seccion contenido general*/
-.ne-content {
+.rr-content {
     margin: 0;
     background-color: white;
     flex-grow: 1;
     padding: 0px;
     border-top: 3px solid #771d4b;
     overflow-y: auto;
-    /* Permite desplazamiento si el contenido excede la pantalla */
     width: calc(100% - 200px);
-    /* Ocupa el ancho restante sin la barra lateral */
 }
-.ne-content h2 {
-    margin-top: 10px;
-    margin-bottom: 10px;
+
+.rr-content h2 {
     text-align: center;
     color: #771d4b;
     font-size: 1.5em;
-    margin-bottom: px;
+    margin-top: 10px;
+    margin-bottom:  10px;
 }
 
-.ne-content h3 {
+.rr-content h3 {
     background: white;
     margin-left: 0;
     padding-left: 3%;
@@ -149,74 +138,21 @@ body {
     border-bottom: 2px solid #771d4b;
     color: #4B125F;
 }
-.ne-content h4 {
-    margin: 0;
-    padding-right: 5px;
-    text-align: left;
-    flex-shrink: 0; 
-    
-}
-.ne-organization-section,
-.ne-organizations-section {
+
+.rr-organization-section,
+.rr-organizations-section {
     margin-top: 10px;
 }
 
-
-.ne-organization {
-    text-align: center;
+.fiel-cod {
+    margin-left: 100px;
+    margin-right: 100px; /* Añadir margen derecho para los inputs */
+    width: calc(100% - 200px); /* Asegura que el input ocupe el espacio restante */
 }
-
-
-.ne-label-container {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center; 
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.ne-label {
-    flex: 1; 
-    text-align: center; 
-}
-
-.ne-input-container {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    gap: 50px; 
-    margin: 20px;
-}
-
-/* Estilos genéricos de inputs */
-.ne-input {
-    flex: 1; 
-    background-color: #E4D2DB;
-    text-align: center;
-    color: black;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    padding: 5px; 
-    height: 30px; /* Ajusta para que el select tenga el mismo alto que los inputs */
-    box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho */
-}
-
-.ne-cod-vers {
-    display: flex;
-    align-items: center; 
-    margin-top: 10px; 
-}
-/*comentario*/
-.input-text {
-    width: 100%; 
-    padding: 5px;
-    margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-
-}
-.estado-input{
-    border: 1px solid #a3616c;
+.fiel-cod h4 {
+    margin-bottom: 8px; /* Ajusta el espacio entre el título y el input */
+    text-align: left; /* Alinea el título a la izquierda */
+    color: #4B125F;
 }
 
 .input-fieldtext {
@@ -226,7 +162,7 @@ body {
     border-radius: 4px;
 }
 
-.ne-buttons {
+.rr-buttons {
     display: flex;
     justify-content: flex-start;
     margin-left: 775px;
@@ -236,23 +172,10 @@ body {
 button:hover {
     background-color: #7a1a5e;
 }
-
-.fiel-cod{
-    margin-left: 100px;
-    margin-right: 50px;
-    width: 200px;
-}
-.fiel-vers{
-    flex-grow: 1; 
-    display: flex;
-    align-items: center;
-}
-.subir-button {
-    background-color: #B4508A;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    margin: 5px;
-    border-radius: 5px;
+.inputnombre-field {
+    width: 100%; /* Ocupa todo el espacio disponible dentro de su contenedor */
+    padding: 10px; /* Relleno dentro del input */
+    border: 2px solid #da99b7;
+    border-radius: 4px;
+    box-sizing: border-box; /* Asegura que el relleno no afecte al tamaño del input */
 }

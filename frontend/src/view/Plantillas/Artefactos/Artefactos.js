@@ -35,6 +35,13 @@ const Artefactos = () => {
         navigate("/plantillas");
     };
 
+    const irANuevoNemonico = () => {
+        navigate("/nuevoNemonico");
+    };
+    const irASubirInterfaz = () => {
+        navigate("/subirInterfaz");
+    };
+
     const [mostrarPopup, setMostrarPopup] = useState(false);
   
     const abrirPopup = () => {
@@ -87,7 +94,7 @@ const Artefactos = () => {
                         <h3>Neumonicos de los Artefactos</h3>
 
                         <div className="search-section-bar">
-                            <button /*onClick={irANuevaEduccion}*/ className="nuevo-pp-button">Nueva Nemonico</button>
+                            <button onClick={irANuevoNemonico} className="nuevo-pp-button">Nuevo Nemónico</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -358,7 +365,7 @@ const Artefactos = () => {
                     <section className="pp-section">
                         <h3>Interfaces Graficas de Usuarios</h3>
                         <div className="search-section-bar">
-                            <button onClick={irARegistrarRiesgo} className="nuevo-pp-button">Subir Interfaz</button>
+                            <button onClick={irASubirInterfaz} className="nuevo-pp-button">Subir Interfaz</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -501,6 +508,10 @@ const Artefactos = () => {
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
                                 </span>
                             </div>
+
+                            <div className="search-section-bar">
+                            <button onClick={irAPlantillas} className="atras-button">Regresar</button>
+                        </div>
                     </section>
                 </main>
             </div>

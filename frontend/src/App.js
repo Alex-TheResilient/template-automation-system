@@ -40,7 +40,9 @@ import NuevaFuente from './view/Plantillas/Fuentes/NuevaFuente.js';
 import EditarFuente from './view/Plantillas/Fuentes/EditarFuente.js';
 import Especificacion from './view/Plantillas/Especificacion/Especificacion.js';
 import NuevaEspecificacion from './view/Plantillas/Especificacion/NuevaEspecificacion.js';
-
+import EditarEspecificacion from './view/Plantillas/Especificacion/EditarEspecificacion.js';
+import NuevoNemonico from './view/Plantillas/Artefactos/NuevoNemonico.js';
+import SubirInterfaz from './view/Plantillas/Artefactos/SubirInterfaz.js';
 
 function App() {
   return (
@@ -109,6 +111,9 @@ function App() {
           <Route path="/editarExperto" element={<EditarExperto />} /> 
           <Route path="/especificacion" element={<Especificacion />} />
           <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
+          <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
+          <Route path="/nuevoNemonico" element={<NuevoNemonico />} />
+          <Route path="/subirInterfaz" element={<SubirInterfaz />} />
 
         </Routes>
       </div>
