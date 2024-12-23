@@ -122,8 +122,16 @@ const generateCodigo = async (proyectoId: string): Promise<string> => {
     return `EXP-${contador.contador.toString().padStart(3, '0')}`;
 };
 
+
+
+// Incrementar la versión del experto
+const incrementVersion = (currentVersion: string): string => {
+    const [major, minor] = currentVersion.split('.').map(Number);
+    return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
+};
+
+// Obtener el siguiente código único para un experto
 export const getNextCodigo = async (proyectoCodigo: string): Promise<string> => {
-    // Buscar el proyecto
     const proyecto = await prisma.proyecto.findFirst({
         where: { codigo: proyectoCodigo },
     });
@@ -135,36 +143,14 @@ export const getNextCodigo = async (proyectoCodigo: string): Promise<string> => 
     const entidad = 'experto';
     const contextoId = proyecto.id;
 
-    // Buscar el contador para el proyecto
     const contador = await prisma.contador.findUnique({
         where: { entidad_contextoId: { entidad, contextoId } },
     });
 
-    // Si el contador no existe, crearlo
-    if (!contador) {
-        const newContador = await prisma.contador.create({
-            data: {
-                entidad,
-                contextoId,
-                contador: 1,
-            },
-        });
-        return `EXP-${newContador.contador.toString().padStart(3, '0')}`;
-    }
-
-    // Si existe el contador, incrementarlo
-    const nextCount = contador.contador + 1;
+    const nextCount = (contador?.contador || 0) + 1;
 
     return `EXP-${nextCount.toString().padStart(3, '0')}`;
 };
-
-// Incrementar la versión del experto
-const incrementVersion = (currentVersion: string): string => {
-    const [major, minor] = currentVersion.split('.').map(Number);
-    return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
-};
-
-
 
 export const getExpertoById = async (id: string) => {
     return await prisma.experto.findUnique({
