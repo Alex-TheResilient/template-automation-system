@@ -1,14 +1,30 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import "../../../styles/stylesExpertos.css";
 import "../../../styles/styles.css";
 
 const Expertos = () => {
-  // Variables de enrutamiento
-  const location = useLocation();
-  const navigate = useNavigate();
+
+
+  const {projcod} = useParams();
+
+  // Estado de proyectos y errores
+    const [expertos, setExpertos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    // Estado para los parámetros de búsqueda
+    const [searchNombre, setSearchNombre] = useState("");
+    const [searchYear, setSearchYear] = useState("");
+    const [searchMonth, setSearchMonth] = useState("");
+
+    // Variables de Enrutamiento
+    const navigate = useNavigate();
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
   const irAMenuOrganizaciones = () => {
     navigate("/menuOrganizaciones");
@@ -26,7 +42,10 @@ const Expertos = () => {
   };
 
   const irANuevoExperto = () => {
-    navigate(`/nuevoExperto?orgcod=${orgcod}`);
+    navigate(`/projects/${projcod}/expertos/new`);
+  };
+  const irAEditarExperto = () => {
+    navigate(`/projects/`);
   };
 
   const irALogin = () => {
@@ -35,18 +54,28 @@ const Expertos = () => {
   const irAPlantillas = () => {
     navigate(`/plantillas`);
   };
-  // Obtener los parámetros de consulta
-  const queryParams = new URLSearchParams(location.search);
-  const orgcod = queryParams.get("orgcod"); // Obtener 'orgcod' de los parámetros de consulta
 
-  //Proyecto
-  const [projects, setProjects] = useState([]);
-  const [error, setError] = useState(null);
+  
 
-  // Estado para los parámetros de búsqueda
-  const [searchNombre, setSearchNombre] = useState("");
-  const [searchYear, setSearchYear] = useState("");
-  const [searchMonth, setSearchMonth] = useState("");
+  const fetchExpertos = useCallback(async () => {
+    //Obtener o listar proyectos de una organizacion
+    try {
+      const response = await axios.get(`${API_BASE_URL}/proyectos/${projcod}/expertos`);
+      setExpertos(response.data||[]);
+    } catch (err) {
+      setError(
+        err.response
+          ? err.response.data.error
+          : "Error al obtener los proyectos"
+      );
+    }
+  }, [projcod,API_BASE_URL]);
+
+  useEffect(() => {
+    
+    fetchExpertos();
+    
+  }, [fetchExpertos]);
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -65,80 +94,53 @@ const Expertos = () => {
     "Diciembre",
   ];
 
-  const fetchProjects = useCallback(async () => {
-    //Obtener o listar proyectos de una organizacion
+  // Función para eliminar un Experto
+  const deleteExpert = async (codigo) => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/projects?orgcod=${orgcod}`
-      );
-      setProjects(response.data);
+      await axios.delete(`${API_BASE_URL}/proyectos/${projcod}/expertos/${codigo}`);
+      fetchExpertos(); // Refrescar la lista de proyectos después de eliminar uno
     } catch (err) {
-      setError(
-        err.response
-          ? err.response.data.error
-          : "Error al obtener los proyectos"
-      );
+      console.error("Error al eliminar el proyecto:", err);
+      setError(err.response?.data?.error || "Error al eliminar el proyecto");
     }
-  }, [orgcod]);
+  };
 
-  useEffect(() => {
-    if (orgcod) {
-      fetchProjects();
-    }
-  }, [orgcod, fetchProjects]);
-
-  // Función para buscar proyectos
+  //funcion para buscaar proyectos por fecha y nombre
   const handleSearch = async () => {
-    try {
-      // Construye los parámetros dinámicamente para evitar enviar valores vacíos
-      const params = {
-        orgcod: orgcod || "",
-      };
+  try {
+      setLoading(true);
+      let endpoint;
+      let params = {};
 
+      // Determinar qué tipo de búsqueda realizar
       if (searchNombre) {
-        params.pronom = searchNombre;
-      }
-      if (searchYear) {
-        params.year = searchYear;
-      }
-      if (searchMonth) {
-        params.month = searchMonth;
+          // Búsqueda por nombre
+          endpoint = `${API_BASE_URL}/proyectos/${projcod}/expertos/search`;
+          params.nombre = searchNombre;
+      } else if (searchYear || searchMonth) {
+          // Búsqueda por fecha
+          endpoint = `${API_BASE_URL}/proyectos/${projcod}/expertos/search/date`;
+          if (searchYear) params.year = searchYear;
+          if (searchMonth) params.month = searchMonth;
+      } else {
+          // Si no hay criterios de búsqueda, cargar todos los proyectos
+          await fetchExpertos();
+          return;
       }
 
-      const response = await axios.get(
-        "http://localhost:5000/api/projects/searchByOrganization",
-        {
-          params,
-        }
-      );
+      const response = await axios.get(endpoint, { params });
+      setExpertos(response.data);
+      setError(null);
+  } catch (err) {
+      console.error("Error en la búsqueda:", err);
+      setError(err.response?.data?.error || "Error al buscar proyectos");
+      setExpertos([]);
+  } finally {
+      setLoading(false);
+  }
+};
 
-      setProjects(response.data); // Actualiza la lista de proyectos con los resultados
-    } catch (err) {
-      setError(
-        err.response ? err.response.data.error : "Error al buscar proyectos"
-      );
-    }
-  };
-  // Función para eliminar un proyecto
-  const deleteProject = async (procod) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
-      try {
-        await axios.delete(`http://localhost:5000/api/projects/${procod}`);
-        fetchProjects();
-        alert("Proyecto eliminado correctamente.");
-      } catch (err) {
-        console.error(
-          "Error al eliminar el proyecto:",
-          err.response?.data || err.message
-        );
-        alert(
-          `Hubo un error al eliminar el proyecto: ${
-            err.response?.data.error || err.message
-          }`
-        );
-      }
-    }
-  };
+
 
   return (
     <div className="expe-container">
@@ -229,63 +231,61 @@ const Expertos = () => {
             </div>
 
             {error ? (
-              <p>{error}</p>
-            ) : (
-              <table className="expe-centertabla">
-                <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Fecha </th>
-                    <th>Version</th>
-                    <th>Experiencia</th>
-                    <th>Opciones</th>
+            <p>{error}</p>
+          ) : (
+            <table className="expe-centertabla">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Fecha</th>
+                  <th>Versión</th>
+                  <th>Experiencia</th>
+                  <th>Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expertos.map((experto) => (
+                  <tr key={experto.codigo}>
+                    <td>{experto.codigo}</td>
+                    <td>{experto.nombres}</td>
+                    <td>{new Date(experto.fechaCreacion).toLocaleDateString()}</td>
+                    <td>{experto.version}</td>
+                    <td>{experto.experiencia}</td>
+                    <td>
+                      <button className="botton-crud">
+                        <FaFolder
+                          style={{ color: "orange", cursor: "pointer" }}
+                        />
+                      </button>
+                      <button
+                        className="botton-crud"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Evita que el clic se propague al <tr>
+                          irAEditarExperto(experto.codigo); // Llama a la función para editar
+                        }}
+                      >
+                        <FaPencilAlt
+                          style={{ color: "blue", cursor: "pointer" }}
+                        />
+                      </button>
+                      <button
+                        className="botton-crud"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Evita que el clic se propague al <tr>
+                          deleteExpert(experto.codigo); // Llama a la función de eliminación
+                        }}
+                      >
+                        <FaTrash
+                          style={{ color: "red", cursor: "pointer" }}
+                        />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {projects.map((pro) => (
-                    <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code)}>
-                      <td>{pro.code}</td>
-                      <td>{pro.name}</td>
-                      <td>{new Date(pro.creationDate).toLocaleDateString()}</td>
-                      <td>
-                        {new Date(pro.modificationDate).toLocaleDateString()}
-                      </td>
-                      <td>{pro.status}</td>
-                      <td>
-                        <button className="botton-crud">
-                          <FaFolder
-                            style={{ color: "orange", cursor: "pointer" }}
-                          />
-                        </button>
-                        <button
-                          className="botton-crud"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            irAEditarProyecto(pro.id); // Llama a la función para editar
-                          }}
-                        >
-                          <FaPencilAlt
-                            style={{ color: "blue", cursor: "pointer" }}
-                          />
-                        </button>
-                        <button
-                          className="botton-crud"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            deleteProject(pro.code); // Llama a la función de eliminación
-                          }}
-                        >
-                          <FaTrash
-                            style={{ color: "red", cursor: "pointer" }}
-                          />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                ))}
+              </tbody>
+            </table>
+          )}
 
             <div className="ro-buttons">
               <button
@@ -298,14 +298,14 @@ const Expertos = () => {
             </div>
 
             <h4 className="expe-h4">
-              {projects.length === 0 ? (
+              {expertos.length === 0 ? (
                 <p>No hay expertos registrados.</p>
               ) : (
                 <table className="expe-centertabla">
                   <thead>{/* Encabezados */}</thead>
                   <tbody>
-                    {projects.map((pro) => (
-                      <tr key={pro.procod}>{/* Celdas */}</tr>
+                    {expertos.map((pro) => (
+                      <tr key={pro.codigo}>{/* Celdas */}</tr>
                     ))}
                   </tbody>
                 </table>

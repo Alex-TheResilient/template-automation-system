@@ -1,11 +1,15 @@
 import React, {useState} from "react"
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import '../../styles/stylesPlantillas.css'
 import '../../styles/styles.css';
 
 const Plantillas = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { projcod } = useParams();
+
+    const queryParams = new URLSearchParams(location.search);
+    const codigo = queryParams.get('projcod');
 
     const irALogin = () => {
         navigate("/");
@@ -37,9 +41,11 @@ const Plantillas = () => {
     const irARequerimientosNoFuncionales = () => {
         navigate("/requerimientosNoFuncionales");
     };
+    
+
     const irAExpertos = () => {
-        navigate("/expertos");
-    };
+        navigate(`/projects/${projcod}/expertos`);
+      }; 
     const irAFuentes = () => {
         navigate("/fuentes");
     };

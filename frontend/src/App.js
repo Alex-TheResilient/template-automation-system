@@ -88,7 +88,7 @@ function App() {
           <Route path="/editarEntrevista" element={<EditarEntrevista />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
-          <Route path="/plantillas" element={<Plantillas />} />
+          <Route path="/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
           <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
@@ -98,11 +98,11 @@ function App() {
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
-          <Route path="/expertos" element={<Expertos />} />   
+          <Route path="/projects/:projcod/expertos" element={<Expertos />} />   
           <Route path="/fuentes" element={<Fuentes />} />   
           <Route path="/nuevaFuente" element={<NuevaFuente />} /> 
           <Route path="/editarFuente" element={<EditarFuente />} /> 
-          <Route path="/nuevoExperto" element={<NuevoExperto />} /> 
+          <Route path="/projects/:projcod/expertos/new" element={<NuevoExperto />} /> 
           <Route path="/editarExperto" element={<EditarExperto />} /> 
 
         </Routes>

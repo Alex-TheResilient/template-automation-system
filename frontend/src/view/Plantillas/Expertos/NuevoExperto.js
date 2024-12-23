@@ -1,49 +1,79 @@
 // frontend/src/view/RegistroOrganizacion.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoExperto.css';
 import '../../../styles/styles.css';
 import axios from "axios";
 
 const NuevoExperto = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
+    // Obtener datos del proyecto del URL
+    const { projcod } = useParams();
+
+    const [codigoExperto, setCodigoExperto] = useState("");
+    const [version, setVersionExperto] = useState("00.01");
+    const [fechaCreacion, setFechaCreacion] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    );
+    const [fechaModificacion, setFechaModificacion] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    );
+    
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
+    const [apellidoPaterno, setApellidoPaterno] = useState("");
+    const [apellidoMaterno, setApellidoMaterno] = useState("");
+    const [nombres, setNombres] = useState("");
+    const [experiencia, setExperiencia] = useState("");
     const [estado, setEstado] = useState("");
     const [comentario, setComentario] = useState("");
+    //Estados para manejar errores
+    const [error, setError]=useState(null);
 
-    // Datos automáticos
-    const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState("");
-    const [tipo, setTipo] = useState("Contratante");
-    const [autor, setAutor] = useState("AUT-00.00");
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
-    const [error, setError] = useState(null);
-
+    // Obtener el siguiente código de experto
     useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
+        const fetchNextCodigoExperto = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/organizations/last");
-                const nextCode = response.data.nextCode || "ORG-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/proyectos/${projcod}/expertos/nextCodigo`);
+
+                // Asignar el valor recibido al estado
+                setCodigoExperto(response.data.nextCode || "EXP-001");
             } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
             }
         };
-        fetchAutomaticData();
-    }, []);
+
+        fetchNextCodigoExperto();
+    }, [API_BASE_URL, projcod]);
+
+    const registrarExperto = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/proyectos/${projcod}/expertos`, {
+                apellidoMaterno: apellidoMaterno,
+                apellidoPaterno: apellidoPaterno,
+                nombres: nombres,
+                experiencia: experiencia,
+                comentario: comentario, // Asumiendo que 'comentario' es un campo adicional
+                estado: estado, // Asumiendo que 'estado' es otro campo
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAExpertos();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
+    
 
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
@@ -55,7 +85,7 @@ const NuevoExperto = () => {
     navigate("/fuentes");
     };
     const irAExpertos = () => {
-    navigate("/expertos");
+    navigate(`/projects/${projcod}/expertos`);
     };
     const irAPlantillas = () => {
         navigate(`/plantillas`);
@@ -65,34 +95,7 @@ const NuevoExperto = () => {
     };
 
     // Función para registrar la organización
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/api/organizations", {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
-            });
-            if (response.status === 201) {
-                alert("Organización registrada correctamente");
-                irAMenuOrganizaciones();
-            }
-        } catch (err) {
-            setError("Error al registrar la organización: " + err.message);
-        }
-    };
+    
 
     return (
         <div className="ro-container">
@@ -130,13 +133,13 @@ const NuevoExperto = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={codigoExperto}  readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field"  value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={fechaCreacion} readOnly size="30" />
                             </div>
                         </div>
 
@@ -147,7 +150,7 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Apellido Parterno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={apellidoPaterno} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el apellido parterno del experto</span>
                                 </span>
                                 
@@ -155,14 +158,14 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Apellido Materno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={apellidoMaterno} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el apellido materno del experto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Nombres*</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={telefonoOrganizacion} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
+                                <input className="inputnombre-field" type="text" value={nombres} onChange={(e) => setNombres(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el nombre del experto </span>
                                 </span>
                             </div>
@@ -172,7 +175,7 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Experiencia* </h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={representanteLegal} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={experiencia} onChange={(e) => setExperiencia(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Ingresar la experiencia que tiene el experto </span>
                                 </span>
                                 
@@ -200,7 +203,7 @@ const NuevoExperto = () => {
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value="AUT-000"  readOnly size="30" />
                                     <span class="tooltip-text"> Codigo del autor de la plantilla </span>
                                 </span>
                                 
@@ -223,7 +226,7 @@ const NuevoExperto = () => {
 
                         <div className="ro-buttons">
                             <button onClick={irAExpertos} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button">Crear Experto</button>
+                            <button onClick={registrarExperto} className="ro-button">Crear Experto</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

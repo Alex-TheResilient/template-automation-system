@@ -48,9 +48,11 @@ const MenuProyecto = () => {
     const irARoles = () => {
         navigate(`/roles?projcod=${projcod}`);
     };
+
+
     const irAPlantillas = () => {
-        navigate("/plantillas");
-    };
+        navigate(`/projects/${projcod}/plantillas`);
+      }; 
     const irAListaProyecto = () => {
         navigate("/listaProyectos");
     };
