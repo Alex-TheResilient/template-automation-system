@@ -52,7 +52,7 @@ const Entrevistas = () => {
         navigate("/nuevaEvidencia");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
         navigate("/listaProyectos");
