@@ -60,6 +60,11 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod" element={<EditarProyecto />} />
           <Route path="/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
 
+          {/* Entrevistas */}
+          <Route path="/projects/:projcod/entrevistas" element={<Entrevistas />} />
+          <Route path="/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
+          <Route path="/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
+
           {/* Educciones */}
           <Route path="/projects/:projcod/educciones" element={<Educcion />} />
           <Route path="/projects/:projcod/educciones/new" element={<NuevaEduccion />} />
@@ -84,9 +89,6 @@ function App() {
           <Route path="/Roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol" element={<EditarRol />} />
-          <Route path="/entrevistas" element={<Entrevistas />} />
-          <Route path="/nuevaEntrevista" element={<NuevaEntrevista />} />
-          <Route path="/editarEntrevista" element={<EditarEntrevista />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/plantillas" element={<Plantillas />} />
