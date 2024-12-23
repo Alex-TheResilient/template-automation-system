@@ -7,33 +7,32 @@ import axios from "axios";
 
 const MenuProyecto = () => {
     const navigate = useNavigate();
-    const { projcod } = useParams(); // Obtener el código del proyecto desde la URL
-
+    const { orgcod, projcod } = useParams();
     const [proyecto, setProyecto] = useState({});
 
     const [codigoAutor, setCodigoAutor] = useState("");
     const [resultados, setResultados] = useState([]);
     const [mensaje, setMensaje] = useState("");
-
+    
     useEffect(() => {
         // Obtener la información del proyecto usando el código del proyecto
         const obtenerProyecto = async () => {
             try {
-                const response = await axios.get(`/api/projects/${projcod}`);
+                const response = await axios.get(`/api/v1/projects/${projcod}`);
                 setProyecto(response.data);
             } catch (error) {
                 console.log("Error al obtener el proyecto:", error);
             }
         };
         obtenerProyecto();
-    }, [projcod]);
+    }, [orgcod, projcod]);
 
     const irALogin = () => {
         navigate("/");
     };
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
 
     const irAActaAceptacion = () => {
@@ -43,7 +42,7 @@ const MenuProyecto = () => {
         navigate(`/autores?projcod=${projcod}`);
     };
     const irAEntrevistas = () => {
-        navigate(`/entrevistas?projcod=${projcod}`);
+        navigate(`/projects/${projcod}/entrevistas`);
     };
     const irARoles = () => {
         navigate(`/roles?projcod=${projcod}`);

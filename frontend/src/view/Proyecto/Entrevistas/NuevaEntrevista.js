@@ -1,17 +1,67 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEntrevista.css';
 import '../../../styles/styles.css';
 
 const NuevaEntrevista = () => {
-
     const navigate = useNavigate();
+    const { proyectoId } = useParams();
+
+    const [entrevista, setEntrevista] = useState({
+        version: "00.01",
+        fechaEntrevista: "",
+        autorId: "AUT-0000",
+        nombreEntrevistado: "",
+        cargoEntrevistado: "",
+        horaInicio: "",
+        horaFin: "",
+        observaciones: "",
+        agendas: [{ descripcion: "" }],
+        conclusiones: [{ descripcion: "" }]
+    });
+    
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setEntrevista({ ...entrevista, [name]: value });
+    };
+
+    const handleAgendaChange = (index, e) => {
+        const { name, value } = e.target;
+        const agendas = [...entrevista.agendas];
+        agendas[index][name] = value;
+        setEntrevista({ ...entrevista, agendas });
+    };
+
+    const handleConclusionChange = (index, e) => {
+        const { name, value } = e.target;
+        const conclusiones = [...entrevista.conclusiones];
+        conclusiones[index][name] = value;
+        setEntrevista({ ...entrevista, conclusiones });
+    };
+
+    const addAgenda = () => {
+        setEntrevista({ ...entrevista, agendas: [...entrevista.agendas, { descripcion: "" }] });
+    };
+
+    const addConclusion = () => {
+        setEntrevista({ ...entrevista, conclusiones: [...entrevista.conclusiones, { descripcion: "" }] });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`/api/projects/${proyectoId}/entrevistas`, entrevista);
+            navigate(`/projects/${proyectoId}/entrevistas`);
+        } catch (error) {
+            console.error("Error al crear la entrevista:", error);
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAEntrevistas = () => {
-        navigate("/entrevistas");
+        navigate("/projects/" + proyectoId + "/entrevistas");
     };
     const irALogin = () => {
         navigate("/");

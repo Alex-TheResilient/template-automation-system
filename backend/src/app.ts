@@ -6,6 +6,7 @@ import { initSystem } from './initialization';
 import authRoutes from './routes/authRoutes';
 import organizacionRoutes from './routes/organizacion.routes';
 import proyectoRoutes from './routes/proyecto.routes';
+import entrevistaRoutes from './routes/entrevista.routes';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
 
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/organizations', organizacionRoutes);
 app.use('/api/v1', proyectoRoutes); // Rutas de proyectos y educciones
+app.use('/api/v1', entrevistaRoutes);
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
 initSystem()
@@ -47,10 +49,5 @@ initSystem()
 // Manejar señales de salida
 process.on('SIGINT', () => {
   console.log('Cerrando el servidor...');
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  console.log('Servidor detenido.');
   process.exit(0);
 });
