@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
+import axios from 'axios';
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesEntrevistas.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,22 +9,41 @@ import '../../../styles/styles.css';
 
 const Entrevistas = () => {
     const navigate = useNavigate();
+    const { projcod } = useParams();
+    const [entrevistas, setEntrevistas] = useState([]);
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+
+    useEffect(() => {
+        const fetchEntrevistas = async () => {
+            try {
+                const response = await axios.get(`/api/projects/${projcod}/entrevistas`);
+                setEntrevistas(response.data);
+            } catch (error) {
+                console.error("Error al obtener las entrevistas:", error);
+            }
+        };
+
+        fetchEntrevistas();
+    }, [projcod]);
 
     const irALogin = () => {
         navigate("/");
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAVerEntrevista = () => {
         navigate("/verEntrevista");
     };
+
     const irANuevaEntrevista = () => {
-        navigate("/nuevaEntrevista");
+        navigate(`/projects/${projcod}/entrevistas/new`);
     };
-    const irAEditarEntrevista = () => {
-        navigate("/editarEntrevista");
+
+    const irAEditarEntrevista = (entrecod) => {
+        navigate(`/projects/${projcod}/entrevistas/${entrecod}`);
     };
+
     const irAVerEvidencia = () => {
         navigate("/verEvidencia");
     };
@@ -32,14 +52,12 @@ const Entrevistas = () => {
         navigate("/nuevaEvidencia");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
         navigate("/listaProyectos");
     };
-
-    const [mostrarPopup, setMostrarPopup] = useState(false);
-  
+ 
     const abrirPopup = () => {
       setMostrarPopup(true);
     };
@@ -121,19 +139,21 @@ const Entrevistas = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {entrevistas.map((entrevista) => (
+                                        <tr key={entrevista.id}>
+                                            <td>{entrevista.nombreEntrevista}</td>
+                                            <td>{entrevista.version}</td>
+                                            <td>{new Date(entrevista.fechaEntrevista).toLocaleDateString()}</td>
+                                            <td>
+                                                <button className="botton-crud" onClick={() => navigate(`/projects/${projcod}/entrevistas/${entrevista.id}`)}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                                <button className="botton-crud" onClick={() => irAEditarEntrevista(entrevista.id)}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
+                                                <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                     <tr>
                                         <td>Entrevista 1</td>
                                         <td>00.01</td>
-                                        <td>23/10/2023</td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEntrevista}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEntrevista}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Entrevista 2</td>
-                                        <td>00.02</td>
                                         <td>23/10/2023</td>
                                         <td>
                                             <button className="botton-crud" onClick={irAVerEntrevista}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>

@@ -6,7 +6,7 @@ import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
 
 
-const Educcion = () => {
+const Especificacion = () => {
     const navigate = useNavigate();
 
     const irALogin = () => {
@@ -15,14 +15,14 @@ const Educcion = () => {
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
     };
-    const irAVerEduccion = () => {
-        navigate("/verEduccion");
+    const irAVerEspecificacion = () => {
+        navigate("/verEspecificacion");
     };
-    const irANuevaEduccion = () => {
-        navigate("/nuevaEduccion");
+    const irANuevaEspecificacion = () => {
+        navigate("/nuevaEspecificacion");
     };
-    const irAEditarEduccion = () => {
-        navigate("/editarEduccion");
+    const irAEditarEspecificacion = () => {
+        navigate("/editarEspecificacion");
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -54,8 +54,8 @@ const Educcion = () => {
       setMostrarPopup(false);
     };
   
-    const eliminarEduccion = () => {
-      console.log("Educcion eliminada");
+    const eliminarEspecificacion = () => {
+      console.log("Especificacion eliminada");
       cerrarPopup();
     };
 
@@ -73,7 +73,7 @@ const Educcion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span>Educción</span>
+                    <span>Especificación</span>
                 </div>
             </header>
 
@@ -96,12 +96,12 @@ const Educcion = () => {
                 </aside>
 
                 <main className="main-content">
-                    <h2>EDUCCIÓN</h2>
+                    <h2>ESPECIFICACIÓN</h2>
                     <section className="pp-section">
-                        <h3>Educción</h3>
+                        <h3>Gestión de Especificación</h3>
 
                         <div className="search-section-bar">
-                            <button onClick={irANuevaEduccion} className="nuevo-pp-button">Nueva Educción</button>
+                            <button onClick={irANuevaEspecificacion} className="nuevo-pp-button">Nueva Especificación</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -110,7 +110,7 @@ const Educcion = () => {
                                     placeholder="Buscar" 
                                     style={{ width: "500px" }} 
                                     />
-                                    <span class="tooltip-text">Filtrar información por nombre o código de educción</span>
+                                    <span class="tooltip-text">Filtrar información por código, nombre y estado de gestión de especificación</span>
                                 </span>
                                 
                                 <button className="search-button">Buscar</button>
@@ -166,28 +166,28 @@ const Educcion = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>EDU-0001</td>
-                                        <td>Gestión de plantillas</td>
+                                        <td>ESP-0001</td>
+                                        <td>Especificación 1</td>
                                         <td>23/10/2023</td>
                                         <td>26/10/2023</td>
-                                        <td>Concluido</td>
+                                        <td>Activo</td>
                                         <td>00.01</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud" onClick={irAVerEspecificacion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud" onClick={irAEditarEspecificacion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
                                             <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>EDU-0002</td>
-                                        <td>Gestión de proyectos</td>
+                                        <td>ESP-0002</td>
+                                        <td>Especificacion 2</td>
                                         <td>23/10/2023</td>
                                         <td>26/10/2023</td>
-                                        <td>Concluido</td>
+                                        <td>Inactivo</td>
                                         <td>00.02</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud" onClick={irAVerEspecificacion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud" onClick={irAEditarEspecificacion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
                                             <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
                                         </td>
                                     </tr>
@@ -197,8 +197,8 @@ const Educcion = () => {
                             {mostrarPopup && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta educción?</p>
-                                    <button onClick={eliminarEduccion} className="si-button">
+                                    <p>¿Está seguro de eliminar esta especificación?</p>
+                                    <button onClick={eliminarEspecificacion} className="si-button">
                                     Sí
                                     </button>
                                     <button onClick={cerrarPopup} className="no-button">
@@ -214,17 +214,17 @@ const Educcion = () => {
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>
-                                    <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
+                                    <span class="tooltip-text">Generar reporte de las especificaciones en Excel</span>
                                 </span>
                                 <span class="message">
                                 <button className="export-button">PDF</button>
-                                    <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
+                                    <span class="tooltip-text">Generar reporte de las especificaciones en Pdf</span>
                                 </span>
                             </div>
 
                     </section>
                     <section className="pp-section">
-                        <h3>Gestión de Riesgos de Educción</h3>
+                        <h3>Gestión de Riesgos de Especificación</h3>
                         <div className="search-section-bar">
                             <button onClick={irARegistrarRiesgo} className="nuevo-pp-button">Registrar Riesgo</button>
                             <div className="sectionTextBuscar">
@@ -235,7 +235,7 @@ const Educcion = () => {
                                     placeholder="Buscar" 
                                     style={{ width: "500px" }} 
                                     />
-                                    <span class="tooltip-text">Filtrar información por nombre o código de educción</span>
+                                    <span class="tooltip-text">Filtrar información por código del requisito, responsbale o versión dle riesgo</span>
                                 </span>
                                 <button className="search-button">Buscar</button>
                             </div>
@@ -243,32 +243,27 @@ const Educcion = () => {
 
                         <div className="pp-search-section-text">
                             <div className="pp-searchbar">
-                                <select className="pp-year-input">
-                                    <option value="">AÑO</option>
-                                    {[2024, 2023, 2022, 2021, 2020].map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
+                                <select className="pp-month-input">
+                                <option value="">ESTADO</option>
+                                    {[
+                                        "Alta", 
+                                        "Media", 
+                                        "Baja"
+                                    ].map((PROBABILITY, index) => (
+                                        <option key={index} value={index + 1}>
+                                            {PROBABILITY}
                                         </option>
                                     ))}
                                 </select>
                                 <select className="pp-month-input">
-                                    <option value="">MES</option>
+                                    <option value="">ESTADO</option>
                                     {[
-                                        "Enero", 
-                                        "Febrero", 
-                                        "Marzo", 
-                                        "Abril", 
-                                        "Mayo", 
-                                        "Junio", 
-                                        "Julio", 
-                                        "Agosto", 
-                                        "Septiembre", 
-                                        "Octubre", 
-                                        "Noviembre", 
-                                        "Diciembre"
-                                    ].map((month, index) => (
+                                        "Activo", 
+                                        "Cerrado", 
+                                        "Mitigado"
+                                    ].map((STATE, index) => (
                                         <option key={index} value={index + 1}>
-                                            {month}
+                                            {STATE}
                                         </option>
                                     ))}
                                 </select>
@@ -288,7 +283,7 @@ const Educcion = () => {
                                 </thead>
                                 <tbody onClick={irAVerRiesgo}>
                                     <tr>
-                                        <td>EDU-0001</td>
+                                        <td>ESP-0001</td>
                                         <td>00.01</td>
                                         <td>AUT-0002</td>
                                         <td>DDDDDDDDDDDDDD</td>
@@ -315,7 +310,7 @@ const Educcion = () => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>EDU-0002</td>
+                                        <td>ESP-0002</td>
                                         <td>00.01</td>
                                         <td>AUT-0003</td>
                                         <td>DDDDDDDDDDDDDD</td>
@@ -364,11 +359,11 @@ const Educcion = () => {
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>
-                                    <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
+                                    <span class="tooltip-text">Generar reporte de los riesgos de especificación en Excel</span>
                                 </span>
                                 <span class="message">
                                 <button className="export-button">PDF</button>
-                                    <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
+                                    <span class="tooltip-text">Generar reporte de los riesgos de especificación en Pdf</span>
                                 </span>
                             </div>
 
@@ -382,4 +377,4 @@ const Educcion = () => {
     );
 };
 
-export default Educcion;
+export default Especificacion;

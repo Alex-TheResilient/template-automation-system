@@ -74,7 +74,7 @@ model ActaAceptacion {
 
 model Entrevista {
   id                 String       @id @default(uuid())
-  codigo             String       @unique
+  nombreEntrevista   String
   version            String
   fechaEntrevista    DateTime
   autorId            String
@@ -93,7 +93,6 @@ model Entrevista {
 
 model Agenda {
   id           String     @id @default(uuid())
-  codigo       String     @unique
   descripcion  String
   entrevistaId String
   entrevista   Entrevista @relation(fields: [entrevistaId], references: [id])
@@ -101,7 +100,6 @@ model Agenda {
 
 model Conclusion {
   id           String     @id @default(uuid())
-  codigo       String     @unique
   descripcion  String
   entrevistaId String
   entrevista   Entrevista @relation(fields: [entrevistaId], references: [id])
@@ -111,6 +109,7 @@ model Evidencia {
   id             String     @id @default(uuid())
   codigo         String     @unique
   nombre         String
+  tipo           String
   entrevistaId   String
   fechaEvidencia DateTime   @default(now())
   archivo        String

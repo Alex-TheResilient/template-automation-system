@@ -55,7 +55,7 @@ html, body {
 }
 
 .atras-button, .adelante-button, .logout-button, .search-button, .export-button ,
-.nueva-educcion-button, .nuevo-riesgo-button{
+.nuevo-pp-button{
     background-color: #B4508A;
     color: white;
     border: none;
@@ -142,7 +142,7 @@ h4{
     margin-top: 20px;
     margin-left: 20px;
 }
-.educcion-section , .riesgos-section{
+.pp-section{
     margin-top: 20px;
 }
 
@@ -219,20 +219,20 @@ button:hover {
     background-color: #7a1a5e;
 }
 
-.educ-search-section-text {
+.pp-search-section-text {
     display: flex;
     margin-left: 82%;
     
     margin-bottom: 10px;
 }
 
-.educ-searchbar {
+.pp-searchbar {
     display: flex;
     margin-right: 50px;
     
 }
 
-.educ-year-input, .educ-month-input {
+.pp-year-input, .pp-month-input {
     width: 70px;
     padding: 5px;
     margin-right: 5px;

@@ -38,8 +38,11 @@ import EditarExperto from './view/Plantillas/Expertos/EditarExperto.js';
 import Fuentes from './view/Plantillas/Fuentes/Fuentes.js';
 import NuevaFuente from './view/Plantillas/Fuentes/NuevaFuente.js';
 import EditarFuente from './view/Plantillas/Fuentes/EditarFuente.js';
-
-
+import Especificacion from './view/Plantillas/Especificacion/Especificacion.js';
+import NuevaEspecificacion from './view/Plantillas/Especificacion/NuevaEspecificacion.js';
+import EditarEspecificacion from './view/Plantillas/Especificacion/EditarEspecificacion.js';
+import NuevoNemonico from './view/Plantillas/Artefactos/NuevoNemonico.js';
+import SubirInterfaz from './view/Plantillas/Artefactos/SubirInterfaz.js';
 
 function App() {
   return (
@@ -59,6 +62,11 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod" element={<EditarProyecto />} />
           <Route path="/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
 
+          {/* Entrevistas */}
+          <Route path="/projects/:projcod/entrevistas" element={<Entrevistas />} />
+          <Route path="/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
+          <Route path="/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
+
           {/* Educciones */}
           <Route path="/projects/:projcod/educciones" element={<Educcion />} />
           <Route path="/projects/:projcod/educciones/new" element={<NuevaEduccion />} />
@@ -67,9 +75,9 @@ function App() {
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} /> */}
 
           {/* Ilaciones */}
-          {/* <Route path="/educciones/:educod/ilaciones" element={<ListaIlaciones />} />
+          {/*<Route path="/educciones/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/educciones/:educod/ilaciones/new" element={<NuevaIlacion />} />
-          <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} /> */}
+          <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />*/}
 
           {/* Especificaciones */}
           {/* <Route path="/ilaciones/:ilacod/especificaciones" element={<ListaEspecificaciones />} />
@@ -83,18 +91,15 @@ function App() {
           <Route path="/Roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol" element={<EditarRol />} />
-          <Route path="/entrevistas" element={<Entrevistas />} />
-          <Route path="/nuevaEntrevista" element={<NuevaEntrevista />} />
-          <Route path="/editarEntrevista" element={<EditarEntrevista />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
-          <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
+          <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
           <Route path="/editarIlacion" element={<EditarIlacion />} />
-          <Route path="/artefacto" element={<Artefactos />} />
+          <Route path="/artefactos" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
@@ -104,6 +109,11 @@ function App() {
           <Route path="/editarFuente" element={<EditarFuente />} /> 
           <Route path="/projects/:projcod/expertos/new" element={<NuevoExperto />} /> 
           <Route path="/editarExperto" element={<EditarExperto />} /> 
+          <Route path="/especificacion" element={<Especificacion />} />
+          <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
+          <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
+          <Route path="/nuevoNemonico" element={<NuevoNemonico />} />
+          <Route path="/subirInterfaz" element={<SubirInterfaz />} />
 
         </Routes>
       </div>

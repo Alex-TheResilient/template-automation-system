@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
-import '../../../styles/stylesIlacion.css'
+import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
 
@@ -97,11 +97,11 @@ const Ilacion = () => {
 
                 <main className="main-content">
                     <h2>ILACIÓN</h2>
-                    <section className="educcion-section">
+                    <section className="pp-section">
                         <h3>Gestion de Ilacion</h3>
 
                         <div className="search-section-bar">
-                            <button onClick={irANuevaIlacion} className="nueva-educcion-button">Nueva Ilación</button>
+                            <button onClick={irANuevaIlacion} className="nuevo-pp-button">Nueva Ilación</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -117,9 +117,9 @@ const Ilacion = () => {
                             </div>
                         </div>
 
-                        <div className="educ-search-section-text">
-                            <div className="educ-searchbar">
-                                <select className="educ-year-input">
+                        <div className="pp-search-section-text">
+                            <div className="pp-searchbar">
+                                <select className="pp-year-input">
                                     <option value="">AÑO</option>
                                     {[2024, 2023, 2022, 2021, 2020].map((year) => (
                                         <option key={year} value={year}>
@@ -127,7 +127,7 @@ const Ilacion = () => {
                                         </option>
                                     ))}
                                 </select>
-                                <select className="educ-month-input">
+                                <select className="pp-month-input">
                                     <option value="">MES</option>
                                     {[
                                         "Enero", 
@@ -223,10 +223,10 @@ const Ilacion = () => {
                             </div>
 
                     </section>
-                    <section className="riesgos-section">
+                    <section className="pp-section">
                         <h3>Gestión de Riesgos de Ilacion</h3>
                         <div className="search-section-bar">
-                            <button onClick={irARegistrarRiesgo} className="nuevo-riesgo-button">Registrar Riesgo</button>
+                            <button onClick={irARegistrarRiesgo} className="nuevo-pp-button">Registrar Riesgo</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
                                 <input 
@@ -241,9 +241,9 @@ const Ilacion = () => {
                             </div>
                         </div>
 
-                        <div className="educ-search-section-text">
-                            <div className="educ-searchbar">
-                                <select className="educ-year-input">
+                        <div className="pp-search-section-text">
+                            <div className="pp-searchbar">
+                                <select className="pp-year-input">
                                     <option value="">AÑO</option>
                                     {[2024, 2023, 2022, 2021, 2020].map((year) => (
                                         <option key={year} value={year}>
@@ -251,7 +251,7 @@ const Ilacion = () => {
                                         </option>
                                     ))}
                                 </select>
-                                <select className="educ-month-input">
+                                <select className="pp-month-input">
                                     <option value="">MES</option>
                                     {[
                                         "Enero", 
@@ -373,7 +373,7 @@ const Ilacion = () => {
                             </div>
 
                         <div className="search-section-bar">
-                            <button onClick={irAPlantillas} classNam                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                e="atras-button">Regresar</button>
+                            <button onClick={irAPlantillas} className="atras-button">Regresar</button>
                         </div>
                     </section>
                 </main>
