@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react"; 
+import axios from "axios"; 
 import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEntrevista.css';
 import '../../../styles/styles.css';
