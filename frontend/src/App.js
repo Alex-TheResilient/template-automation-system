@@ -39,7 +39,7 @@ import Fuentes from './view/Plantillas/Fuentes/Fuentes.js';
 import NuevaFuente from './view/Plantillas/Fuentes/NuevaFuente.js';
 import EditarFuente from './view/Plantillas/Fuentes/EditarFuente.js';
 import Especificacion from './view/Plantillas/Especificacion/Especificacion.js';
-
+import NuevaEspecificacion from './view/Plantillas/Especificacion/NuevaEspecificacion.js';
 
 
 function App() {
@@ -106,6 +106,7 @@ function App() {
           <Route path="/nuevoExperto" element={<NuevoExperto />} /> 
           <Route path="/editarExperto" element={<EditarExperto />} /> 
           <Route path="/especificacion" element={<Especificacion />} />
+          <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
 
         </Routes>
       </div>

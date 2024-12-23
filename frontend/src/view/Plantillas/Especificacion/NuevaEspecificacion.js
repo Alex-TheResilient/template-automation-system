@@ -307,7 +307,7 @@ const NuevaEspecificacion = () => {
                             
                         </h3>
                         <div className="ne-input-container">
-                            <div className="custom-select-dropdown">
+                        <div className="custom-select-dropdown">
                                 <div className="dropdown-toggle" onClick={() => toggleDropdown("artefactos")}>
                                     <span>
                                         {selectedItems.length > 0
@@ -316,9 +316,9 @@ const NuevaEspecificacion = () => {
                                     </span>
                                     <span className="dropdown-arrow">▼</span>
                                 </div>
-                                {dropdownOpen.ilaciones && (
+                                {dropdownOpen.artefactos && (
                                     <div className="dropdown-menu">
-                                        {ilaciones.map((option, index) => (
+                                        {artefactos.map((option, index) => (
                                             <label key={index} className="dropdown-item">
                                                 <input
                                                     type="checkbox"
@@ -357,8 +357,8 @@ const NuevaEspecificacion = () => {
                         </div>
 
                         <div className="ne-buttons">
-                            <button onClick={irAIlacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAIlacion} className="ne-button" size="50">Crear Especificación</button>
+                            <button onClick={irAEspecificacion} className="ne-button" size="50">Cancelar</button>
+                            <button onClick={irAEspecificacion} className="ne-button" size="50">Crear Especificación</button>
                         </div>
                     </section>
                 </main>
