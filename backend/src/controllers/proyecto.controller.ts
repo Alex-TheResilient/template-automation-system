@@ -122,18 +122,18 @@ export const exportToExcel = async (_req: Request, res: Response) => {
             { header: 'Estado', key: 'estado', width: 30 },
         ];
         // Agregar datos
-        organizaciones.forEach((orgcod) => {
-            worksheet.addRow({
-                codigo: orgcod.codigo,
-                nombre: orgcod.nombre,
-                fechaCreacion: orgcod.fechaCreacion.toISOString().split('T')[0],
-                orgcod: orgcod.fechaModificacion instanceof Date
-                    ? orgcod.fechaModificacion.toISOString().split('T')[0]
-                    : orgcod.fechaModificacion || 'N/A',
-                fechaModificacion: orgcod.fechaModificacion,
-                estado: orgcod.estado,
-            });
-        });
+        // // organizaciones.forEach((orgcod) => {
+        // //     worksheet.addRow({
+        // //         codigo: orgcod.codigo,
+        // //         nombre: orgcod.nombre,
+        // //         fechaCreacion: orgcod.fechaCreacion.toISOString().split('T')[0],
+        // //         orgcod: orgcod.fechaModificacion instanceof Date
+        // //             ? orgcod.fechaModificacion.toISOString().split('T')[0]
+        // //             : orgcod.fechaModificacion || 'N/A',
+        // //         fechaModificacion: orgcod.fechaModificacion,
+        // //         estado: orgcod.estado,
+        // //     });
+        // });
         // Configurar la respuesta HTTP para descargar el archivo
         res.setHeader(
             'Content-Type',
@@ -175,24 +175,24 @@ export const exportToPDF = async (_req: Request, res: Response) => {
         y += rowHeight;
         // Dibujar filas de datos
         doc.font('Helvetica').fontSize(10);
-        organizaciones.forEach((proyecto) => {
-            const row = [
-                proyecto.codigo || 'N/A',
-                proyecto.nombre || 'N/A',
-                proyecto.fechaCreacion instanceof Date
-                    ? proyecto.fechaCreacion.toISOString().split('T')[0]
-                    : proyecto.fechaCreacion || 'N/A',
-                proyecto.fechaModificacion instanceof Date
-                    ? proyecto.fechaModificacion.toISOString().split('T')[0]
-                    : proyecto.fechaModificacion || 'N/A',
-                proyecto.estado || 'N/A',
-            ];
-            row.forEach((cell, index) => {
-                const x = columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 30;
-                doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
-            });
-            y += rowHeight;
-        });
+        // organizaciones.forEach((proyecto) => {
+        //     const row = [
+        //         proyecto.codigo || 'N/A',
+        //         proyecto.nombre || 'N/A',
+        //         proyecto.fechaCreacion instanceof Date
+        //             ? proyecto.fechaCreacion.toISOString().split('T')[0]
+        //             : proyecto.fechaCreacion || 'N/A',
+        //         proyecto.fechaModificacion instanceof Date
+        //             ? proyecto.fechaModificacion.toISOString().split('T')[0]
+        //             : proyecto.fechaModificacion || 'N/A',
+        //         proyecto.estado || 'N/A',
+        //     ];
+        //     row.forEach((cell, index) => {
+        //         const x = columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 30;
+        //         doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
+        //     });
+        //     y += rowHeight;
+        // });
         // Finalizar el documento
         doc.end();
     } catch (error) {
