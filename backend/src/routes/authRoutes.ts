@@ -1,7 +1,7 @@
 // backend/src/routes/authRoutes.ts
 import express, { Request, Response } from 'express'; // Importando Request y Response
 import { authenticateUser, createAdminUser } from '../services/authService';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateToken } from '../shared/middleware/authMiddleware';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();

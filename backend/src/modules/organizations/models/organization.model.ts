@@ -1,3 +1,5 @@
+import { ProjectResponse } from '../../projects/models/project.model';
+
 export interface OrganizationDTO {
   name: string;
   address?: string;
@@ -32,4 +34,8 @@ export interface OrganizationResponse {
 export interface PaginationParams {
   page: number;
   limit: number;
+}
+
+export interface OrganizationWithProjectsResponse extends OrganizationResponse {
+  projects: ProjectResponse[]; // Importar ProjectResponse del módulo de proyectos
 }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { organizationService } from '../services/organization.service';
+import { OrganizationDTO, OrganizationResponse } from '../models/organization.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 
@@ -9,13 +10,13 @@ export class OrganizationController {
    */
   async createOrganization(req: Request, res: Response) {
     try {
-      const { name } = req.body;
-      if (!name || name.trim() === '') {
+      const organizationDto: OrganizationDTO = req.body;
+      
+      if (!organizationDto.name || organizationDto.name.trim() === '') {
         return res.status(400).json({ error: 'Name is required.' });
       }
 
-      const data = req.body;
-      const newOrganization = await organizationService.createOrganization(data);
+      const newOrganization = await organizationService.createOrganization(organizationDto);
 
       res.status(201).json({
         message: 'Organization created successfully.',
@@ -92,9 +93,9 @@ export class OrganizationController {
   async updateOrganization(req: Request, res: Response) {
     try {
       const { code } = req.params;
-      const data = req.body;
+      const organizationDto: OrganizationDTO = req.body;
       
-      const updatedOrganization = await organizationService.updateOrganization(code, data);
+      const updatedOrganization = await organizationService.updateOrganization(code, organizationDto);
       
       res.status(200).json({
         message: 'Organization updated successfully.',
@@ -191,7 +192,7 @@ export class OrganizationController {
    */
   async exportToExcel(req: Request, res: Response) {
     try {
-      const organizations = await organizationService.getOrganizations(1, 1000); // Máximo 1000 registros
+      const organizations: OrganizationResponse[] = await organizationService.getOrganizations(1, 1000); // Máximo 1000 registros
       
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Organizations');
@@ -238,8 +239,8 @@ export class OrganizationController {
    */
   async exportToPDF(req: Request, res: Response) {
     try {
-      const organizations = await organizationService.getOrganizations(1, 1000); // Máximo 1000 registros
-      
+      const organizations: OrganizationResponse[] = await organizationService.getOrganizations(1, 1000);
+     
       // Configurar la respuesta HTTP
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=organizations.pdf');
@@ -313,7 +314,7 @@ export class OrganizationController {
   async getMainOrganization(req: Request, res: Response) {
     try {
       // Obtener la primera organización o una predefinida según tu lógica
-      const organizations = await organizationService.getOrganizations(1, 1);
+      const organizations: OrganizationResponse[] = await organizationService.getOrganizations(1, 1);
       const mainOrg = organizations[0] || null;
       
       if (!mainOrg) {

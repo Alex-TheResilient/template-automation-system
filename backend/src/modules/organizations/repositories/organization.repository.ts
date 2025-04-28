@@ -2,7 +2,6 @@ import { Organization } from '@prisma/client';
 // Importar la instancia compartida
 import { prisma } from '../../../shared/database/prisma';
 
-
 export class OrganizationRepository {
   /**
    * Crea una nueva organización en la base de datos

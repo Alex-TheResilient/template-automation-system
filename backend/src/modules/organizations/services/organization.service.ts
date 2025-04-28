@@ -1,5 +1,6 @@
 import { Organization } from '@prisma/client';
 import { OrganizationRepository } from '../repositories/organization.repository';
+import { OrganizationDTO, OrganizationResponse } from '../models/organization.model';
 
 export class OrganizationService {
   constructor(private repository: OrganizationRepository) {}
@@ -7,15 +8,15 @@ export class OrganizationService {
   /**
    * Crea una nueva organización
    */
-  async createOrganization(data: Partial<Organization>): Promise<Organization> {
+  async createOrganization(data: OrganizationDTO): Promise<OrganizationResponse> {
     // Generamos el código único
     const code = await this.generateCode();
     const version = '00.01';
 
-    return this.repository.create({
+    const organization = await this.repository.create({
       code,
       version,
-      name: data.name ?? '',
+      name: data.name,
       address: data.address || null,
       phone: data.phone || null,
       legalRepresentative: data.legalRepresentative || null,
@@ -26,34 +27,40 @@ export class OrganizationService {
       status: data.status || null,
       comments: data.comments || null,
     });
+
+    return this.mapToResponse(organization);
   }
 
   /**
    * Obtiene todas las organizaciones con paginación
    */
-  async getOrganizations(page: number = 1, limit: number = 10): Promise<Organization[]> {
+  async getOrganizations(page: number = 1, limit: number = 10): Promise<OrganizationResponse[]> {
     const skip = (page - 1) * limit;
-    return this.repository.findAll(skip, limit);
+    const organizations = await this.repository.findAll(skip, limit);
+    return organizations.map(org => this.mapToResponse(org));
   }
 
   /**
    * Busca una organización por su código
    */
-  async getOrganizationByCode(code: string): Promise<Organization | null> {
-    return this.repository.findByCode(code);
+  async getOrganizationByCode(code: string): Promise<OrganizationResponse | null> {
+    const organization = await this.repository.findByCode(code);
+    return organization ? this.mapToResponse(organization) : null;
   }
+
 
   /**
    * Obtiene una organización por su ID
    */
-  async getOrganizationById(id: string): Promise<Organization | null> {
-    return this.repository.findById(id);
+  async getOrganizationById(id: string): Promise<OrganizationResponse | null> {
+    const organization = await this.repository.findById(id);
+    return organization ? this.mapToResponse(organization) : null;
   }
 
   /**
    * Actualiza una organización existente
    */
-  async updateOrganization(code: string, data: Partial<Organization>): Promise<Organization> {
+  async updateOrganization(code: string, data: OrganizationDTO): Promise<OrganizationResponse> {
     // Verificamos que la organización existe
     const existingOrg = await this.repository.findByCode(code);
     if (!existingOrg) {
@@ -63,38 +70,49 @@ export class OrganizationService {
     // Incrementamos la versión
     const newVersion = this.incrementVersion(existingOrg.version);
     
-    return this.repository.update(code, {
+    const updated = await this.repository.update(code, {
       ...data,
       version: newVersion,
     });
+
+    return this.mapToResponse(updated);
   }
 
   /**
    * Elimina una organización
    */
-  async deleteOrganization(id: string): Promise<Organization> {
-    return this.repository.delete(id);
+  async deleteOrganization(id: string): Promise<OrganizationResponse> {
+    const deleted = await this.repository.delete(id);
+    return this.mapToResponse(deleted);
   }
 
   /**
    * Busca organizaciones por nombre
    */
-  async searchOrganizations(name: string): Promise<Organization[]> {
-    return this.repository.searchByName(name);
+  async searchOrganizations(name: string): Promise<OrganizationResponse[]> {
+    const organizations = await this.repository.searchByName(name);
+    return organizations.map(org => this.mapToResponse(org));
   }
 
   /**
    * Busca organizaciones por fecha
    */
-  async searchOrganizationsByDate(month: number, year: number): Promise<Organization[]> {
-    return this.repository.searchByDate(month, year);
+  async searchOrganizationsByDate(month: number, year: number): Promise<OrganizationResponse[]> {
+    const organizations = await this.repository.searchByDate(month, year);
+    return organizations.map(org => this.mapToResponse(org));
   }
 
   /**
    * Obtiene una organización con sus proyectos
    */
   async getOrganizationWithProjects(code: string): Promise<any> {
-    return this.repository.findWithProjects(code);
+    const result = await this.repository.findWithProjects(code);
+    if (!result) return null;
+    
+    return {
+      ...this.mapToResponse(result),
+      projects: result.projects // Aquí podrías mapear los proyectos a ProjectResponse si tienes ese DTO
+    };
   }
 
   /**
@@ -124,7 +142,7 @@ export class OrganizationService {
    * Inicializa la organización principal del sistema
    * Esta organización gestiona a todas las demás
    */
-  async initializeMainOrganization(): Promise<Organization | undefined> {
+  async initializeMainOrganization(): Promise<OrganizationResponse | undefined> {
     const mainOrgCode = 'ORG-MAIN'; // Código único para la organización principal
 
     // Verificar si la organización principal ya existe
@@ -132,7 +150,7 @@ export class OrganizationService {
 
     if (existingOrg) {
       console.log('La organización principal ya existe:', existingOrg.name);
-      return existingOrg;
+      return this.mapToResponse(existingOrg);
     }
 
     // Crear la organización principal si no existe
@@ -155,7 +173,27 @@ export class OrganizationService {
     const mainOrganization = await this.repository.create(mainOrganizationData);
 
     console.log('Organización principal creada:', mainOrganization.name);
-    return mainOrganization;
+    return this.mapToResponse(mainOrganization);
+  }
+
+  private mapToResponse(organization: Organization): OrganizationResponse {
+    return {
+      id: organization.id,
+      code: organization.code,
+      version: organization.version,
+      name: organization.name,
+      creationDate: organization.creationDate,
+      modificationDate: organization.modificationDate,
+      address: organization.address,
+      phone: organization.phone,
+      legalRepresentative: organization.legalRepresentative,
+      representativePhone: organization.representativePhone,
+      taxId: organization.taxId,
+      contact: organization.contact,
+      contactPhone: organization.contactPhone,
+      status: organization.status,
+      comments: organization.comments
+    };
   }
 }
 
