@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { initSystem } from './initialization';
 import authRoutes from './routes/authRoutes';
 import { organizationRoutes } from './modules/organizations';
-// import proyectoRoutes from './routes/proyecto.routes';
+import { projectRoutes } from './modules/projects'; 
 // import entrevistaRoutes from './routes/entrevista.routes';
 // import expertoRoutes from './routes/experto.routes';  // Importar las rutas de experto
 
@@ -31,10 +31,9 @@ app.use((req, res, next) => {
 
 // Definir rutas
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/organizations', organizationRoutes);
-// app.use('/api/v1', proyectoRoutes); // Rutas de proyectos y educciones
+app.use('/api/v1', organizationRoutes);
+app.use('/api/v1', projectRoutes);
 // app.use('/api/v1', entrevistaRoutes);
-// app.use('/api/v1', proyectoRoutes);  // Rutas de proyectos
 // app.use('/api/v1', expertoRoutes);  // Rutas de expertos
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
