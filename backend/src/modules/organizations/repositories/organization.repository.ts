@@ -1,15 +1,20 @@
-import { Organization } from '@prisma/client';
 // Importar la instancia compartida
 import { prisma } from '../../../shared/database/prisma';
+import { OrganizationDTO } from '../models/organization.model';
 
 export class OrganizationRepository {
   /**
    * Crea una nueva organización en la base de datos
    */
-  async create(data: Omit<Organization, 'id' | 'creationDate' | 'modificationDate'>): Promise<Organization> {
+  async create(data: OrganizationDTO) {
+    const counter = await this.getNextCounter();
+    const code = `ORG-${counter.toString().padStart(3, '0')}`;
+
     return prisma.organization.create({
       data: {
         ...data,
+        code: code,
+        version: '01.00', // Versión inicial
         creationDate: new Date(),
       },
     });
@@ -18,7 +23,7 @@ export class OrganizationRepository {
   /**
    * Obtiene todas las organizaciones con paginación
    */
-  async findAll(skip: number, take: number): Promise<Organization[]> {
+  async findAll(skip: number, take: number) {
     return prisma.organization.findMany({
       skip,
       take,
@@ -31,7 +36,7 @@ export class OrganizationRepository {
   /**
    * Busca una organización por su ID
    */
-  async findById(id: string): Promise<Organization | null> {
+  async findById(id: string) {
     return prisma.organization.findUnique({
       where: { id },
     });
@@ -40,7 +45,7 @@ export class OrganizationRepository {
   /**
    * Busca una organización por su código
    */
-  async findByCode(code: string): Promise<Organization | null> {
+  async findByCode(code: string) {
     return prisma.organization.findUnique({
       where: { code },
     });
@@ -49,7 +54,7 @@ export class OrganizationRepository {
   /**
    * Actualiza una organización existente
    */
-  async update(code: string, data: Partial<Organization>): Promise<Organization> {
+  async update(code: string, data: Partial<OrganizationDTO>) {
     return prisma.organization.update({
       where: { code },
       data: {
@@ -62,11 +67,12 @@ export class OrganizationRepository {
   /**
    * Elimina una organización por su ID
    */
-  async delete(id: string): Promise<Organization> {
+  async delete(id: string) {
     return prisma.organization.delete({
       where: { id },
     });
   }
+
 
   /**
    * Obtiene una organización con sus proyectos
@@ -81,7 +87,7 @@ export class OrganizationRepository {
   /**
    * Busca organizaciones por nombre
    */
-  async searchByName(name: string): Promise<Organization[]> {
+  async searchByName(name: string) {
     return prisma.organization.findMany({
       where: {
         name: {
@@ -98,7 +104,7 @@ export class OrganizationRepository {
   /**
    * Busca organizaciones por fecha (mes y año)
    */
-  async searchByDate(month: number, year: number): Promise<Organization[]> {
+  async searchByDate(month: number, year: number) {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
@@ -118,9 +124,9 @@ export class OrganizationRepository {
   /**
    * Incrementa el contador para generar códigos únicos
    */
-  async getNextCounter(): Promise<number> {
+  async getNextCounter() {
     const counter = await prisma.counter.upsert({
-      where: { 
+      where: {
         entity_contextId: {
           entity: 'organization',
           contextId: 'global'
@@ -138,4 +144,12 @@ export class OrganizationRepository {
 
     return counter.counter;
   }
+
+  async getNextCode(): Promise<string> {
+    const counter = await this.getNextCounter();
+    return `ORG-${counter.toString().padStart(3, '0')}`;
+  }
 }
+
+// Exportar una instancia singleton del repositorio
+export const organizationRepository = new OrganizationRepository();
