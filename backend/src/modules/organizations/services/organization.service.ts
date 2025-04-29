@@ -1,133 +1,90 @@
-import { Organization } from '@prisma/client';
-import { OrganizationRepository } from '../repositories/organization.repository';
-import { OrganizationDTO, OrganizationResponse } from '../models/organization.model';
+import { organizationRepository } from '../repositories/organization.repository';
+import { OrganizationDTO } from '../models/organization.model';
 
 export class OrganizationService {
-  constructor(private repository: OrganizationRepository) {}
+  private repository = organizationRepository;
 
   /**
    * Crea una nueva organización
    */
-  async createOrganization(data: OrganizationDTO): Promise<OrganizationResponse> {
-    // Generamos el código único
-    const code = await this.generateCode();
-    const version = '00.01';
-
-    const organization = await this.repository.create({
-      code,
-      version,
-      name: data.name,
-      address: data.address || null,
-      phone: data.phone || null,
-      legalRepresentative: data.legalRepresentative || null,
-      representativePhone: data.representativePhone || null,
-      taxId: data.taxId || null,
-      contact: data.contact || null,
-      contactPhone: data.contactPhone || null,
-      status: data.status || null,
-      comments: data.comments || null,
-    });
-
-    return this.mapToResponse(organization);
+  async createOrganization(data: OrganizationDTO) {
+    return this.repository.create(data);
   }
 
   /**
    * Obtiene todas las organizaciones con paginación
    */
-  async getOrganizations(page: number = 1, limit: number = 10): Promise<OrganizationResponse[]> {
+  async getOrganizations(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
-    const organizations = await this.repository.findAll(skip, limit);
-    return organizations.map(org => this.mapToResponse(org));
+    return this.repository.findAll(skip, limit);
   }
 
   /**
    * Busca una organización por su código
    */
-  async getOrganizationByCode(code: string): Promise<OrganizationResponse | null> {
-    const organization = await this.repository.findByCode(code);
-    return organization ? this.mapToResponse(organization) : null;
+  async getOrganizationByCode(code: string) {
+    return this.repository.findByCode(code);
   }
-
 
   /**
    * Obtiene una organización por su ID
    */
-  async getOrganizationById(id: string): Promise<OrganizationResponse | null> {
-    const organization = await this.repository.findById(id);
-    return organization ? this.mapToResponse(organization) : null;
+  async getOrganizationById(id: string) {
+    return this.repository.findById(id);
   }
 
   /**
    * Actualiza una organización existente
    */
-  async updateOrganization(code: string, data: OrganizationDTO): Promise<OrganizationResponse> {
+  async updateOrganization(code: string, data: OrganizationDTO) {
     // Verificamos que la organización existe
     const existingOrg = await this.repository.findByCode(code);
     if (!existingOrg) {
       throw new Error('Organization not found');
     }
-    
+
     // Incrementamos la versión
     const newVersion = this.incrementVersion(existingOrg.version);
-    
-    const updated = await this.repository.update(code, {
+
+    return this.repository.update(code, {
       ...data,
       version: newVersion,
     });
-
-    return this.mapToResponse(updated);
   }
 
   /**
    * Elimina una organización
    */
-  async deleteOrganization(id: string): Promise<OrganizationResponse> {
-    const deleted = await this.repository.delete(id);
-    return this.mapToResponse(deleted);
+  async deleteOrganization(id: string) {
+    return this.repository.delete(id);
   }
 
   /**
    * Busca organizaciones por nombre
    */
-  async searchOrganizations(name: string): Promise<OrganizationResponse[]> {
-    const organizations = await this.repository.searchByName(name);
-    return organizations.map(org => this.mapToResponse(org));
+  async searchOrganizations(name: string) {
+    return this.repository.searchByName(name);
   }
 
   /**
    * Busca organizaciones por fecha
    */
-  async searchOrganizationsByDate(month: number, year: number): Promise<OrganizationResponse[]> {
-    const organizations = await this.repository.searchByDate(month, year);
-    return organizations.map(org => this.mapToResponse(org));
+  async searchOrganizationsByDate(month: number, year: number) {
+    return this.repository.searchByDate(month, year);
   }
 
   /**
    * Obtiene una organización con sus proyectos
    */
-  async getOrganizationWithProjects(code: string): Promise<any> {
-    const result = await this.repository.findWithProjects(code);
-    if (!result) return null;
-    
-    return {
-      ...this.mapToResponse(result),
-      projects: result.projects // Aquí podrías mapear los proyectos a ProjectResponse si tienes ese DTO
-    };
+  async getOrganizationWithProjects(code: string) {
+    return this.repository.findWithProjects(code);
   }
 
   /**
    * Obtiene el siguiente código único para una organización
    */
-  async getNextCode(): Promise<string> {
-    const nextCounter = await this.repository.getNextCounter();
-    return `ORG-${nextCounter.toString().padStart(3, '0')}`;
-  }
-
-  /**
-   * Genera un código único para una nueva organización
-   */
-  private async generateCode(): Promise<string> {
-    return this.getNextCode();
+  async getNextCode() {
+    return this.repository.getNextCode();
   }
 
   /**
@@ -140,9 +97,8 @@ export class OrganizationService {
 
   /**
    * Inicializa la organización principal del sistema
-   * Esta organización gestiona a todas las demás
    */
-  async initializeMainOrganization(): Promise<OrganizationResponse | undefined> {
+  async initializeMainOrganization() {
     const mainOrgCode = 'ORG-MAIN'; // Código único para la organización principal
 
     // Verificar si la organización principal ya existe
@@ -150,52 +106,25 @@ export class OrganizationService {
 
     if (existingOrg) {
       console.log('La organización principal ya existe:', existingOrg.name);
-      return this.mapToResponse(existingOrg);
+      return existingOrg;
     }
 
     // Crear la organización principal si no existe
     const mainOrganizationData = {
-      code: mainOrgCode,
-      version: '00.00', // Versión inicial
-      name: 'ReqWizard', // Nombre inicial
+      name: 'ReqWizard',
       address: 'Dirección de la organización principal',
       phone: '777-0000',
-      legalRepresentative: null, // Default value
-      representativePhone: null, // Default value
-      taxId: null, // Default value
-      contact: null, // Default value
-      contactPhone: null, // Default value
       status: 'Activo',
-      comments: 'Esta es la organización principal del sistema.'
+      comments: 'Esta es la organización principal del sistema.',
+      version: '01.00'
     };
 
-    // Usar el repositorio en lugar de prisma directamente
     const mainOrganization = await this.repository.create(mainOrganizationData);
 
     console.log('Organización principal creada:', mainOrganization.name);
-    return this.mapToResponse(mainOrganization);
-  }
-
-  private mapToResponse(organization: Organization): OrganizationResponse {
-    return {
-      id: organization.id,
-      code: organization.code,
-      version: organization.version,
-      name: organization.name,
-      creationDate: organization.creationDate,
-      modificationDate: organization.modificationDate,
-      address: organization.address,
-      phone: organization.phone,
-      legalRepresentative: organization.legalRepresentative,
-      representativePhone: organization.representativePhone,
-      taxId: organization.taxId,
-      contact: organization.contact,
-      contactPhone: organization.contactPhone,
-      status: organization.status,
-      comments: organization.comments
-    };
+    return mainOrganization;
   }
 }
 
-// Creamos y exportamos una instancia singleton del servicio
-export const organizationService = new OrganizationService(new OrganizationRepository());
+// Export singleton instance of the service
+export const organizationService = new OrganizationService();
