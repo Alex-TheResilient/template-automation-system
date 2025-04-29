@@ -5,14 +5,14 @@ export class OrganizationService {
   private repository = organizationRepository;
 
   /**
-   * Crea una nueva organización
+   * Creates a new organization
    */
   async createOrganization(data: OrganizationDTO) {
     return this.repository.create(data);
   }
 
   /**
-   * Obtiene todas las organizaciones con paginación
+   * Gets all organizations with pagination
    */
   async getOrganizations(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
@@ -20,75 +20,73 @@ export class OrganizationService {
   }
 
   /**
-   * Busca una organización por su código
+   * Gets an organization by code
    */
   async getOrganizationByCode(code: string) {
     return this.repository.findByCode(code);
   }
 
   /**
-   * Obtiene una organización por su ID
+   * Gets an organization by ID
    */
   async getOrganizationById(id: string) {
     return this.repository.findById(id);
   }
 
   /**
-   * Actualiza una organización existente
+   * Updates an existing organization
    */
   async updateOrganization(code: string, data: OrganizationDTO) {
-    // Verificamos que la organización existe
+    // Verify organization exists
     const existingOrg = await this.repository.findByCode(code);
     if (!existingOrg) {
       throw new Error('Organization not found');
     }
 
-    // Incrementamos la versión
+    // Increment version
     const newVersion = this.incrementVersion(existingOrg.version);
 
-    return this.repository.update(code, {
-      ...data,
-      version: newVersion,
-    });
+    // Pasar la versión como parámetro separado
+    return this.repository.update(code, data, newVersion);
   }
 
   /**
-   * Elimina una organización
+   * Deletes an organization
    */
   async deleteOrganization(id: string) {
     return this.repository.delete(id);
   }
 
   /**
-   * Busca organizaciones por nombre
+   * Searches organizations by name
    */
   async searchOrganizations(name: string) {
     return this.repository.searchByName(name);
   }
 
   /**
-   * Busca organizaciones por fecha
+   * Searches organizations by date
    */
   async searchOrganizationsByDate(month: number, year: number) {
     return this.repository.searchByDate(month, year);
   }
 
   /**
-   * Obtiene una organización con sus proyectos
+   * Gets an organization with its projects
    */
   async getOrganizationWithProjects(code: string) {
     return this.repository.findWithProjects(code);
   }
 
   /**
-   * Obtiene el siguiente código único para una organización
+   * Gets the next unique code for an organization
    */
   async getNextCode() {
     return this.repository.getNextCode();
   }
 
   /**
-   * Incrementa la versión siguiendo el patrón XX.YY
+   * Increments version following XX.YY pattern
    */
   private incrementVersion(currentVersion: string): string {
     const [major, minor] = currentVersion.split('.').map(Number);
@@ -96,32 +94,31 @@ export class OrganizationService {
   }
 
   /**
-   * Inicializa la organización principal del sistema
+   * Initializes the main organization of the system
    */
   async initializeMainOrganization() {
-    const mainOrgCode = 'ORG-MAIN'; // Código único para la organización principal
+    const mainOrgCode = 'ORG-MAIN'; // Unique code for main organization
 
-    // Verificar si la organización principal ya existe
+    // Check if main organization already exists
     const existingOrg = await this.repository.findByCode(mainOrgCode);
 
     if (existingOrg) {
-      console.log('La organización principal ya existe:', existingOrg.name);
+      console.log('Main organization already exists:', existingOrg.name);
       return existingOrg;
     }
 
-    // Crear la organización principal si no existe
+    // Create main organization if it doesn't exist
     const mainOrganizationData = {
       name: 'ReqWizard',
-      address: 'Dirección de la organización principal',
+      address: 'Main organization address',
       phone: '777-0000',
-      status: 'Activo',
-      comments: 'Esta es la organización principal del sistema.',
-      version: '01.00'
+      status: 'Active',
+      comments: 'This is the main organization of the system.',
     };
 
     const mainOrganization = await this.repository.create(mainOrganizationData);
 
-    console.log('Organización principal creada:', mainOrganization.name);
+    console.log('Main organization created:', mainOrganization.name);
     return mainOrganization;
   }
 }

@@ -1,3 +1,4 @@
+// Para datos de entrada - crear/actualizar
 export interface ProjectDTO {
   name: string;
   description?: string;
@@ -16,4 +17,5 @@ export interface ProjectResponse {
   creationDate: Date;
   modificationDate?: Date | null;
   organizationId: string;
+  organizationCode: string;
 }

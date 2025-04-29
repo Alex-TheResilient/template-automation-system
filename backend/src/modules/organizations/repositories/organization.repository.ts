@@ -1,10 +1,9 @@
-// Importar la instancia compartida
 import { prisma } from '../../../shared/database/prisma';
 import { OrganizationDTO } from '../models/organization.model';
 
 export class OrganizationRepository {
   /**
-   * Crea una nueva organización en la base de datos
+   * Creates a new organization in the database
    */
   async create(data: OrganizationDTO) {
     const counter = await this.getNextCounter();
@@ -21,7 +20,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Obtiene todas las organizaciones con paginación
+   * Gets all organizations with pagination
    */
   async findAll(skip: number, take: number) {
     return prisma.organization.findMany({
@@ -34,7 +33,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Busca una organización por su ID
+   * Finds an organization by ID
    */
   async findById(id: string) {
     return prisma.organization.findUnique({
@@ -43,7 +42,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Busca una organización por su código
+   * Finds an organization by code
    */
   async findByCode(code: string) {
     return prisma.organization.findUnique({
@@ -52,20 +51,21 @@ export class OrganizationRepository {
   }
 
   /**
-   * Actualiza una organización existente
+   * Updates an existing organization
    */
-  async update(code: string, data: Partial<OrganizationDTO>) {
+  async update(code: string, data: Partial<OrganizationDTO>, newVersion?: string) {
     return prisma.organization.update({
       where: { code },
       data: {
         ...data,
+        ...(newVersion && { version: newVersion }),
         modificationDate: new Date(),
       },
     });
   }
 
   /**
-   * Elimina una organización por su ID
+   * Deletes an organization by ID
    */
   async delete(id: string) {
     return prisma.organization.delete({
@@ -73,9 +73,8 @@ export class OrganizationRepository {
     });
   }
 
-
   /**
-   * Obtiene una organización con sus proyectos
+   * Gets an organization with its projects
    */
   async findWithProjects(code: string) {
     return prisma.organization.findUnique({
@@ -85,7 +84,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Busca organizaciones por nombre
+   * Searches organizations by name
    */
   async searchByName(name: string) {
     return prisma.organization.findMany({
@@ -102,7 +101,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Busca organizaciones por fecha (mes y año)
+   * Searches organizations by date (month and year)
    */
   async searchByDate(month: number, year: number) {
     const startDate = new Date(year, month - 1, 1);
@@ -122,7 +121,7 @@ export class OrganizationRepository {
   }
 
   /**
-   * Incrementa el contador para generar códigos únicos
+   * Gets next counter for generating unique codes
    */
   async getNextCounter() {
     const counter = await prisma.counter.upsert({
@@ -145,11 +144,14 @@ export class OrganizationRepository {
     return counter.counter;
   }
 
+  /**
+   * Gets next code for a new organization
+   */
   async getNextCode(): Promise<string> {
     const counter = await this.getNextCounter();
     return `ORG-${counter.toString().padStart(3, '0')}`;
   }
 }
 
-// Exportar una instancia singleton del repositorio
+// Export singleton instance of the repository
 export const organizationRepository = new OrganizationRepository();

@@ -3,24 +3,26 @@ import { organizationController } from '../controllers/organization.controller';
 
 const router = Router();
 
-// Funcionalidad adicional
-router.get('/organizations/main', organizationController.getMainOrganization);
-router.get('/organizations/next-code', organizationController.getNextCode);
+// Core CRUD operations
+router.get('/organizations', organizationController.getOrganizations.bind(organizationController));
+router.post('/organizations', organizationController.createOrganization.bind(organizationController));
+router.get('/organizations/:code', organizationController.getOrganizationByCode.bind(organizationController));
+router.put('/organizations/:code', organizationController.updateOrganization.bind(organizationController));
+router.delete('/organizations/:id', organizationController.deleteOrganization.bind(organizationController));
 
-// Rutas de búsqueda
-router.get('/organizations/search', organizationController.searchOrganizations);
-router.get('/organizations/search/date', organizationController.searchOrganizationsByDate);
+// Additional functionality
+router.get('/organizations/main', organizationController.getMainOrganization.bind(organizationController));
+router.get('/organizations/next-code', organizationController.getNextCode.bind(organizationController));
 
-// Rutas de exportación
-router.get('/organizations/exports/excel', organizationController.exportToExcel);
-router.get('/organizations/exports/pdf', organizationController.exportToPDF);
+// Search routes
+router.get('/organizations/search', organizationController.searchOrganizations.bind(organizationController));
+router.get('/organizations/search/date', organizationController.searchOrganizationsByDate.bind(organizationController));
 
-// Operaciones CRUD
-router.get('/organizations/', organizationController.getOrganizations);
-router.post('/organizations/', organizationController.createOrganization);
-router.get('/organizations/:code', organizationController.getOrganizationByCode);
-router.put('/organizations/:code', organizationController.updateOrganization);
-router.delete('/organizations/:id', organizationController.deleteOrganization);
-router.get('/organizations/:code/projects', organizationController.getProjectsByOrganization);
+// Export routes
+router.get('/organizations/exports/excel', organizationController.exportToExcel.bind(organizationController));
+router.get('/organizations/exports/pdf', organizationController.exportToPDF.bind(organizationController));
+
+// Related resources
+router.get('/organizations/:code/projects', organizationController.getProjectsByOrganization.bind(organizationController));
 
 export default router;

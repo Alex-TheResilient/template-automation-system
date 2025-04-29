@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { projectService } from '../services/project.service';
+import { ProjectDTO } from '../models/project.model';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
-import { ProjectDTO } from '../models/project.model';
 
 export class ProjectController {
   /**
@@ -119,7 +119,7 @@ export class ProjectController {
       if (typeof name !== 'string') {
         return res.status(400).json({ error: 'Invalid parameters' });
       }
-      
+
       const projects = await projectService.searchProjectsByName(orgcod, name);
       res.status(200).json(projects);
     } catch (error) {
@@ -155,7 +155,7 @@ export class ProjectController {
         year as string,
         month as string
       );
-      
+
       res.status(200).json(projects);
     } catch (error) {
       console.error('Error searching projects by date:', error);
@@ -172,7 +172,7 @@ export class ProjectController {
       const projects = await projectService.getProjectsByOrganization(orgcod);
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Projects');
-      
+
       // Add headers
       worksheet.columns = [
         { header: 'Code', key: 'code', width: 15 },
@@ -181,7 +181,7 @@ export class ProjectController {
         { header: 'Modification Date', key: 'modificationDate', width: 20 },
         { header: 'Status', key: 'status', width: 30 },
       ];
-      
+
       // Add data
       projects.forEach(project => {
         worksheet.addRow({
@@ -192,11 +192,11 @@ export class ProjectController {
           status: project.status
         });
       });
-      
+
       // Set response headers
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename=projects-${orgcod}.xlsx`);
-      
+
       // Write to response
       await workbook.xlsx.write(res);
     } catch (error) {
@@ -213,47 +213,47 @@ export class ProjectController {
     try {
       const projects = await projectService.getProjectsByOrganization(orgcod);
       const doc = new PDFDocument({ size: 'A4', margin: 30 });
-      
+
       // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=projects-${orgcod}.pdf`);
-      
+
       // Pipe PDF to response
       doc.pipe(res);
-      
+
       // PDF header
       doc.fontSize(18).text(`Project List for Organization ${orgcod}`, { align: 'center' });
       doc.moveDown();
-      
+
       // Create table with project data
       let y = 150;
       const rowHeight = 20;
       const columnWidths = [80, 150, 100, 100, 80];
-      
+
       // Table headers
       doc.fontSize(12).text('Code', 30, y);
       doc.text('Name', 110, y);
       doc.text('Creation Date', 260, y);
       doc.text('Mod. Date', 360, y);
       doc.text('Status', 460, y);
-      
+
       y += rowHeight;
-      
+
       // Table rows
       projects.forEach(project => {
         doc.fontSize(10).text(project.code, 30, y);
         doc.text(project.name, 110, y, { width: 150 });
-        doc.text(project.creationDate instanceof Date 
-          ? project.creationDate.toISOString().split('T')[0] 
+        doc.text(project.creationDate instanceof Date
+          ? project.creationDate.toISOString().split('T')[0]
           : 'N/A', 260, y);
-        doc.text(project.modificationDate instanceof Date 
-          ? project.modificationDate.toISOString().split('T')[0] 
+        doc.text(project.modificationDate instanceof Date
+          ? project.modificationDate.toISOString().split('T')[0]
           : 'N/A', 360, y);
         doc.text(project.status || 'N/A', 460, y);
-        
+
         y += rowHeight;
       });
-      
+
       // Finalize document
       doc.end();
     } catch (error) {

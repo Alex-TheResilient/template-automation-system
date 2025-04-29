@@ -1,10 +1,12 @@
 import organizationRoutes from './routes/organization.routes';
 import { organizationService } from './services/organization.service';
-import { OrganizationRepository } from './repositories/organization.repository';
+import { organizationRepository } from './repositories/organization.repository';
+import { organizationController } from './controllers/organization.controller';
 
-// Exportamos todo lo que queremos que sea accesible desde fuera del módulo
+// Export all module components
 export {
   organizationRoutes,
   organizationService,
-  OrganizationRepository
+  organizationRepository,
+  organizationController
 };
