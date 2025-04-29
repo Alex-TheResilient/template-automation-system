@@ -11,6 +11,7 @@ export interface OrganizationDTO {
   contactPhone?: string;
   status?: string;
   comments?: string;
+  version: string;
 }
 
 export interface OrganizationResponse {
