@@ -144,11 +144,11 @@ export class ProjectRepository {
     const organization = await prisma.organization.findUnique({
       where: { code: organizationCode }
     });
-    
-    if(!organization) {
+
+    if (!organization) {
       throw new Error(`Organization with code ${organizationCode} not found`);
     }
-    
+
     return await prisma.project.findMany({
       where: {
         organizationId: organization.id,
@@ -232,7 +232,7 @@ export class ProjectRepository {
     });
 
     const nextCount = (counter?.counter || 0) + 1;
-    
+
     return `PROJ-${nextCount.toString().padStart(3, '0')}`;
   }
 
