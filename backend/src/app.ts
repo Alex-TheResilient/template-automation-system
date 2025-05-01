@@ -1,11 +1,12 @@
 // backend/app.ts
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv'; 
-import { initSystem } from './initialization';
+import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import { initSystem } from './initialization';
 import { organizationRoutes } from './modules/organizations';
-import { projectRoutes } from './modules/projects'; 
+import { projectRoutes } from './modules/projects';
+import { educcionRoutes } from './modules/templates/educciones'
 // import entrevistaRoutes from './routes/entrevista.routes';
 // import expertoRoutes from './routes/experto.routes';  // Importar las rutas de experto
 
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', organizationRoutes);
 app.use('/api/v1', projectRoutes);
+app.use('/api/v1', educcionRoutes);
 // app.use('/api/v1', entrevistaRoutes);
 // app.use('/api/v1', expertoRoutes);  // Rutas de expertos
 
