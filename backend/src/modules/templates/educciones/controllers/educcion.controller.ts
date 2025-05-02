@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { educcionService } from '../services/educcion.service';
+import { projectService } from '../../../projects/services/project.service';
 import { EduccionDTO } from '../models/educcion.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
@@ -10,14 +11,21 @@ export class EduccionController {
    */
   async createEduccion(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
+      const { orgcod, projcod } = req.params;
       const educcionDto: EduccionDTO = req.body;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
 
       if (!educcionDto.name || educcionDto.name.trim() === '') {
         return res.status(400).json({ error: 'Name is required.' });
       }
 
-      const newEduccion = await educcionService.createEduccion(projcod, educcionDto);
+      const newEduccion = await educcionService.createEduccion(project.id, educcionDto);
 
       res.status(201).json({
         message: 'Educcion created successfully.',
@@ -25,8 +33,8 @@ export class EduccionController {
       });
     } catch (error) {
       const err = error as Error;
-      console.error('Error creating educcion:', err.message);
-      res.status(500).json({ error: 'Error creating educcion.' });
+      console.error('Error completo:', err);
+      return res.status(500).json({ error: `Error creating educcion: ${err.message}` });
     }
   }
 
@@ -35,11 +43,19 @@ export class EduccionController {
    */
   async getEduccionesByProject(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
+      const { orgcod, projcod } = req.params;
       const page = req.query.page ? parseInt(req.query.page as string) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
-      const educciones = await educcionService.getEduccionesByProject(projcod, page, limit);
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      // CAMBIO AQUÍ: Usar project.id (UUID) en lugar de projcod
+      const educciones = await educcionService.getEduccionesByProject(project.id, page, limit);
 
       res.status(200).json(educciones);
     } catch (error) {
@@ -54,12 +70,24 @@ export class EduccionController {
    */
   async getEduccionByCode(req: Request, res: Response) {
     try {
-      const { educod } = req.params;
+      const { orgcod, projcod, educod } = req.params;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
 
       const educcion = await educcionService.getEduccionByCode(educod);
 
       if (!educcion) {
         return res.status(404).json({ error: 'Educcion not found.' });
+      }
+
+      // Verificar que la educción pertenece al proyecto correcto
+      if (educcion.projectId !== project.id) {
+        return res.status(404).json({ error: 'Educcion not found in this project.' });
       }
 
       res.status(200).json(educcion);
@@ -75,8 +103,26 @@ export class EduccionController {
    */
   async updateEduccion(req: Request, res: Response) {
     try {
-      const { educod } = req.params;
+      const { orgcod, projcod, educod } = req.params;
       const educcionDto: EduccionDTO = req.body;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      // Verificar que la educción existe y pertenece a este proyecto
+      const existingEduccion = await educcionService.getEduccionByCode(educod);
+
+      if (!existingEduccion) {
+        return res.status(404).json({ error: 'Educcion not found.' });
+      }
+
+      if (existingEduccion.projectId !== project.id) {
+        return res.status(404).json({ error: 'Educcion not found in this project.' });
+      }
 
       const updatedEduccion = await educcionService.updateEduccion(educod, educcionDto);
 
@@ -96,7 +142,25 @@ export class EduccionController {
    */
   async deleteEduccion(req: Request, res: Response) {
     try {
-      const { educod } = req.params; // Cambiado de id a educod para ser consistente
+      const { orgcod, projcod, educod } = req.params;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      // Verificar que la educción existe y pertenece a este proyecto
+      const existingEduccion = await educcionService.getEduccionByCode(educod);
+
+      if (!existingEduccion) {
+        return res.status(404).json({ error: 'Educcion not found.' });
+      }
+
+      if (existingEduccion.projectId !== project.id) {
+        return res.status(404).json({ error: 'Educcion not found in this project.' });
+      }
 
       await educcionService.deleteEduccion(educod);
 
@@ -115,14 +179,21 @@ export class EduccionController {
    */
   async searchEduccionesByName(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
+      const { orgcod, projcod } = req.params;
       const { name } = req.query;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
 
       if (!name || (name as string).trim() === '') {
         return res.status(400).json({ error: 'Name parameter is required for search.' });
       }
 
-      const educciones = await educcionService.searchEduccionesByName(projcod, name as string);
+      const educciones = await educcionService.searchEduccionesByName(project.id, name as string);
 
       res.status(200).json(educciones);
     } catch (error) {
@@ -137,8 +208,16 @@ export class EduccionController {
    */
   async getNextCode(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
-      const nextCode = await educcionService.getNextCode(projcod);
+      const { orgcod, projcod } = req.params;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const nextCode = await educcionService.getNextCode(project.id);
 
       res.status(200).json({ nextCode });
     } catch (error) {
@@ -153,12 +232,24 @@ export class EduccionController {
    */
   async getEduccionWithIlaciones(req: Request, res: Response) {
     try {
-      const { educod } = req.params;
+      const { orgcod, projcod, educod } = req.params;
+
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
 
       const educcionWithIlaciones = await educcionService.getEduccionWithIlaciones(educod);
 
       if (!educcionWithIlaciones) {
         return res.status(404).json({ error: 'Educcion not found.' });
+      }
+
+      // Verificar que la educción pertenece al proyecto correcto
+      if (educcionWithIlaciones.projectId !== project.id) {
+        return res.status(404).json({ error: 'Educcion not found in this project.' });
       }
 
       res.status(200).json(educcionWithIlaciones);
@@ -174,8 +265,15 @@ export class EduccionController {
    */
   async exportToExcel(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
-      const educciones = await educcionService.getEduccionesByProject(projcod, 1, 1000); // Maximum 1000 records
+      const { orgcod, projcod } = req.params;
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const educciones = await educcionService.getEduccionesByProject(project.id, 1, 1000);
 
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Educciones');
@@ -226,9 +324,14 @@ export class EduccionController {
    */
   async exportToPDF(req: Request, res: Response) {
     try {
-      const { projcod } = req.params;
-      const educciones = await educcionService.getEduccionesByProject(projcod, 1, 1000);
+      const { orgcod, projcod } = req.params;
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
 
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const educciones = await educcionService.getEduccionesByProject(project.id, 1, 1000);
       // Configure HTTP response
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=educciones.pdf');

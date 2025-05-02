@@ -39,27 +39,28 @@ export class EduccionRepository {
   }
 
   /**
-   * Updates an existing educcion
-   */
+ * Updates an existing educcion
+ */
   async update(code: string, data: Partial<EduccionDTO>, newVersion?: string) {
-    // Primero obtener la educción actual para conocer su versión
-    const currentEduccion = await prisma.educcion.findUnique({
+    // Primero obtener la educción actual completa
+    const currentEduccion = await prisma.educcion.findFirst({
       where: { code },
-      select: { version: true },
     });
 
     if (!currentEduccion) {
       throw new Error(`Educcion with code ${code} not found`);
     }
 
-    // Calcular la nueva versión (usar la proporcionada o incrementar automáticamente)
+    // Calcular la nueva versión
     const version = newVersion || this.incrementVersion(currentEduccion.version);
 
     return prisma.educcion.update({
-      where: { code },
+      where: {
+        id: currentEduccion.id // Usar ID en lugar de code
+      },
       data: {
         ...data,
-        version, // Siempre actualizar la versión
+        version,
         modificationDate: new Date(),
       },
       include: {
@@ -124,7 +125,7 @@ export class EduccionRepository {
    * Finds an educcion by its code
    */
   async findByCode(code: string) {
-    return prisma.educcion.findUnique({
+    return prisma.educcion.findFirst({
       where: { code },
       include: {
         project: {
@@ -165,7 +166,7 @@ export class EduccionRepository {
    * Gets an educcion with its ilaciones
    */
   async getEduccionWithIlaciones(code: string) {
-    return prisma.educcion.findUnique({
+    return prisma.educcion.findFirst({
       where: { code },
       include: {
         ilaciones: true,
@@ -187,37 +188,54 @@ export class EduccionRepository {
   }
 
   /**
-   * Increments the counter for generating unique codes
+   * Generates a unique code for an educcion within a project
    */
-  async getNextCounter(projectId: string): Promise<number> {
-    // Usamos la restricción única compuesta [entity, contextId]
-    const counterRecord = await prisma.counter.upsert({
-      where: {
-        entity_contextId: {
-          entity: "educcion",
-          contextId: projectId
-        }
-      },
-      update: {
-        counter: {
-          increment: 1,
-        },
-      },
-      create: {
-        entity: "educcion",
-        contextId: projectId,
-        counter: 1,
-      },
-    });
-
-    return counterRecord.counter;
+  async generateCode(projectId: string): Promise<string> {
+    const counter = await this.getNextCounter(projectId);
+    return `EDU-${counter.toString().padStart(3, '0')}`;
   }
 
   /**
-   * Generates a unique code for an educcion within a project
+   * Increments and returns the counter for generating unique codes
    */
-  private async generateCode(projectId: string): Promise<string> {
-    return this.getNextCode(projectId);
+  async getNextCounter(projectId: string): Promise<number> {
+    // Validación adicional
+    if (!projectId || typeof projectId !== 'string') {
+      throw new Error('Invalid project ID');
+    }
+
+    console.log(`Generating counter for project ID: ${projectId}`);
+
+    try {
+      // Actualizar para usar la restricción única compuesta correctamente
+      const counterRecord = await prisma.counter.upsert({
+        where: {
+          entity_contextId: {
+            entity: "EDUCCION",
+            contextId: projectId
+          }
+        },
+        update: {
+          counter: {
+            increment: 1,
+          },
+        },
+        create: {
+          entity: "EDUCCION",
+          contextId: projectId,
+          counter: 1,
+        },
+      });
+
+      console.log(`Generated counter: ${counterRecord.counter} for project: ${projectId}`);
+      return counterRecord.counter;
+    } catch (error) {
+      console.error("Error generating counter:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate counter: ${error.message}`);
+      }
+      throw new Error('Failed to generate counter due to an unknown error');
+    }
   }
 
   /**

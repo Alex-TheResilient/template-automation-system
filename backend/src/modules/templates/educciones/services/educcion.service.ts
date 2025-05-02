@@ -46,8 +46,12 @@ export class EduccionService {
   /**
    * Deletes an educcion
    */
-  async deleteEduccion(id: string) {
-    return this.repository.delete(id);
+  async deleteEduccion(code: string) {
+    const educcion = await this.repository.findByCode(code);
+    if (!educcion) {
+      throw new Error("Educcion not found");
+    }
+    return this.repository.delete(educcion.id);
   }
 
   /**
