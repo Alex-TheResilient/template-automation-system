@@ -74,6 +74,25 @@ export class EduccionRepository {
   }
 
   /**
+   * Finds an educcion by its code and projectId
+   */
+  async findByCodeAndProject(code: string, projectId: string) {
+    return prisma.educcion.findFirst({
+      where: {
+        code,
+        projectId
+      },
+      include: {
+        project: {
+          select: {
+            code: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
    * Deletes an educcion by its ID
    */
   async delete(id: string) {
@@ -245,6 +264,26 @@ export class EduccionRepository {
     const [major, minor] = currentVersion.split('.');
     const newMinor = (parseInt(minor) + 1).toString().padStart(2, '0');
     return `${major}.${newMinor}`;
+  }
+
+  /**
+   * Gets an educcion with its ilaciones, filtered by project
+   */
+  async getEduccionWithIlacionesByProject(code: string, projectId: string) {
+    return prisma.educcion.findFirst({
+      where: {
+        code,
+        projectId
+      },
+      include: {
+        ilaciones: true,
+        project: {
+          select: {
+            code: true,
+          },
+        },
+      },
+    });
   }
 }
 
