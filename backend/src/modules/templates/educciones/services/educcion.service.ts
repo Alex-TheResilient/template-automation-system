@@ -20,10 +20,14 @@ export class EduccionService {
   }
 
   /**
-   * Finds an educcion by its code
+   * Gets an educcion by its code, considering the project context
    */
-  async getEduccionByCode(code: string) {
-    return this.repository.findByCode(code);
+  async getEduccionByCode(code: string, projectId?: string) {
+    if (projectId) {
+      return this.repository.findByCodeAndProject(code, projectId);
+    } else {
+      return this.repository.findByCode(code);
+    }
   }
 
   /**
@@ -46,11 +50,13 @@ export class EduccionService {
   /**
    * Deletes an educcion
    */
-  async deleteEduccion(code: string) {
-    const educcion = await this.repository.findByCode(code);
+  async deleteEduccion(code: string, projectId: string) {
+    const educcion = await this.repository.findByCodeAndProject(code, projectId);
+
     if (!educcion) {
-      throw new Error("Educcion not found");
+      throw new Error('Educcion not found');
     }
+
     return this.repository.delete(educcion.id);
   }
 
@@ -64,8 +70,12 @@ export class EduccionService {
   /**
    * Gets an educcion with its ilaciones
    */
-  async getEduccionWithIlaciones(code: string) {
-    return this.repository.getEduccionWithIlaciones(code);
+  async getEduccionWithIlaciones(code: string, projectId?: string) {
+    if (projectId) {
+      return this.repository.getEduccionWithIlacionesByProject(code, projectId);
+    } else {
+      return this.repository.getEduccionWithIlaciones(code);
+    }
   }
 
   /**
