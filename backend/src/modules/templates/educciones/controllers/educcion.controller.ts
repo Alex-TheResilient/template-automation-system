@@ -79,7 +79,7 @@ export class EduccionController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const educcion = await educcionService.getEduccionByCode(educod);
+      const educcion = await educcionService.getEduccionByCode(educod, project.id);
 
       if (!educcion) {
         return res.status(404).json({ error: 'Educcion not found.' });
@@ -114,7 +114,7 @@ export class EduccionController {
       }
 
       // Verificar que la educción existe y pertenece a este proyecto
-      const existingEduccion = await educcionService.getEduccionByCode(educod);
+      const existingEduccion = await educcionService.getEduccionByCode(educod, project.id);
 
       if (!existingEduccion) {
         return res.status(404).json({ error: 'Educcion not found.' });
@@ -152,7 +152,7 @@ export class EduccionController {
       }
 
       // Verificar que la educción existe y pertenece a este proyecto
-      const existingEduccion = await educcionService.getEduccionByCode(educod);
+      const existingEduccion = await educcionService.getEduccionByCode(educod, project.id);
 
       if (!existingEduccion) {
         return res.status(404).json({ error: 'Educcion not found.' });
@@ -162,7 +162,8 @@ export class EduccionController {
         return res.status(404).json({ error: 'Educcion not found in this project.' });
       }
 
-      await educcionService.deleteEduccion(educod);
+      // CAMBIO AQUÍ: Pasar también el project.id para identificar la educción correcta
+      await educcionService.deleteEduccion(educod, project.id);
 
       res.status(200).json({
         message: 'Educcion deleted successfully.',
@@ -241,7 +242,7 @@ export class EduccionController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const educcionWithIlaciones = await educcionService.getEduccionWithIlaciones(educod);
+      const educcionWithIlaciones = await educcionService.getEduccionWithIlaciones(educod, project.id);
 
       if (!educcionWithIlaciones) {
         return res.status(404).json({ error: 'Educcion not found.' });
