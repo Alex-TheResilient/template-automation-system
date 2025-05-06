@@ -8,7 +8,7 @@ import { organizationRoutes } from './modules/organizations';
 import { projectRoutes } from './modules/projects';
 import { educcionRoutes } from './modules/templates/educciones'
 // import entrevistaRoutes from './routes/entrevista.routes';
-// import expertoRoutes from './routes/experto.routes';  // Importar las rutas de experto
+import {expertRoutes} from './modules/experts';  // Importar las rutas de experto
 import { nfrRoutes } from './modules/nfr';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
@@ -37,7 +37,7 @@ app.use('/api/v1', organizationRoutes);
 app.use('/api/v1', projectRoutes);
 app.use('/api/v1', educcionRoutes);
 // app.use('/api/v1', entrevistaRoutes);
-// app.use('/api/v1', expertoRoutes);  // Rutas de expertos
+app.use('/api/v1', expertRoutes);  // Rutas de expertos
 app.use('/api/v1', nfrRoutes);
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
