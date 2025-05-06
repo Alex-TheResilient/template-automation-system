@@ -24,7 +24,7 @@ export class ExpertRepository {
         ...data,
         version: '01.00',
         code: code,
-        projectId,
+        projectId: projectId,
         creationDate: new Date(),
       },
       include: {
@@ -102,21 +102,40 @@ export class ExpertRepository {
     return `EXP-${counter.toString().padStart(3, '0')}`;
   }
   private async getNextCounter(projectId: string): Promise<number> {
-    const counter = await prisma.counter.upsert({
-      where: {
-        entity_contextId: {
+    
+    if (!projectId || typeof projectId !== 'string') {
+      throw new Error('Invalid project ID');
+    }
+
+    console.log(`Generating counter for project ID: ${projectId}`);
+      try {
+      const counter = await prisma.counter.upsert({
+        where: {
+          entity_contextId: {
+            entity: 'EXPERT',
+            contextId: projectId,
+          },
+        },
+        update: { 
+          counter: { 
+            increment: 1 
+          } 
+        },
+        create: {
           entity: 'EXPERT',
           contextId: projectId,
+          counter: 1,
         },
-      },
-      update: { counter: { increment: 1 } },
-      create: {
-        entity: 'EXPERT',
-        contextId: projectId,
-        counter: 1,
-      },
-    });
-    return counter.counter;
+      });
+      console.log(`Generated counter: ${counter.counter} for project: ${projectId}`);
+        return counter.counter;
+    }catch (error) {
+      console.error("Error generating counter:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate counter: ${error.message}`);
+      }
+      throw new Error('Failed to generate counter due to an unknown error');
+    }
   }
 
   private incrementVersion(version: string): string {
