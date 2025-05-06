@@ -302,12 +302,12 @@ export class ExpertController {
 
       // Educciones table
       const headers = ['Code', 'FirstName', 'Date',  'Version', 'Experience'];
-      const rows = expertos.map(edu => [
-        edu.code,
-        edu.firstName,
-        edu.creationDate,
-        edu.version,
-        edu.experience
+      const rows = expertos.map(exp => [
+        exp.code,
+        exp.firstName,
+        exp.creationDate.toISOString().split('T')[0],
+        exp.version,
+        exp.experience
       ]);
 
       // Draw table
@@ -327,7 +327,7 @@ export class ExpertController {
    * Helper function to draw tables in PDF
    */
   private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const columnWidths = [80, 150, 80, 80, 60]; // Adjust column widths
+    const columnWidths = [80, 150, 80, 80, 150]; // Adjust column widths
     const tableMargin = 30; // Left margin
     const rowHeight = 20;
 

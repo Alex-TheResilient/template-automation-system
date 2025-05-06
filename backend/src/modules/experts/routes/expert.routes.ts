@@ -11,4 +11,7 @@ router.get('/organizations/:orgcod/projects/:projcod/experts/:expcod', expertCon
 router.put('/organizations/:orgcod/projects/:projcod/experts/:expcod', expertController.updateExpert.bind(expertController));
 router.delete('/organizations/:orgcod/projects/:projcod/experts/:expcod', expertController.deleteExpert.bind(expertController));
 
+// Export routes (specific endpoints)
+router.get('/organizations/:orgcod/projects/:projcod/experts/exports/excel', expertController.exportToExcel.bind(expertController));
+router.get('/organizations/:orgcod/projects/:projcod/experts/exports/pdf', expertController.exportToPDF.bind(expertController));
 export default router;
