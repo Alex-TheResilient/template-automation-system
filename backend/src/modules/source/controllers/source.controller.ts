@@ -53,14 +53,14 @@ export class SourceController {
 
   async getSourceByCode(req: Request, res: Response) {
     try {
-      const { orgcod, projcod, srcod } = req.params;
+      const { orgcod, projcod, srccod } = req.params;
 
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
       if (!project) {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const source = await sourceService.getSourceByCode(srcod, project.id);
+      const source = await sourceService.getSourceByCode(srccod, project.id);
       if (!source || source.projectId !== project.id) {
         return res.status(404).json({ error: 'Source not found in this project.' });
       }
@@ -75,7 +75,7 @@ export class SourceController {
 
   async updateSource(req: Request, res: Response) {
     try {
-      const { orgcod, projcod, srcod } = req.params;
+      const { orgcod, projcod, srccod } = req.params;
       const sourceDto: SourceDTO = req.body;
 
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
@@ -83,12 +83,17 @@ export class SourceController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const existingSource = await sourceService.getSourceByCode(srcod, project.id);
-      if (!existingSource || existingSource.projectId !== project.id) {
-        return res.status(404).json({ error: 'Source not found in this project.' });
+      const existingSource = await sourceService.getSourceByCode(srccod, project.id);
+      if (!existingSource ) {
+        return res.status(404).json({ error: 'Source not found ' });
       }
 
-      const updatedSource = await sourceService.updateSource(srcod, sourceDto);
+     if(existingSource.projectId !== project.id){
+        return res.status(404).json({ error: 'Source not found in this project.' });
+      }
+     
+
+      const updatedSource = await sourceService.updateSource(srccod, sourceDto);
       res.status(200).json({
         message: 'Source updated successfully.',
         source: updatedSource,
@@ -102,19 +107,22 @@ export class SourceController {
 
   async deleteSource(req: Request, res: Response) {
     try {
-      const { orgcod, projcod, srcod } = req.params;
+      const { orgcod, projcod, srcod: srccod } = req.params;
 
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
       if (!project) {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const existingSource = await sourceService.getSourceByCode(srcod, project.id);
-      if (!existingSource || existingSource.projectId !== project.id) {
+      const existingSource = await sourceService.getSourceByCode(srccod, project.id);
+      if (!existingSource) {
+        return res.status(404).json({ error: 'Source not found.' });
+      }
+      if (existingSource.projectId !== project.id) {
         return res.status(404).json({ error: 'Source not found in this project.' });
       }
 
-      await sourceService.deleteSource(srcod, project.id);
+      await sourceService.deleteSource(srccod, project.id);
       res.status(200).json({ message: 'Source deleted successfully.' });
     } catch (error) {
       const err = error as Error;
