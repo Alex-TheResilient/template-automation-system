@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { sourceService } from '../services/source.service';
 import { projectService } from '../../projects/services/project.service';
 import { SourceDTO } from '../models/source.model';
+import * as ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 export class SourceController {
 
@@ -171,6 +173,148 @@ export class SourceController {
       res.status(500).json({ error: 'Error generating next code.' });
     }
   }
+
+/**
+   * Exports to Excel
+   */
+async exportToExcel(req: Request, res: Response) {
+    try {
+      const { orgcod, projcod } = req.params;
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const expertos = await sourceService.getSourcesByProject(project.id, 1, 1000);
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Educciones');
+
+      // Define headers
+      worksheet.columns = [
+        { header: 'Codigo', key: 'code', width: 15 },
+        { header: 'Nombre', key: 'name', width: 30 },
+        { header: 'Creation Date', key: 'creationDate', width: 20 },
+        { header: 'Modification Date', key: 'modificationDate', width: 20 },
+        { header: 'status', key: 'status', width: 10 },
+
+       
+      ];
+
+      // Add data
+      expertos.forEach(fue => {
+        worksheet.addRow({
+          code: fue.code,
+          name: fue.name,
+          creationDate: fue.creationDate.toISOString().split('T')[0],
+          modificationDate: fue.modificationDate ? fue.modificationDate.toISOString().split('T')[0] : 'N/A',
+          status: fue.status,
+                 
+        });
+      });
+
+      // Style headers
+      worksheet.getRow(1).font = { bold: true };
+
+      // Configure HTTP response
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=fuentes.xlsx');
+
+      // Send file
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting to Excel.' });
+    }
+  }
+
+  /**
+   * Exports to PDF
+   */
+  async exportToPDF(req: Request, res: Response) {
+    try {
+      const { orgcod, projcod } = req.params;
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const expertos = await sourceService.getSourcesByProject(project.id, 1, 1000);
+      // Configure HTTP response
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=fuentes.pdf');
+
+      // Create PDF document
+      const doc = new PDFDocument({ margin: 30 });
+
+      // Title
+      doc.fontSize(16).font('Helvetica-Bold').text('Fuentes Report', { align: 'center' });
+      doc.moveDown();
+
+      // Generation info
+      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+      doc.moveDown(2);
+
+      // Fuente table
+      const headers = ['Code', 'Name', 'Creation Date',  'Modification Date', 'Status'];
+      const rows = expertos.map(fue => [
+        fue.code,
+        fue.name,
+        fue.creationDate.toISOString().split('T')[0],
+        fue.modificationDate ? fue.modificationDate.toISOString().split('T')[0] : 'N/A',
+        fue.status,
+        
+      ]);
+
+      // Draw table
+      this.drawTable(doc, headers, rows);
+
+      // Finalize document
+      doc.end();
+      doc.pipe(res);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to PDF:', err.message);
+      res.status(500).json({ error: 'Error exporting to PDF.' });
+    }
+  }
+
+  /**
+   * Helper function to draw tables in PDF
+   */
+  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
+    const columnWidths = [80, 150, 80, 80, 60]; // Adjust column widths
+    const tableMargin = 30; // Left margin
+    const rowHeight = 20;
+
+    let y = doc.y; // Initial Y position
+
+    // Draw headers
+    doc.fontSize(10).font('Helvetica-Bold');
+    headers.forEach((header, index) => {
+      const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
+      doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
+    });
+
+    y += rowHeight;
+
+    // Draw data rows
+    doc.font('Helvetica');
+    rows.forEach(row => {
+      row.forEach((cell, index) => {
+        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
+        doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
+      });
+      y += rowHeight;
+    });
+  }
+
+
 }
 
 export const sourceController = new SourceController();
