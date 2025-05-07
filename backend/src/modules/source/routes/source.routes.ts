@@ -14,4 +14,8 @@ router.delete('/organizations/:orgcod/projects/:projcod/sources/:srccod', source
 router.get('/organizations/:orgcod/projects/:projcod/sources/search', sourceController.searchSourcesByName.bind(sourceController));
 router.get('/organizations/:orgcod/projects/:projcod/sources/next-code', sourceController.getNextCode.bind(sourceController));
 
+// Export routes (specific endpoints)
+router.get('/organizations/:orgcod/projects/:projcod/sources/exports/excel', sourceController.exportToExcel.bind(sourceController));
+router.get('/organizations/:orgcod/projects/:projcod/sources/exports/pdf', sourceController.exportToPDF.bind(sourceController));
+
 export default router;

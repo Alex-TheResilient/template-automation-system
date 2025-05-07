@@ -288,7 +288,7 @@ async exportToExcel(req: Request, res: Response) {
    * Helper function to draw tables in PDF
    */
   private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const columnWidths = [80, 150, 80, 80, 60]; // Adjust column widths
+    const columnWidths = [80, 150, 100, 100, 60]; // Adjust column widths
     const tableMargin = 30; // Left margin
     const rowHeight = 20;
 
