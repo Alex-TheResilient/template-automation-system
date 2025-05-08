@@ -213,12 +213,11 @@ export class OrganizationController {
    */
   async getMainOrganization(req: Request, res: Response) {
     try {
-      // Get first organization or a predefined one based on your logic
-      const organizations: OrganizationResponse[] = await organizationService.getOrganizations(1, 1);
-      const mainOrg = organizations[0] || null;
+      const mainOrgCode = 'ORG-MAIN';
+      const mainOrg = await organizationService.getOrganizationByCode(mainOrgCode);
 
       if (!mainOrg) {
-        return res.status(404).json({ error: 'No main organization found.' });
+        return res.status(404).json({ error: 'Main organization not found.' });
       }
 
       res.status(200).json(mainOrg);
