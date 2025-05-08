@@ -20,6 +20,20 @@ export class OrganizationRepository {
   }
 
   /**
+   * Creates the main organization with a fixed code
+   */
+  async createMainOrganization(data: OrganizationDTO) {
+    return prisma.organization.create({
+      data: {
+        ...data,
+        code: 'ORG-MAIN',
+        version: '01.00',
+        creationDate: new Date(),
+      },
+    });
+  }
+
+  /**
    * Gets all organizations with pagination
    */
   async findAll(skip: number, take: number) {

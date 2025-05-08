@@ -97,7 +97,7 @@ export class OrganizationService {
    * Initializes the main organization of the system
    */
   async initializeMainOrganization() {
-    const mainOrgCode = 'ORG-MAIN'; // Unique code for main organization
+    const mainOrgCode = 'ORG-MAIN';
 
     // Check if main organization already exists
     const existingOrg = await this.repository.findByCode(mainOrgCode);
@@ -116,7 +116,7 @@ export class OrganizationService {
       comments: 'This is the main organization of the system.',
     };
 
-    const mainOrganization = await this.repository.create(mainOrganizationData);
+    const mainOrganization = await this.repository.createMainOrganization(mainOrganizationData);
 
     console.log('Main organization created:', mainOrganization.name);
     return mainOrganization;
