@@ -9,23 +9,23 @@ const RegistroOrganizacion = () => {
     const navigate = useNavigate();
     
     // Datos automáticos
-    const [codigo, setCodigo] = useState("");
+    const [code, setCodigo] = useState("");
     const [version, setVersion] = useState("00.01");
-    const [fecha, setFecha] = useState(
+    const [creationDate, setFecha] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     );
 
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [name, setNombre] = useState("");
+    const [address, setDireccion] = useState("");
+    const [phone, setTelefonoOrganizacion] = useState("");
+    const [legalRepresentative, setRepresentanteLegal] = useState("");
+    const [representativePhone, setTelefonoRepresentante] = useState("");
+    const [taxId, setRuc] = useState("");
+    const [contact, setContacto] = useState("");
+    const [contactPhone, setTelefonoContacto] = useState("");
+    const [status, setEstado] = useState("");
+    const [comments, setComentario] = useState("");
 
     // Estados para manejar errores y carga
     const [error, setError] = useState(null);
@@ -59,29 +59,29 @@ const RegistroOrganizacion = () => {
         e.preventDefault();
 
         // Validaciones básicas
-        if (!nombre.trim()) {
+        if (!name.trim()) {
             setError("El nombre de la organización es obligatorio.");
             return;
         }
-        if (telefonoOrganizacion && isNaN(Number(telefonoOrganizacion))) {
+        if (phone && isNaN(Number(phone))) {
             setError("El teléfono de la organización debe ser un número válido.");
             return;
         }
 
         try {
             await axios.post(`${API_BASE_URL}/organizations`, {
-                codigo,
+                code,
                 version,
-                nombre,
-                direccion,
-                telefono: telefonoOrganizacion,
-                representanteLegal,
-                telefonoRepresentante,
-                ruc,
-                contacto,
-                telefonoContacto,
-                estado,
-                comentarios: comentario,
+                name,
+                address,
+                phone,
+                legalRepresentative,
+                representativePhone,
+                taxId,
+                contact,
+                contactPhone,
+                status,
+                comments,
             });
             alert("Organización registrada correctamente");
             irAMenuOrganizaciones();
@@ -123,13 +123,13 @@ const RegistroOrganizacion = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={isLoading ? "Cargando..." : codigo} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={isLoading ? "Cargando..." : code} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -141,7 +141,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Nombre</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={name} onChange={(e) => setNombre(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el nombre del proyecto</span>
                                 </span>
                                 
@@ -149,14 +149,14 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Dirección</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={address} onChange={(e) => setDireccion(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar la direccion del proyecto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Teléfono Organización</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={telefonoOrganizacion} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
+                                <input className="inputnombre-field" type="text" value={phone} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el numero telefonico o celular de la organización </span>
                                 </span>
                             </div>
@@ -166,7 +166,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Representante Legal</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={representanteLegal} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={legalRepresentative} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Ingresar apellidos y nombres del representante legal de la organización </span>
                                 </span>
                                 
@@ -174,7 +174,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono Representante</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoRepresentante} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
+                                    <input className="inputnombre-field" type="text" value={representativePhone} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
                                     <span class="tooltip-text"> Ingresar el numero telefonico o celular del representante legal </span>
                                 </span>
                                 
@@ -182,7 +182,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-fecha">
                                 <h4>RUC Organización</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={ruc} onChange={(e) => setRuc(e.target.value)} size="30" />  
+                                    <input className="inputnombre-field" type="text" value={taxId} onChange={(e) => setRuc(e.target.value)} size="30" />  
                                     <span class="tooltip-text"> Ingresar el numero de Ruc de la organizacion </span>
                                 </span>
                                 
@@ -193,7 +193,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Contacto (Nombre y Apellido)</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={contacto} onChange={(e) => setContacto(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={contact} onChange={(e) => setContacto(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Ingresar los apellidos y nombres del contacto en la organización </span>
                                 </span>
                                 
@@ -201,7 +201,7 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono del Contacto</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoContacto} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={contactPhone} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
@@ -221,7 +221,7 @@ const RegistroOrganizacion = () => {
                                 <h4>Estado</h4>
                                 <select
                                     className="inputnombre-field"
-                                    value={estado}
+                                    value={status}
                                     onChange={(e) => setEstado(e.target.value)}
                                 >
                                     <option value="Activo">Activo</option>
@@ -234,7 +234,7 @@ const RegistroOrganizacion = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
 
                         <div className="ro-buttons">

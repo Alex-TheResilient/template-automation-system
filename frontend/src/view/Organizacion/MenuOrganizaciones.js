@@ -35,12 +35,12 @@ const MenuOrganizaciones = () => {
         const fetchData = async () => {
             try {
                 // Obtener la organización principal
-                const mainOrgResponse = await axios.get(`${API_BASE_URL}/organizations/principal`);
+                const mainOrgResponse = await axios.get(`${API_BASE_URL}/organizations/main`);
                 setMainOrganization(mainOrgResponse.data);
 
                 // Obtener todas las organizaciones excluyendo la principal
                 const orgsResponse = await axios.get(`${API_BASE_URL}/organizations`);
-                setOrganizations(orgsResponse.data.filter(org => org.codigo !== "ORG-MAIN"));
+                setOrganizations(orgsResponse.data.filter(org => org.code !== "ORG-MAIN"));
                 setNoResult(false);
             } catch (err) {
                 setError(err.response?.data?.error || "Error al cargar datos");
@@ -74,7 +74,7 @@ const MenuOrganizaciones = () => {
             if (searchNombre) {
                 // Búsqueda por nombre
                 response = await axios.get(`${API_BASE_URL}/organizations/search`, {
-                    params: { nombre: searchNombre }
+                    params: { name: searchNombre }
                 });
             } else if (searchYear || searchMonth) {
                 // Búsqueda por fecha
@@ -89,7 +89,7 @@ const MenuOrganizaciones = () => {
                 response = await axios.get(`${API_BASE_URL}/organizations`);
             }
             
-            const filteredData = response.data.filter(org => org.codigo !== "ORG-MAIN");
+            const filteredData = response.data.filter(org => org.code !== "ORG-MAIN");
             setOrganizations(filteredData);
             setNoResult(filteredData.length === 0);
             setError(null);
@@ -170,20 +170,16 @@ const MenuOrganizaciones = () => {
                                             <th>Nombre</th>
                                             <th>Fecha creación</th>
                                             <th>Versión</th>
-                                            <th>Opciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{mainOrganization.codigo}</td>
-                                            <td>{mainOrganization.nombre}</td>
+                                            <td>{mainOrganization.code}</td>
+                                            <td>{mainOrganization.name}</td>
                                             <td>
-                                                {new Date(mainOrganization.fechaCreacion).toLocaleDateString()}
+                                                {new Date(mainOrganization.creationDate).toLocaleDateString()}
                                             </td>
                                             <td>{mainOrganization.version}</td>
-                                            <td>
-                                                {/* Opciones deshabilitadas para org principal */}
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -280,11 +276,11 @@ const MenuOrganizaciones = () => {
                                     </thead>
                                     <tbody>
                                         {organizations.map((org) => (
-                                            <tr key={org.codigo} onClick={() => irAListaProyectos(org.codigo)}>
-                                            <td>{org.codigo}</td>
-                                                <td>{org.nombre}</td>
+                                            <tr key={org.code} onClick={() => irAListaProyectos(org.code)}>
+                                            <td>{org.code}</td>
+                                                <td>{org.name}</td>
                                                 <td>
-                                                    {new Date(org.fechaCreacion).toLocaleDateString()}
+                                                    {new Date(org.creationDate).toLocaleDateString()}
                                                 </td>
                                                 <td>{org.version}</td>
                                                 <td>
@@ -292,7 +288,7 @@ const MenuOrganizaciones = () => {
                                                         className="botton-crud"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            irAEditarOrganizacion(org.codigo);
+                                                            irAEditarOrganizacion(org.code);
                                                         }}
                                                     >
                                                         <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />

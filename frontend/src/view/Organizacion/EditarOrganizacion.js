@@ -11,21 +11,21 @@ const EditarOrganizacion = () => {
 
     // Estados para los datos de la organización
     const [id, setId] = useState(""); // Estado para almacenar el ID único
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [name, setNombre] = useState("");
+    const [address, setDireccion] = useState("");
+    const [phone, setTelefonoOrganizacion] = useState("");
+    const [legalRepresentative, setRepresentanteLegal] = useState("");
+    const [representativePhone, setTelefonoRepresentante] = useState("");
+    const [taxId, setRuc] = useState("");
+    const [contact, setContacto] = useState("");
+    const [contactPhone, setTelefonoContacto] = useState("");
+    const [status, setEstado] = useState("");
+    const [comments, setComentario] = useState("");
 
     // Datos automáticos (no editables)
-    const [codigo, setCodigo] = useState("");
+    const [code, setCodigo] = useState("");
     const [version, setVersion] = useState("");
-    const [fecha, setFecha] = useState("");
+    const [creationDate, setFecha] = useState("");
     const [tipo, setTipo] = useState("Contratante");
     const [autor, setAutor] = useState("AUT-00.00");
 
@@ -42,19 +42,19 @@ const EditarOrganizacion = () => {
 
                 // Actualizar estados con los datos obtenidos
                 setId(orgData.id); // Almacenar el ID único
-                setCodigo(orgData.codigo);
+                setCodigo(orgData.code);
                 setVersion(orgData.version);
-                setFecha(new Date(orgData.fechaCreacion).toLocaleDateString());
-                setNombre(orgData.nombre);
-                setDireccion(orgData.direccion);
-                setTelefonoOrganizacion(orgData.telefono);
-                setRepresentanteLegal(orgData.representanteLegal);
-                setTelefonoRepresentante(orgData.telefonoRepresentante);
-                setRuc(orgData.ruc);
-                setContacto(orgData.contacto);
-                setTelefonoContacto(orgData.telefonoContacto);
-                setEstado(orgData.estado);
-                setComentario(orgData.comentarios);
+                setFecha(new Date(orgData.creationDate).toLocaleDateString());
+                setNombre(orgData.name);
+                setDireccion(orgData.address);
+                setTelefonoOrganizacion(orgData.phone);
+                setRepresentanteLegal(orgData.legalRepresentative);
+                setTelefonoRepresentante(orgData.representativePhone);
+                setRuc(orgData.taxId);
+                setContacto(orgData.contact);
+                setTelefonoContacto(orgData.contactPhone);
+                setEstado(orgData.status);
+                setComentario(orgData.comments);
             } catch (err) {
                 console.error("Error al obtener los datos de la organización:", err);
                 setError("No se pudieron cargar los datos de la organización.");
@@ -73,16 +73,16 @@ const EditarOrganizacion = () => {
         e.preventDefault();
         try {
             await axios.put(`${API_BASE_URL}/organizations/${orgcod}`, {
-                nombre,
-                direccion,
-                telefono: telefonoOrganizacion,
-                representanteLegal,
-                telefonoRepresentante,
-                ruc,
-                contacto,
-                telefonoContacto,
-                estado,
-                comentarios: comentario,
+                name,
+                address,
+                phone,
+                legalRepresentative,
+                representativePhone,
+                taxId,
+                contact,
+                contactPhone,
+                status,
+                comments,
             });
             alert("Organización editada correctamente");
             navigate("/organizations");
@@ -124,13 +124,13 @@ const EditarOrganizacion = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={codigo} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -142,7 +142,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Nombre</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={name} onChange={(e) => setNombre(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar el nombre del proyecto</span>
                                 </span>
                                 
@@ -150,14 +150,14 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Dirección</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={address} onChange={(e) => setDireccion(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar la direccion del proyecto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Teléfono Organización</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={telefonoOrganizacion} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
+                                <input className="inputnombre-field" type="text" value={phone} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar el numero telefonico o celular de la organización </span>
                                 </span>
                             </div>
@@ -167,7 +167,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Representante Legal</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={representanteLegal} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={legalRepresentative} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Editar apellidos y nombres del representante legal de la organización </span>
                                 </span>
                                 
@@ -175,7 +175,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono Representante</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoRepresentante} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
+                                    <input className="inputnombre-field" type="text" value={representativePhone} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
                                     <span class="tooltip-text"> Editar el numero telefonico o celular del representante legal </span>
                                 </span>
                                 
@@ -183,7 +183,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-fecha">
                                 <h4>RUC Organización</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={ruc} onChange={(e) => setRuc(e.target.value)} size="30" />  
+                                    <input className="inputnombre-field" type="text" value={taxId} onChange={(e) => setRuc(e.target.value)} size="30" />  
                                     <span class="tooltip-text"> Editar el numero de Ruc de la organizacion </span>
                                 </span>
                             
@@ -194,7 +194,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Contacto (Nombre y Apellido)</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={contacto} onChange={(e) => setContacto(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={contact} onChange={(e) => setContacto(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Editar los apellidos y nombres del contacto en la organización </span>
                                 </span>
                                 
@@ -202,7 +202,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono del Contacto</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoContacto} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={contactPhone} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Editar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
@@ -210,7 +210,7 @@ const EditarOrganizacion = () => {
                             <div className="ro-fiel-fecha">
                                 <h4>Estado</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={estado} onChange={(e) => setEstado(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={status} onChange={(e) => setEstado(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Editar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
@@ -221,7 +221,7 @@ const EditarOrganizacion = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} ></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} ></textarea>
                         </div>
 
                         {error && <div className="error-message">{error}</div>}
