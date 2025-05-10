@@ -6,7 +6,7 @@ import "../../styles/stylesListaProyectos.css";
 import "../../styles/styles.css";
 
 const ListaProyectos = () => {
-  const { orgcod } = useParams(); // Extraer el parámetro de la URL
+  const {orgcod } = useParams(); // Extraer el parámetro de la URL
   
   // Estado de proyectos y errores
   const [projects, setProjects] = useState([]);
@@ -258,23 +258,23 @@ const exportToPDF = async () => {
                 </thead>
                   <tbody>
                     {projects.map((pro) => (
-                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.codigo)}>
-                        <td>{pro.codigo}</td>
-                        <td>{pro.nombre}</td>
-                        <td>{new Date(pro.fechaCreacion).toLocaleDateString()}</td>
+                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code)}>
+                        <td>{pro.code}</td>
+                        <td>{pro.name}</td>
+                        <td>{new Date(pro.creationDate).toLocaleDateString()}</td>
                         <td>
-                          {pro.fechaModificacion
-                            ? new Date(pro.fechaModificacion).toLocaleDateString()
+                          {pro.modificationDate
+                            ? new Date(pro.modificationDate).toLocaleDateString()
                             : "N/A"}
                         </td>
-                        <td>{pro.estado}</td>
+                        <td>{pro.status}</td>
                         <td>
                           {/* Boton para editar un proyecto */}
                           <button
                             className="botton-crud"
                             onClick={(e) => {
                               e.stopPropagation();
-                              irAEditarProyecto(orgcod, pro.codigo);
+                              irAEditarProyecto(orgcod, pro.code);
                             }}
                           >
                             <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -284,7 +284,7 @@ const exportToPDF = async () => {
                             className="botton-crud"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteProject(pro.codigo);
+                              deleteProject(pro.code);
                             }}
                           >
                             <FaTrash style={{ color: "red", cursor: "pointer" }} />

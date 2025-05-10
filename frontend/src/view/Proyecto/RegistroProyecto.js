@@ -9,12 +9,12 @@ const RegistroProyecto = () => {
     const { orgcod } = useParams(); // Extraer el parámetro de la URL
     
     // Estados del proyecto
-    const [codigoProyecto, setCodigoProyecto] = useState("");
-    const [versionProyecto, setVersionProyecto] = useState("00.01"); // Inicializar la versión del proyecto
-    const [nombreProyecto, setNombreProyecto] = useState("");
-    const [estadoProyecto, setEstadoProyecto] = useState("Activo");
-    const [comentariosProyecto, setComentariosProyecto] = useState("");
-    const [fechaCreacion, setFechaCreacion] = useState(new Date().toLocaleDateString()); // Fecha de creación automática
+    const [code, setCodigoProyecto] = useState("");
+    const [version, setVersionProyecto] = useState("00.01"); // Inicializar la versión del proyecto
+    const [name, setNombreProyecto] = useState("");
+    const [status, setEstadoProyecto] = useState("Active");
+    const [comments, setComentariosProyecto] = useState("");
+    const [creationDate, setFechaCreacion] = useState(new Date().toLocaleDateString()); // Fecha de creación automática
 
     const [error, setError] = useState(null);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -44,12 +44,12 @@ const RegistroProyecto = () => {
         e.preventDefault();
         try {
             await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects`, {
-                codigo: codigoProyecto,
-                version: versionProyecto,
-                nombre: nombreProyecto,
-                estado: estadoProyecto,
-                comentarios: comentariosProyecto,
-                fechaCreacion: new Date().toISOString(), // Enviar la fecha de creación en formato ISO
+                code,
+                version,
+                name,
+                status,
+                comments,
+                creationDate: new Date().toISOString(), // Enviar la fecha de creación en formato ISO
             });
             irAListaProyectos();
         } catch (err) {
@@ -89,10 +89,10 @@ const RegistroProyecto = () => {
                         </h3>
                         <div className="rp-cod-vers">
                             <div className="fiel-cod">
-                                <input type="text" className="inputBloq-field" value={codigoProyecto} readOnly />
+                                <input type="text" className="inputBloq-field" value={code} readOnly />
                             </div>
                             <div className="fiel-vers">
-                                <input type="text" className="inputBloq-field" value={versionProyecto} readOnly size="50"/>
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="50"/>
                             </div>
                         </div>
                     </section>
@@ -106,7 +106,7 @@ const RegistroProyecto = () => {
                                     <input
                                         type="text"
                                         className="inputnombre-field"
-                                        value={nombreProyecto}
+                                        value={name}
                                         onChange={(e) => setNombreProyecto(e.target.value)}
                                         size="200"
                                     />
@@ -119,7 +119,7 @@ const RegistroProyecto = () => {
                                 <input
                                     type="text"
                                     className="inputBloq-field"
-                                    value={fechaCreacion}
+                                    value={creationDate}
                                     readOnly
                                     size="50"
                                 />
@@ -132,7 +132,7 @@ const RegistroProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value="En proceso"
+                                    value="Active"
                                     readOnly
                                     size="50"
                                 />
@@ -146,7 +146,7 @@ const RegistroProyecto = () => {
                             <textarea
                                 className="input-fieldtext"
                                 name="comments"
-                                value={comentariosProyecto}
+                                value={comments}
                                 onChange={(e) => setComentariosProyecto(e.target.value)}
                                 rows="3"
                                 placeholder="Añadir comentarios sobre el proyecto"

@@ -10,13 +10,13 @@ const EditarProyecto = () => {
     const navigate = useNavigate();
 
     // Estados del proyecto
-    const [codigoProyecto, setCodigoProyecto] = useState("");
-    const [versionProyecto, setVersionProyecto] = useState("");
-    const [nombreProyecto, setNombreProyecto] = useState("");
-    const [fechaCreacionProyecto, setFechaCreacionProyecto] = useState("");
-    const [fechaModificacionProyecto, setFechaModificacionProyecto] = useState("");
-    const [estadoProyecto, setEstadoProyecto] = useState("");
-    const [comentariosProyecto, setComentariosProyecto] = useState("");
+    const [code, setCodigoProyecto] = useState("");
+    const [version, setVersionProyecto] = useState("");
+    const [name, setNombreProyecto] = useState("");
+    const [creationDate, setFechaCreacionProyecto] = useState("");
+    const [modificationDate, setFechaModificacionProyecto] = useState("");
+    const [status, setEstadoProyecto] = useState("");
+    const [comments, setComentariosProyecto] = useState("");
 
     const [error, setError] = useState(null);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -34,17 +34,17 @@ const EditarProyecto = () => {
                         `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`
                     );
                     const project = response.data;
-                    setCodigoProyecto(project.codigo);
-                    setNombreProyecto(project.nombre);
+                    setCodigoProyecto(project.code);
+                    setNombreProyecto(project.name);
                     setVersionProyecto(project.version);
-                    setFechaCreacionProyecto(project.fechaCreacion);
+                    setFechaCreacionProyecto(project.creationDate);
                     setFechaModificacionProyecto(
-                        project.fechaModificacion
-                            ? new Date(project.fechaModificacion).toLocaleDateString()
+                        project.modificationDate
+                            ? new Date(project.modificationDate).toLocaleDateString()
                             : "N/A"
                     );
-                    setEstadoProyecto(project.estado);
-                    setComentariosProyecto(project.comentarios);
+                    setEstadoProyecto(project.status);
+                    setComentariosProyecto(project.comments);
                 } catch (err) {
                     setError(err.response?.data?.error || "Error al obtener los datos del proyecto");
                 }
@@ -59,10 +59,10 @@ const EditarProyecto = () => {
             await axios.put(
                 `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`,
                 {
-                    nombre: nombreProyecto,
-                    estado: estadoProyecto,
-                    comentarios: comentariosProyecto,
-                    fechaModificacion: new Date().toISOString(), // Actualizar automáticamente la fecha
+                    name,
+                    status,
+                    comments,
+                    modificationDate: new Date().toISOString(), // Actualizar automáticamente la fecha
                 }
             );
             irAListaProyectos();
@@ -117,7 +117,7 @@ const EditarProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={versionProyecto}
+                                    value={version}
                                     readOnly
                                     size="50"
                                 />
@@ -135,7 +135,7 @@ const EditarProyecto = () => {
                                         className="inputnombre-field"
                                         type="text"
                                         name="name"
-                                        value={nombreProyecto}  
+                                        value={name}  
                                         onChange={(e) => setNombreProyecto(e.target.value)}
                                         placeholder=""
                                         size="125"
@@ -152,7 +152,7 @@ const EditarProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={fechaCreacionProyecto}  
+                                    value={creationDate}  
                                     readOnly
                                     size="50"
                                 />
@@ -163,7 +163,7 @@ const EditarProyecto = () => {
                                     disabled
                                     type="text"
                                     className="inputBloq-field"
-                                    value={fechaModificacionProyecto}  
+                                    value={modificationDate}  
                                     readOnly
                                     size="50"
                                 />
@@ -174,11 +174,11 @@ const EditarProyecto = () => {
                             <div className="fiel-cod">
                                 <h4>Estado</h4>
                                 <select
-                                    value={estadoProyecto}
+                                    value={status}
                                     onChange={(e) => setEstadoProyecto(e.target.value)}
                                 >
-                                    <option value="Activo">Activo</option>
-                                    <option value="Inactivo">Inactivo</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
                                 </select>
                             </div>
                         </div>
@@ -190,7 +190,7 @@ const EditarProyecto = () => {
                             <textarea
                                 className="input-fieldtext"
                                 name="comments"
-                                value={comentariosProyecto} 
+                                value={comments} 
                                 onChange={(e) => setComentariosProyecto(e.target.value)}
                                 rows="3"
                                 placeholder=""
