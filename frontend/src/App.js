@@ -43,6 +43,9 @@ import NuevaEspecificacion from './view/Plantillas/Especificacion/NuevaEspecific
 import EditarEspecificacion from './view/Plantillas/Especificacion/EditarEspecificacion.js';
 import NuevoNemonico from './view/Plantillas/Artefactos/NuevoNemonico.js';
 import SubirInterfaz from './view/Plantillas/Artefactos/SubirInterfaz.js';
+import RNF from './view/Plantillas/RNF/RNF.js';
+import NuevoRNF from './view/Plantillas/RNF/NuevoRNF.js';
+import EditarRNF from './view/Plantillas/RNF/EditarRNF.js';
 
 function App() {
   return (
@@ -114,6 +117,9 @@ function App() {
           <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
           <Route path="/nuevoNemonico" element={<NuevoNemonico />} />
           <Route path="/subirInterfaz" element={<SubirInterfaz />} />
+          <Route path="/RNF" element={<RNF />} />
+          <Route path="/NuevoRNF" element={<NuevoRNF />} />
+          <Route path="/EditarRNF" element={<EditarRNF />} />
 
         </Routes>
       </div>
