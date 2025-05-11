@@ -4,10 +4,31 @@ import { riskController } from '../controllers/risk.controller';
 
 const router = Router();
 
+// ============ GLOBAL ROUTES (sin filtrar por proyecto) ============
+
+// Global NFR routes
+router.get('/nfrs', nfrController.getAllNfrs.bind(nfrController));
+router.get('/nfrs/exports/excel', nfrController.exportAllToExcel.bind(nfrController));
+router.get('/nfrs/frequent', nfrController.getFrequentNfrs.bind(nfrController));
+router.get('/nfrs/:nfrcod', nfrController.getNfrByCode.bind(nfrController));
+router.get('/nfrs/:nfrcod/instances', nfrController.getNfrInstances.bind(nfrController));
+
+// Global Risk routes
+router.get('/risks', riskController.getAllRisks.bind(riskController));
+router.get('/risks/exports/excel', riskController.exportAllToExcel.bind(riskController));
+router.get('/risks/similar', riskController.getSimilarRisks.bind(riskController));
+router.get('/risks/frequent', riskController.getFrequentRisks.bind(riskController));
+router.get('/risks/:riskcod', riskController.getRiskByCode.bind(riskController));
+router.get('/risks/entity/:entityType/registry/:registryCode', riskController.getRisksByEntityAndRegistry.bind(riskController));
+
+// ============ PROJECT-SPECIFIC ROUTES ============
+
 // NFR routes - siguiendo el patrón de proyectos
 // Core CRUD operations (collection routes)
 router.get('/projects/:projcod/nfrs', nfrController.getNfrsByProject.bind(nfrController));
 router.post('/projects/:projcod/nfrs', nfrController.createNfr.bind(nfrController));
+router.post('/projects/:projcod/nfrs/from-existing', nfrController.createNfrFromExisting.bind(nfrController));
+router.get('/projects/:projcod/nfrs/check-duplicate', nfrController.checkDuplicateNfr.bind(nfrController));
 
 // Additional functionality
 router.get('/projects/:projcod/nfrs/next-code', nfrController.getNextCode.bind(nfrController));
@@ -31,6 +52,8 @@ router.delete('/projects/:projcod/nfrs/:nfrcod', nfrController.deleteNfr.bind(nf
 // Collection routes for risks
 router.get('/projects/:projcod/risks', riskController.getRisksByProject.bind(riskController));
 router.post('/projects/:projcod/risks', riskController.createRisk.bind(riskController));
+router.post('/projects/:projcod/risks/from-existing', riskController.createRiskFromExisting.bind(riskController));
+router.get('/projects/:projcod/risks/check-duplicate', riskController.checkDuplicateRisk.bind(riskController));
 
 // Risk for specific NFR
 router.get('/projects/:projcod/nfrs/:nfrcod/risks', riskController.getRisksByNfr.bind(riskController));

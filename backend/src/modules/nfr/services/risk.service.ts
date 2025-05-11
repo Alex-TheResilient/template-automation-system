@@ -1,22 +1,156 @@
 import { riskRepository } from '../repositories/risk.repository';
-import { RiskDTO } from '../models/risk.model';
+import { 
+  RiskDTO, 
+  RiskCustomizationDTO, 
+  RiskDuplicateCheckParams, 
+  RiskGlobalSearchParams, 
+  FrequentRiskResponse 
+} from '../models/risk.model';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class RiskService {
   private readonly repository = riskRepository;
 
   /**
-   * Creates a new risk
+   * Creates a new risk after checking for duplicates
    */
   async createRisk(data: RiskDTO) {
+    // Check for duplicate risks
+    const isDuplicate = await this.repository.checkDuplicate(
+      data.projectId,
+      data.entityType,
+      data.registryCode,
+      data.description
+    );
+
+    if (isDuplicate) {
+      throw new Error(`A similar risk with description "${data.description}" already exists for this entity`);
+    }
+
     return this.repository.create(data);
   }
 
   /**
-   * Gets all risks with pagination
+   * Creates a new risk based on an existing one
+   */
+  async createRiskFromExisting(sourceRiskCode: string, targetProjectId: string, targetEntityType?: string, targetRegistryCode?: string, customizations?: RiskCustomizationDTO) {
+    return this.repository.createFromExisting(
+      sourceRiskCode, 
+      targetProjectId, 
+      targetEntityType, 
+      targetRegistryCode, 
+      customizations
+    );
+  }
+
+  /**
+   * Checks if a similar risk already exists
+   */
+  async checkDuplicateRisk(params: RiskDuplicateCheckParams): Promise<boolean> {
+    return this.repository.checkDuplicate(
+      params.projectId,
+      params.entityType,
+      params.registryCode,
+      params.description
+    );
+  }
+
+  /**
+   * Gets all risks with pagination (global or by project)
    */
   async getRisks(page: number = 1, limit: number = 10, projectId?: string) {
     const skip = (page - 1) * limit;
     return this.repository.findAll(skip, limit, projectId);
+  }
+
+  /**
+   * Gets all risks with advanced filtering
+   */
+  async searchRisksGlobal(params: RiskGlobalSearchParams) {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    // Base query - no filtering by project to get global results
+    let whereConditions: any = {};
+
+    // Apply filters if provided
+    if (params.description) {
+      whereConditions.description = {
+        contains: params.description,
+        mode: 'insensitive',
+      };
+    }
+
+    if (params.impact) {
+      whereConditions.impact = {
+        equals: params.impact,
+        mode: 'insensitive',
+      };
+    }
+
+    if (params.probability) {
+      whereConditions.probability = {
+        equals: params.probability,
+        mode: 'insensitive',
+      };
+    }
+
+    if (params.status) {
+      whereConditions.status = {
+        equals: params.status,
+        mode: 'insensitive',
+      };
+    }
+
+    if (params.entityType) {
+      whereConditions.entityType = {
+        equals: params.entityType,
+        mode: 'insensitive',
+      };
+    }
+
+    if (params.startDate && params.endDate) {
+      whereConditions.creationDate = {
+        gte: params.startDate,
+        lte: params.endDate,
+      };
+    }
+
+    // Execute query with filters
+    const risks = await prisma.risk.findMany({
+      where: whereConditions,
+      skip,
+      take: limit,
+      orderBy: {
+        creationDate: 'desc',
+      },
+      include: {
+        project: {
+          select: {
+            code: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    // Get total count for pagination info
+    const totalCount = await prisma.risk.count({
+      where: whereConditions,
+    });
+
+    return {
+      data: risks,
+      pagination: {
+        page,
+        limit,
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    };
   }
 
   /**
@@ -43,6 +177,23 @@ export class RiskService {
       throw new Error('Risk not found');
     }
 
+    // If description changed, check for duplicates
+    if (
+      data.description && 
+      data.description !== existingRisk.description
+    ) {
+      const isDuplicate = await this.repository.checkDuplicate(
+        data.projectId || existingRisk.projectId,
+        data.entityType || existingRisk.entityType,
+        data.registryCode || existingRisk.registryCode,
+        data.description
+      );
+
+      if (isDuplicate) {
+        throw new Error(`A similar risk with description "${data.description}" already exists for this entity`);
+      }
+    }
+
     return this.repository.update(code, data);
   }
 
@@ -65,6 +216,20 @@ export class RiskService {
    */
   async getRisksByProject(projectId: string) {
     return this.repository.findByProject(projectId);
+  }
+
+  /**
+   * Gets similar risks across all projects
+   */
+  async getSimilarRisks(description: string, limit: number = 10) {
+    return this.repository.findSimilarRisks(description, limit);
+  }
+
+  /**
+   * Gets frequently used risks across projects (potential templates)
+   */
+  async getFrequentRisks(limit: number = 10): Promise<FrequentRiskResponse[]> {
+    return this.repository.getFrequentRisks(limit) as Promise<FrequentRiskResponse[]>;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { nfrService } from '../services/nfr.service';
-import { NfrDTO } from '../models/nfr.model';
+import { NfrDTO, NfrResponse, NfrDuplicateCheckParams, NfrGlobalSearchParams } from '../models/nfr.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 
@@ -45,8 +45,131 @@ export class NfrController {
       });
     } catch (error) {
       const err = error as Error;
+      
+      // Check for duplicate error
+      if (err.message.includes("already exists")) {
+        return res.status(409).json({ error: err.message });
+      }
+      
       console.error('Error creating non-functional requirement:', err.message);
       res.status(500).json({ error: 'Error creating non-functional requirement.' });
+    }
+  }
+
+  /**
+   * Creates a new NFR based on an existing one
+   */
+  async createNfrFromExisting(req: Request, res: Response) {
+    try {
+      const { projcod } = req.params;
+      const { sourceNfrCode, customizations } = req.body;
+
+      if (!sourceNfrCode) {
+        return res.status(400).json({ error: 'Source NFR code is required.' });
+      }
+
+      const newNfr = await nfrService.createNfrFromExisting(
+        sourceNfrCode,
+        projcod,
+        customizations
+      );
+
+      res.status(201).json({
+        message: 'Non-functional requirement created from existing NFR successfully.',
+        nfr: newNfr,
+      });
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error creating NFR from existing:', err.message);
+      res.status(500).json({ error: 'Error creating NFR from existing: ' + err.message });
+    }
+  }
+
+  /**
+   * Checks if a similar NFR already exists
+   */
+  async checkDuplicateNfr(req: Request, res: Response) {
+    try {
+      const { projcod } = req.params;
+      const { name, qualityAttribute } = req.query;
+
+      if (!name) {
+        return res.status(400).json({ error: 'Name parameter is required.' });
+      }
+
+      const params: NfrDuplicateCheckParams = {
+        projectId: projcod,
+        name: name as string,
+        qualityAttribute: qualityAttribute as string | undefined
+      };
+
+      const isDuplicate = await nfrService.checkDuplicateNfr(params);
+
+      res.status(200).json({ isDuplicate });
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error checking for duplicate NFR:', err.message);
+      res.status(500).json({ error: 'Error checking for duplicate NFR.' });
+    }
+  }
+
+  /**
+   * Gets all non-functional requirements (global across all projects)
+   */
+  async getAllNfrs(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const name = req.query.name as string | undefined;
+      const qualityAttribute = req.query.qualityAttribute as string | undefined;
+      const status = req.query.status as string | undefined;
+      
+      // Parse dates if provided
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+      
+      if (req.query.startDate) {
+        startDate = new Date(req.query.startDate as string);
+      }
+      
+      if (req.query.endDate) {
+        endDate = new Date(req.query.endDate as string);
+      }
+
+      const params: NfrGlobalSearchParams = {
+        page,
+        limit,
+        name,
+        qualityAttribute,
+        status,
+        startDate,
+        endDate
+      };
+
+      const result = await nfrService.searchNfrsGlobal(params);
+
+      res.status(200).json(result);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching all NFRs:', err.message);
+      res.status(500).json({ error: 'Error fetching all NFRs.' });
+    }
+  }
+
+  /**
+   * Gets frequently used NFRs across projects (potential templates)
+   */
+  async getFrequentNfrs(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const frequentNfrs = await nfrService.getFrequentNfrs(limit);
+      
+      res.status(200).json(frequentNfrs);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching frequent NFRs:', err.message);
+      res.status(500).json({ error: 'Error fetching frequent NFRs.' });
     }
   }
 
@@ -81,8 +204,8 @@ export class NfrController {
         return res.status(404).json({ error: 'Non-functional requirement not found.' });
       }
 
-      // Verify that the NFR belongs to the specified project
-      if (nfr.projectId !== projcod) {
+      // Verify that the NFR belongs to the specified project (only if projcod is provided)
+      if (projcod && nfr.projectId !== projcod) {
         return res.status(404).json({ error: 'Non-functional requirement not found in this project.' });
       }
 
@@ -91,6 +214,23 @@ export class NfrController {
       const err = error as Error;
       console.error('Error fetching non-functional requirement:', err.message);
       res.status(500).json({ error: 'Error fetching non-functional requirement.' });
+    }
+  }
+
+  /**
+   * Gets NFRs that are derived from a specific source NFR
+   */
+  async getNfrInstances(req: Request, res: Response) {
+    try {
+      const { nfrcod } = req.params;
+      
+      const instances = await nfrService.getNfrInstances(nfrcod);
+      
+      res.status(200).json(instances);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching NFR instances:', err.message);
+      res.status(500).json({ error: 'Error fetching NFR instances.' });
     }
   }
 
@@ -124,6 +264,12 @@ export class NfrController {
       });
     } catch (error) {
       const err = error as Error;
+      
+      // Check for duplicate error
+      if (err.message.includes("already exists")) {
+        return res.status(409).json({ error: err.message });
+      }
+      
       console.error('Error updating non-functional requirement:', err.message);
       res.status(500).json({ error: 'Error updating non-functional requirement.' });
     }
@@ -295,6 +441,7 @@ export class NfrController {
         { header: 'Importance', key: 'importance', width: 15 },
         { header: 'Version', key: 'version', width: 10 },
         { header: 'Comment', key: 'comment', width: 40 },
+        { header: 'Source NFR', key: 'sourceNfrCode', width: 15 },
       ];
 
       // Add rows
@@ -308,7 +455,8 @@ export class NfrController {
           status: nfr.status,
           importance: nfr.importance,
           version: nfr.version,
-          comment: nfr.comment ?? '',
+          comment: nfr.comment || '',
+          sourceNfrCode: nfr.sourceNfrCode || '',
         });
       });
 
@@ -318,6 +466,63 @@ export class NfrController {
       // Set response headers
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename=non-functional-requirements-${projcod}.xlsx`);
+
+      // Write to response
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting to Excel.' });
+    }
+  }
+
+  /**
+   * Exports all NFRs to Excel (global)
+   */
+  async exportAllToExcel(req: Request, res: Response) {
+    try {
+      // Get all NFRs
+      const nfrs = await nfrService.getNfrs(1, 1000); // Adjust limit as needed
+      
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('All Non-Functional Requirements');
+
+      // Define columns
+      worksheet.columns = [
+        { header: 'Code', key: 'code', width: 15 },
+        { header: 'Project ID', key: 'projectId', width: 20 },
+        { header: 'Name', key: 'name', width: 30 },
+        { header: 'Quality Attribute', key: 'qualityAttribute', width: 20 },
+        { header: 'Status', key: 'status', width: 15 },
+        { header: 'Importance', key: 'importance', width: 15 },
+        { header: 'Version', key: 'version', width: 10 },
+        { header: 'Creation Date', key: 'creationDate', width: 20 },
+        { header: 'Source NFR', key: 'sourceNfrCode', width: 15 },
+      ];
+
+      // Add rows
+      nfrs.forEach(nfr => {
+        worksheet.addRow({
+          code: nfr.code,
+          projectId: nfr.projectId,
+          name: nfr.name,
+          qualityAttribute: nfr.qualityAttribute,
+          status: nfr.status,
+          importance: nfr.importance,
+          version: nfr.version,
+          creationDate: nfr.creationDate.toLocaleDateString(),
+          sourceNfrCode: nfr.sourceNfrCode || '',
+        });
+      });
+
+      // Style the header row
+      worksheet.getRow(1).font = { bold: true };
+
+      // Set response headers
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=all-non-functional-requirements.xlsx');
 
       // Write to response
       await workbook.xlsx.write(res);
@@ -353,7 +558,6 @@ export class NfrController {
 
       // Define table headers
       const headers = ['Code', 'Name', 'Quality Attribute', 'Status', 'Importance'];
-      
       // Prepare rows data
       const rows = nfrs.map(nfr => [
         nfr.code,

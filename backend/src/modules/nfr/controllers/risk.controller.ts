@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { riskService } from '../services/risk.service';
 import { nfrService } from '../services/nfr.service';
-import { RiskDTO } from '../models/risk.model';
+import { 
+  RiskDTO, 
+  RiskDuplicateCheckParams, 
+  RiskGlobalSearchParams,
+  RiskCustomizationDTO 
+} from '../models/risk.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 
@@ -50,6 +55,12 @@ export class RiskController {
       });
     } catch (error) {
       const err = error as Error;
+      
+      // Check for duplicate error
+      if (err.message.includes("already exists")) {
+        return res.status(409).json({ error: err.message });
+      }
+      
       console.error('Error creating risk:', err.message);
       res.status(500).json({ error: 'Error creating risk.' });
     }
@@ -103,8 +114,170 @@ export class RiskController {
       });
     } catch (error) {
       const err = error as Error;
+      
+      // Check for duplicate error
+      if (err.message.includes("already exists")) {
+        return res.status(409).json({ error: err.message });
+      }
+      
       console.error('Error creating risk:', err.message);
       res.status(500).json({ error: 'Error creating risk.' });
+    }
+  }
+
+  /**
+   * Creates a new risk based on an existing one
+   */
+  async createRiskFromExisting(req: Request, res: Response) {
+    try {
+      const { projcod } = req.params;
+      const { 
+        sourceRiskCode, 
+        targetEntityType, 
+        targetRegistryCode, 
+        customizations 
+      } = req.body;
+
+      if (!sourceRiskCode) {
+        return res.status(400).json({ error: 'Source risk code is required.' });
+      }
+
+      // If we're creating for a specific entity
+      if (targetEntityType && !targetRegistryCode) {
+        return res.status(400).json({ error: 'Target registry code is required when target entity type is provided.' });
+      }
+
+      const newRisk = await riskService.createRiskFromExisting(
+        sourceRiskCode,
+        projcod,
+        targetEntityType,
+        targetRegistryCode,
+        customizations
+      );
+
+      res.status(201).json({
+        message: 'Risk created from existing risk successfully.',
+        risk: newRisk,
+      });
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error creating risk from existing:', err.message);
+      res.status(500).json({ error: 'Error creating risk from existing: ' + err.message });
+    }
+  }
+
+  /**
+   * Checks if a similar risk already exists
+   */
+  async checkDuplicateRisk(req: Request, res: Response) {
+    try {
+      const { projcod } = req.params;
+      const { entityType, registryCode, description } = req.query;
+
+      if (!entityType || !registryCode || !description) {
+        return res.status(400).json({ error: 'Entity type, registry code, and description parameters are required.' });
+      }
+
+      const params: RiskDuplicateCheckParams = {
+        projectId: projcod,
+        entityType: entityType as string,
+        registryCode: registryCode as string,
+        description: description as string
+      };
+
+      const isDuplicate = await riskService.checkDuplicateRisk(params);
+
+      res.status(200).json({ isDuplicate });
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error checking for duplicate risk:', err.message);
+      res.status(500).json({ error: 'Error checking for duplicate risk.' });
+    }
+  }
+
+  /**
+   * Gets all risks (global across all projects)
+   */
+  async getAllRisks(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const description = req.query.description as string | undefined;
+      const impact = req.query.impact as string | undefined;
+      const probability = req.query.probability as string | undefined;
+      const status = req.query.status as string | undefined;
+      const entityType = req.query.entityType as string | undefined;
+      
+      // Parse dates if provided
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+      
+      if (req.query.startDate) {
+        startDate = new Date(req.query.startDate as string);
+      }
+      
+      if (req.query.endDate) {
+        endDate = new Date(req.query.endDate as string);
+      }
+
+      const params: RiskGlobalSearchParams = {
+        page,
+        limit,
+        description,
+        impact,
+        probability,
+        status,
+        entityType,
+        startDate,
+        endDate
+      };
+
+      const result = await riskService.searchRisksGlobal(params);
+
+      res.status(200).json(result);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching all risks:', err.message);
+      res.status(500).json({ error: 'Error fetching all risks.' });
+    }
+  }
+
+  /**
+   * Gets similar risks based on description
+   */
+  async getSimilarRisks(req: Request, res: Response) {
+    try {
+      const { description } = req.query;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      if (!description) {
+        return res.status(400).json({ error: 'Description parameter is required.' });
+      }
+
+      const similarRisks = await riskService.getSimilarRisks(description as string, limit);
+
+      res.status(200).json(similarRisks);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error finding similar risks:', err.message);
+      res.status(500).json({ error: 'Error finding similar risks.' });
+    }
+  }
+
+  /**
+   * Gets frequently used risks across projects
+   */
+  async getFrequentRisks(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const frequentRisks = await riskService.getFrequentRisks(limit);
+      
+      res.status(200).json(frequentRisks);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching frequent risks:', err.message);
+      res.status(500).json({ error: 'Error fetching frequent risks.' });
     }
   }
 
@@ -122,8 +295,8 @@ export class RiskController {
       res.status(200).json(risks);
     } catch (error) {
       const err = error as Error;
-      console.error('Error fetching risks:', err.message);
-      res.status(500).json({ error: 'Error fetching risks.' });
+      console.error('Error fetching risks by project:', err.message);
+      res.status(500).json({ error: 'Error fetching risks by project.' });
     }
   }
 
@@ -155,6 +328,23 @@ export class RiskController {
   }
 
   /**
+   * Gets risks for any entity and registry
+   */
+  async getRisksByEntityAndRegistry(req: Request, res: Response) {
+    try {
+      const { entityType, registryCode } = req.params;
+
+      const risks = await riskService.getRisksByEntityAndRegistry(entityType, registryCode);
+
+      res.status(200).json(risks);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching risks by entity and registry:', err.message);
+      res.status(500).json({ error: 'Error fetching risks by entity and registry.' });
+    }
+  }
+
+  /**
    * Gets a risk by code
    */
   async getRiskByCode(req: Request, res: Response) {
@@ -166,8 +356,8 @@ export class RiskController {
         return res.status(404).json({ error: 'Risk not found.' });
       }
 
-      // Verify that the risk belongs to the specified project
-      if (risk.projectId !== projcod) {
+      // Verify that the risk belongs to the specified project (only if projcod is provided)
+      if (projcod && risk.projectId !== projcod) {
         return res.status(404).json({ error: 'Risk not found in this project.' });
       }
 
@@ -209,6 +399,12 @@ export class RiskController {
       });
     } catch (error) {
       const err = error as Error;
+      
+      // Check for duplicate error
+      if (err.message.includes("already exists")) {
+        return res.status(409).json({ error: err.message });
+      }
+      
       console.error('Error updating risk:', err.message);
       res.status(500).json({ error: 'Error updating risk.' });
     }
@@ -347,6 +543,7 @@ export class RiskController {
         { header: 'Status', key: 'status', width: 15 },
         { header: 'Creation Date', key: 'creationDate', width: 20 },
         { header: 'Comments', key: 'comments', width: 40 },
+        { header: 'Source Risk', key: 'sourceRiskCode', width: 15 },
       ];
 
       // Add rows
@@ -360,7 +557,8 @@ export class RiskController {
           probability: risk.probability,
           status: risk.status,
           creationDate: risk.creationDate.toLocaleDateString(),
-          comments: risk.comments ?? '',
+          comments: risk.comments || '',
+          sourceRiskCode: risk.sourceRiskCode || '',
         });
       });
 
@@ -370,6 +568,65 @@ export class RiskController {
       // Set response headers
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename=risks-${projcod}.xlsx`);
+
+      // Write to response
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting to Excel.' });
+    }
+  }
+
+  /**
+   * Exports all risks to Excel (global)
+   */
+  async exportAllToExcel(req: Request, res: Response) {
+    try {
+      // Get all risks
+      const risks = await riskService.getRisks(1, 1000); // Adjust limit as needed
+      
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('All Risks');
+
+      // Define columns
+      worksheet.columns = [
+        { header: 'Code', key: 'code', width: 15 },
+        { header: 'Project ID', key: 'projectId', width: 20 },
+        { header: 'Description', key: 'description', width: 40 },
+        { header: 'Entity Type', key: 'entityType', width: 15 },
+        { header: 'Registry Code', key: 'registryCode', width: 15 },
+        { header: 'Impact', key: 'impact', width: 15 },
+        { header: 'Probability', key: 'probability', width: 15 },
+        { header: 'Status', key: 'status', width: 15 },
+        { header: 'Creation Date', key: 'creationDate', width: 20 },
+        { header: 'Source Risk', key: 'sourceRiskCode', width: 15 },
+      ];
+
+      // Add rows
+      risks.forEach(risk => {
+        worksheet.addRow({
+          code: risk.code,
+          projectId: risk.projectId,
+          description: risk.description,
+          entityType: risk.entityType,
+          registryCode: risk.registryCode,
+          impact: risk.impact,
+          probability: risk.probability,
+          status: risk.status,
+          creationDate: risk.creationDate.toLocaleDateString(),
+          sourceRiskCode: risk.sourceRiskCode || '',
+        });
+      });
+
+      // Style the header row
+      worksheet.getRow(1).font = { bold: true };
+
+      // Set response headers
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=all-risks.xlsx');
 
       // Write to response
       await workbook.xlsx.write(res);
@@ -400,7 +657,7 @@ export class RiskController {
         );
         // Filter by project as well
         risks = risks.filter(risk => risk.projectId === projcod);
-        title = `Risks for ${String(entityType ?? 'Unknown')}:${String(registryCode?.toString() ?? 'Unknown')} in Project ${projcod}`;
+        title = `Risks for ${entityType}:${registryCode} in Project ${projcod}`;
       } else {
         risks = await riskService.getRisksByProject(projcod);
       }

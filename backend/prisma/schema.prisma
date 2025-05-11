@@ -141,6 +141,7 @@ model NonFunctionalRequirement {
   importance        String
   comment           String?
   projectId         String
+  sourceNfrCode     String?    // referencia a otras  NFRs
   project           Project   @relation(fields: [projectId], references: [id])
 }
 
@@ -282,6 +283,8 @@ model Risk {
   status         String
   creationDate   DateTime @default(now())
   comments       String?
+  sourceRiskCode String?
+  modificationDate DateTime?
   project        Project  @relation(fields: [projectId], references: [id])
 }
 
