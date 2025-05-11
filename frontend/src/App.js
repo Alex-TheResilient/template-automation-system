@@ -46,6 +46,8 @@ import SubirInterfaz from './view/Plantillas/Artefactos/SubirInterfaz.js';
 import RNF from './view/Plantillas/RNF/RNF.js';
 import NuevoRNF from './view/Plantillas/RNF/NuevoRNF.js';
 import EditarRNF from './view/Plantillas/RNF/EditarRNF.js';
+import PruebasSoftware from './view/Plantillas/PruebasSoftware/PruebasSoftware.js';
+import NuevaPS from './view/Plantillas/PruebasSoftware/NuevaPS.js';
 
 function App() {
   return (
@@ -120,6 +122,8 @@ function App() {
           <Route path="/RNF" element={<RNF />} />
           <Route path="/NuevoRNF" element={<NuevoRNF />} />
           <Route path="/EditarRNF" element={<EditarRNF />} />
+          <Route path="/PruebasSoftware" element={<PruebasSoftware />} />
+          <Route path="/NuevaPS" element={<NuevaPS />} />
 
         </Routes>
       </div>
