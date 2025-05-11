@@ -35,8 +35,8 @@ const ListaProyectos = () => {
   const irARegistroProyecto = () => navigate(`/organizations/${orgcod}/projects/new`);
   const irALogin = () => navigate("/");
   const irAMenuProyecto = (projcod) => {
-    navigate(`/projects/${projcod}/menuProyecto`);
-  };    
+    navigate(`${projcod}/menuProyecto`);
+  };   
 
   // Obtener proyectos asociados a la organización
   const fetchProjects = useCallback(async () => {
@@ -91,7 +91,7 @@ const handleSearch = async () => {
       if (searchNombre) {
           // Búsqueda por nombre
           endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/search`;
-          params.nombre = searchNombre;
+          params.name = searchNombre;
       } else if (searchYear || searchMonth) {
           // Búsqueda por fecha
           endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/search/date`;
@@ -318,7 +318,7 @@ const exportToPDF = async () => {
                   <thead>{/* Encabezados */}</thead>
                   <tbody>
                     {projects.map((pro) => (
-                      <tr key={pro.procod}>{/* Celdas */}</tr>
+                      <tr key={pro.code}>{/* Celdas */}</tr>
                     ))}
                   </tbody>
                 </table>

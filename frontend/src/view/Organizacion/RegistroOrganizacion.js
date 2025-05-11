@@ -1,5 +1,5 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect } from "react";
+import React, { useState,useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import '../../styles/stylesRegistroOrganizacion.css';
 import '../../styles/styles.css';
@@ -7,7 +7,7 @@ import axios from "axios";
 
 const RegistroOrganizacion = () => {
     const navigate = useNavigate();
-    
+    const hasFetched = useRef(false);
     // Datos automáticos
     const [code, setCodigo] = useState("");
     const [version, setVersion] = useState("00.01");
@@ -28,7 +28,7 @@ const RegistroOrganizacion = () => {
     const [comments, setComentario] = useState("");
 
     // Estados para manejar errores y carga
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     
     // Datos fijos
@@ -36,6 +36,9 @@ const RegistroOrganizacion = () => {
 
     // Obtener el siguiente código al cargar la interfaz
     useEffect(() => {
+        if (hasFetched.current) return; // Previene segunda ejecución
+        hasFetched.current = true;
+
         const fetchNextCode = async () => {
             setIsLoading(true);
             try {
@@ -48,6 +51,7 @@ const RegistroOrganizacion = () => {
                 setIsLoading(false);
             }
         };
+
         fetchNextCode();
     }, [API_BASE_URL]);
 

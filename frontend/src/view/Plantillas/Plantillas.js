@@ -1,12 +1,13 @@
-import React, {useState} from "react"
+import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import '../../styles/stylesPlantillas.css'
+import '../../styles/stylesPlantillas.css';
 import '../../styles/styles.css';
 
 const Plantillas = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { projcod } = useParams();
+    const { projcod,orgcod } = useParams();
+    const { projectId } = location.state || {}; // ✅ Recibe projectId
 
     const queryParams = new URLSearchParams(location.search);
     const codigo = queryParams.get('projcod');
@@ -21,7 +22,7 @@ const Plantillas = () => {
         navigate("/listaProyecto");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate("/menuProyecto", { state: { projectId } });
     };
     const irAEduccion = () => {
         navigate("/educcion");
@@ -38,23 +39,27 @@ const Plantillas = () => {
     const irAActores = () => {
         navigate("/actores");
     };
+
     const irARequerimientosNoFuncionales = () => {
-        navigate("/requerimientosNoFuncionales");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`);
     };
-    
 
     const irAExpertos = () => {
-        navigate(`/projects/${projcod}/expertos`);
-      }; 
-    const irAFuentes = () => {
-        navigate("/fuentes");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/experts`); 
     };
+
+    const irAFuentes = () => {
+        navigate(`/projects/${projcod}/fuentes`, { state: { projectId } }); // ✅ Con ID
+    };
+
     const irAMetricas = () => {
         navigate("/metricas");
     };
+
     const irAPruebasDeSoftware = () => {
         navigate("/pruebasDeSoftware");
     };
+
 
     return (
         <div className="menu-container">

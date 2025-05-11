@@ -7,23 +7,22 @@ import "../../../styles/styles.css";
 
 const Expertos = () => {
 
-
-  const {projcod} = useParams();
+  const {projcod,orgcod} = useParams();
 
   // Estado de proyectos y errores
-    const [expertos, setExpertos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [expertos, setExpertos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
     
-    // Estado para los parámetros de búsqueda
-    const [searchNombre, setSearchNombre] = useState("");
-    const [searchYear, setSearchYear] = useState("");
-    const [searchMonth, setSearchMonth] = useState("");
+  // Estado para los parámetros de búsqueda
+  const [searchNombre, setSearchNombre] = useState("");
+  const [searchYear, setSearchYear] = useState("");
+  const [searchMonth, setSearchMonth] = useState("");
 
-    // Variables de Enrutamiento
-    const navigate = useNavigate();
+  // Variables de Enrutamiento
+  const navigate = useNavigate();
 
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
   const irAMenuOrganizaciones = () => {
@@ -42,10 +41,12 @@ const Expertos = () => {
   };
 
   const irANuevoExperto = () => {
-    navigate(`/projects/${projcod}/expertos/new`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/new`);
   };
-  const irAEditarExperto = () => {
-    navigate(`/projects/`);
+
+ 
+  const irAEditarExperto = (expcod) => {
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`);
   };
 
   const irALogin = () => {
@@ -58,9 +59,9 @@ const Expertos = () => {
   
 
   const fetchExpertos = useCallback(async () => {
-    //Obtener o listar proyectos de una organizacion
+    //Obtener o listar expertos de un proyecto
     try {
-      const response = await axios.get(`${API_BASE_URL}/proyectos/${projcod}/expertos`);
+      const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts`);
       setExpertos(response.data||[]);
     } catch (err) {
       setError(
@@ -69,7 +70,7 @@ const Expertos = () => {
           : "Error al obtener los proyectos"
       );
     }
-  }, [projcod,API_BASE_URL]);
+  }, [projcod,orgcod,API_BASE_URL]);
 
   useEffect(() => {
     
@@ -97,7 +98,7 @@ const Expertos = () => {
   // Función para eliminar un Experto
   const deleteExpert = async (codigo) => {
     try {
-      await axios.delete(`${API_BASE_URL}/proyectos/${projcod}/expertos/${codigo}`);
+      await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/${codigo}`);
       fetchExpertos(); // Refrescar la lista de proyectos después de eliminar uno
     } catch (err) {
       console.error("Error al eliminar el proyecto:", err);
@@ -115,11 +116,11 @@ const Expertos = () => {
       // Determinar qué tipo de búsqueda realizar
       if (searchNombre) {
           // Búsqueda por nombre
-          endpoint = `${API_BASE_URL}/proyectos/${projcod}/expertos/search`;
-          params.nombre = searchNombre;
+          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search`;
+          params.name = searchNombre;
       } else if (searchYear || searchMonth) {
           // Búsqueda por fecha
-          endpoint = `${API_BASE_URL}/proyectos/${projcod}/expertos/search/date`;
+          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search/date`;
           if (searchYear) params.year = searchYear;
           if (searchMonth) params.month = searchMonth;
       } else {
@@ -246,12 +247,12 @@ const Expertos = () => {
               </thead>
               <tbody>
                 {expertos.map((experto) => (
-                  <tr key={experto.codigo}>
-                    <td>{experto.codigo}</td>
-                    <td>{experto.nombres}</td>
-                    <td>{new Date(experto.fechaCreacion).toLocaleDateString()}</td>
+                  <tr key={experto.code}>
+                    <td>{experto.code}</td>
+                    <td>{experto.firstName}</td>
+                    <td>{new Date(experto.creationDate).toLocaleDateString()}</td>
                     <td>{experto.version}</td>
-                    <td>{experto.experiencia}</td>
+                    <td>{experto.experience}</td>
                     <td>
                       <button className="botton-crud">
                         <FaFolder
@@ -261,8 +262,8 @@ const Expertos = () => {
                       <button
                         className="botton-crud"
                         onClick={(e) => {
-                          e.stopPropagation(); // Evita que el clic se propague al <tr>
-                          irAEditarExperto(experto.codigo); // Llama a la función para editar
+                          e.stopPropagation();
+                          irAEditarExperto(experto.code); // Llama a la función para editar
                         }}
                       >
                         <FaPencilAlt
@@ -273,7 +274,7 @@ const Expertos = () => {
                         className="botton-crud"
                         onClick={(e) => {
                           e.stopPropagation(); // Evita que el clic se propague al <tr>
-                          deleteExpert(experto.codigo); // Llama a la función de eliminación
+                          deleteExpert(experto.code); // Llama a la función de eliminación
                         }}
                       >
                         <FaTrash
@@ -305,7 +306,7 @@ const Expertos = () => {
                   <thead>{/* Encabezados */}</thead>
                   <tbody>
                     {expertos.map((pro) => (
-                      <tr key={pro.codigo}>{/* Celdas */}</tr>
+                      <tr key={pro.code}>{/* Celdas */}</tr>
                     ))}
                   </tbody>
                 </table>

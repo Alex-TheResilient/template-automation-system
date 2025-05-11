@@ -1,50 +1,75 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect,useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoExperto.css';
 import '../../../styles/styles.css';
 import axios from "axios";
 
 const EditarExperto = () => {
+    const hasRun = useRef(false);
+
     const navigate = useNavigate();
+    const {orgcod, projcod, expcod } = useParams(); // Asegúrate de tener expertId en la ruta
 
-    // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
-
-    // Datos automáticos
-    const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState("");
-    const [tipo, setTipo] = useState("Contratante");
-    const [autor, setAutor] = useState("AUT-00.00");
-
+    const [paternalSurname, setApellidoPaterno] = useState("");
+    const [maternalSurname, setApellidoMaterno] = useState("");
+    const [firstName, setNombres] = useState("");
+    const [experience, setExperiencia] = useState("");
+    const [version, setVersion] = useState("");
+    const [status, setEstado] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const [comment, setComentario] = useState("");
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/organizations/last");
-                const nextCode = response.data.nextCode || "ORG-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
-            } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
-            }
-        };
-        fetchAutomaticData();
-    }, []);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
+    // GET: traer los datos del experto
+    const fetchExpertData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`);
+            const data = response.data;
+            setApellidoPaterno(data.paternalSurname);
+            setApellidoMaterno(data.maternalSurname);
+            setNombres(data.firstName);
+            setFecha(data.creationDate);
+            setVersion(data.version);
+            setExperiencia(data.experience);
+            setEstado(data.status);
+            setComentario(data.comment);
+        } catch (err) {
+            setError("Error al obtener los datos del experto: " + err.message);
+        }
+    };
+
+    useEffect(() => {
+        if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
+        hasRun.current = true;
+        console.log("Cargando experto con código:", expcod);
+        fetchExpertData();
+    }, [expcod]);
+    
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        console.log("Guardando experto con código:", expcod);
+        try {
+            const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`, {
+                paternalSurname,
+                maternalSurname,
+                firstName,
+                experience,
+                status,
+                comment
+            });
+    
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irAExpertos();
+            }
+        } catch (err) {
+            setError("Error al actualizar el experto: " + err.message);
+        }
+    };
+    
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
     };
@@ -58,40 +83,10 @@ const EditarExperto = () => {
         navigate("/plantillas");
     };
     const irAExpertos = () => {
-    navigate("/expertos");
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
     };
     const irAMenuProyecto = (code) => {
     navigate(`/menuProyecto?procod=${code}`);
-    };
-
-    // Función para registrar la organización
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/api/organizations", {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
-            });
-            if (response.status === 201) {
-                alert("Organización registrada correctamente");
-                irAMenuOrganizaciones();
-            }
-        } catch (err) {
-            setError("Error al registrar la organización: " + err.message);
-        }
     };
 
     return (
@@ -130,13 +125,13 @@ const EditarExperto = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={expcod}  readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
 
@@ -147,7 +142,7 @@ const EditarExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Apellido Parterno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={paternalSurname} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar el apellido parterno del experto</span>
                                 </span>
                                 
@@ -155,14 +150,14 @@ const EditarExperto = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Apellido Materno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={maternalSurname} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar el apellido materno del experto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Nombres*</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={telefonoOrganizacion} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={firstName} onChange={(e) => setNombres(e.target.value)} size="30" />
                                     <span class="tooltip-text">Editar el nombre del experto </span>
                                 </span>
                             </div>
@@ -172,7 +167,7 @@ const EditarExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Experiencia* </h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={representanteLegal} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={experience} onChange={(e) => setExperiencia(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Editar la experiencia que tiene el experto </span>
                                 </span>
                                 
@@ -193,24 +188,30 @@ const EditarExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value={orgcod}readOnly size="30" />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
                                 
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value="AUT-000" readOnly size="30" />
                                     <span class="tooltip-text"> Codigo del autor de la plantilla </span>
                                 </span>
                                 
                             </div>
                             <div className="ro-fiel-fecha">
-                                <select id="estado" name="estado" required>
-                                    <option value="">Seleccione un estado</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                    <option value="pendiente">Pendiente</option>
+                            <select
+                                id="estado"
+                                name="estado"
+                                value={status}
+                                onChange={(e) => setEstado(e.target.value)}
+                                required
+                            >
+                                <option value="">Seleccione un estado</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="pendiente">Pendiente</option>
                                 </select>
                             </div>
                         </div>
@@ -218,12 +219,12 @@ const EditarExperto = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario*</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
                         </div>
 
                         <div className="ro-buttons">
                             <button onClick={irAExpertos} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button">Guardar Cambios</button>
+                            <button onClick={handleEdit} className="ro-button">Guardar Cambios</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

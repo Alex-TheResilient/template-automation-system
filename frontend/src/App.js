@@ -65,7 +65,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects" element={<ListaProyectos />} />
           <Route path="/organizations/:orgcod/projects/new" element={<RegistroProyecto />} />
           <Route path="/organizations/:orgcod/projects/:projcod" element={<EditarProyecto />} />
-          <Route path="/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
 
           {/* Entrevistas */}
           <Route path="/projects/:projcod/entrevistas" element={<Entrevistas />} />
@@ -89,16 +89,16 @@ function App() {
           <Route path="/ilaciones/:ilacod/especificaciones/new" element={<NuevaEspecificacion />} />
           <Route path="/ilaciones/:ilacod/especificaciones/:especod" element={<EditarEspecificacion />} /> */}
 
-          <Route path="/actaAceptacion" element={<ActaAceptacion />} />
-          <Route path="/autores" element={<Autores />} />
+          <Route path="/projects/:projcod/actaAceptacion" element={<ActaAceptacion />} />
+          <Route path="/projects/:projcod/autores" element={<Autores />} />
           <Route path="/nuevoAutor" element={<NuevoAutor />} />
           <Route path="/editarAutor" element={<EditarAutor />} />
-          <Route path="/Roles" element={< Roles/>} />
+          <Route path="/projects/:projcod/roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol" element={<EditarRol />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
-          <Route path="/projects/:projcod/plantillas" element={<Plantillas />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/educcion" element={<Educcion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
           <Route path="/ilacion" element={<Ilacion />} />
@@ -108,12 +108,12 @@ function App() {
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
-          <Route path="/projects/:projcod/expertos" element={<Expertos />} />   
-          <Route path="/fuentes" element={<Fuentes />} />   
+          <Route path="/organizations/:orgcod/projects/:projcod/experts" element={<Expertos />} />   
+          <Route path="/projects/:projcod/fuentes" element={<Fuentes />} />   
           <Route path="/nuevaFuente" element={<NuevaFuente />} /> 
           <Route path="/editarFuente" element={<EditarFuente />} /> 
-          <Route path="/projects/:projcod/expertos/new" element={<NuevoExperto />} /> 
-          <Route path="/editarExperto" element={<EditarExperto />} /> 
+          <Route path="/organizations/:orgcod/projects/:projcod/experts/new" element={<NuevoExperto />} /> 
+          <Route path="/organizations/:orgcod/projects/:projcod/experts/:expcod" element={<EditarExperto />} /> 
           <Route path="/especificacion" element={<Especificacion />} />
           <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
           <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />

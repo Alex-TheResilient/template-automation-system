@@ -1,5 +1,5 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoExperto.css';
 import '../../../styles/styles.css';
@@ -8,26 +8,27 @@ import axios from "axios";
 const NuevoExperto = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const hasFetched = useRef(false);
 
     // Obtener datos del proyecto del URL
-    const { projcod } = useParams();
+    const { projcod,orgcod } = useParams();
 
-    const [codigoExperto, setCodigoExperto] = useState("");
+    const [code, setCodigoExperto] = useState("");
     const [version, setVersionExperto] = useState("00.01");
-    const [fechaCreacion, setFechaCreacion] = useState(
+    const [creationDate, setFechaCreacion] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     );
-    const [fechaModificacion, setFechaModificacion] = useState(
+    const [modificationDate, setFechaModificacion] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     );
     
     // Datos controlados por el usuario
-    const [apellidoPaterno, setApellidoPaterno] = useState("");
-    const [apellidoMaterno, setApellidoMaterno] = useState("");
-    const [nombres, setNombres] = useState("");
-    const [experiencia, setExperiencia] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [paternalSurname, setApellidoPaterno] = useState("");
+    const [maternalSurname, setApellidoMaterno] = useState("");
+    const [firstName, setNombres] = useState("");
+    const [experience, setExperiencia] = useState("");
+    const [status, setEstado] = useState("");
+    const [comment, setComentario] = useState("");
     //Estados para manejar errores
     const [error, setError]=useState(null);
 
@@ -35,11 +36,13 @@ const NuevoExperto = () => {
 
     // Obtener el siguiente código de experto
     useEffect(() => {
+        if (hasFetched.current) return; // Previene segunda ejecución
+        hasFetched.current = true;
         const fetchNextCodigoExperto = async () => {
             try {
                 
                 // Llamar al endpoint usando parámetros de consulta
-                const response = await axios.get(`${API_BASE_URL}/proyectos/${projcod}/expertos/nextCodigo`);
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/next-code`);
 
                 // Asignar el valor recibido al estado
                 setCodigoExperto(response.data.nextCode || "EXP-001");
@@ -50,19 +53,19 @@ const NuevoExperto = () => {
         };
 
         fetchNextCodigoExperto();
-    }, [API_BASE_URL, projcod]);
+    }, [API_BASE_URL,orgcod, projcod]);
 
     const registrarExperto = async (e) => {
         e.preventDefault();
         try {
             // Realiza la solicitud POST con los datos correctos
-            await axios.post(`${API_BASE_URL}/proyectos/${projcod}/expertos`, {
-                apellidoMaterno: apellidoMaterno,
-                apellidoPaterno: apellidoPaterno,
-                nombres: nombres,
-                experiencia: experiencia,
-                comentario: comentario, // Asumiendo que 'comentario' es un campo adicional
-                estado: estado, // Asumiendo que 'estado' es otro campo
+            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts`, {
+                maternalSurname,
+                paternalSurname,
+                firstName,
+                experience,
+                comment, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
             });
             
             // Redirigir a la página de expertos o realizar otra acción
@@ -85,7 +88,7 @@ const NuevoExperto = () => {
     navigate("/fuentes");
     };
     const irAExpertos = () => {
-    navigate(`/projects/${projcod}/expertos`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
     };
     const irAPlantillas = () => {
         navigate(`/plantillas`);
@@ -133,13 +136,13 @@ const NuevoExperto = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={codigoExperto}  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code}  readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <input type="text" className="inputBloq-field"  value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={fechaCreacion} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
 
@@ -150,7 +153,7 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Apellido Parterno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoPaterno} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={paternalSurname} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el apellido parterno del experto</span>
                                 </span>
                                 
@@ -158,14 +161,14 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Apellido Materno*</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoMaterno} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={maternalSurname} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el apellido materno del experto </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Nombres*</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={nombres} onChange={(e) => setNombres(e.target.value)} size="30" />
+                                <input className="inputnombre-field" type="text" value={firstName} onChange={(e) => setNombres(e.target.value)} size="30" />
                                     <span class="tooltip-text">Ingresar el nombre del experto </span>
                                 </span>
                             </div>
@@ -175,7 +178,7 @@ const NuevoExperto = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Experiencia* </h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={experiencia} onChange={(e) => setExperiencia(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={experience} onChange={(e) => setExperiencia(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Ingresar la experiencia que tiene el experto </span>
                                 </span>
                                 
@@ -196,7 +199,7 @@ const NuevoExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value={orgcod} readOnly size="30" />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
                                 
@@ -221,7 +224,7 @@ const NuevoExperto = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario*</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
                         </div>
 
                         <div className="ro-buttons">

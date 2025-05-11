@@ -1,21 +1,22 @@
-import React, {useState, useEffect} from "react"
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
-import '../../styles/stylesMenuProyecto.css'
+import '../../styles/stylesMenuProyecto.css';
 import '../../styles/styles.css';
 import axios from "axios";
 
 const MenuProyecto = () => {
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
-    const [proyecto, setProyecto] = useState({});
+    const location = useLocation();
+    const { projectId } = location.state || {};
 
+    const [proyecto, setProyecto] = useState({});
     const [codigoAutor, setCodigoAutor] = useState("");
     const [resultados, setResultados] = useState([]);
     const [mensaje, setMensaje] = useState("");
-    
+
     useEffect(() => {
-        // Obtener la información del proyecto usando el código del proyecto
         const obtenerProyecto = async () => {
             try {
                 const response = await axios.get(`/api/v1/projects/${projcod}`);
@@ -36,22 +37,25 @@ const MenuProyecto = () => {
     };
 
     const irAActaAceptacion = () => {
-    navigate(`/actaAceptacion?code=${projcod}`);
-    };
-    const irAAutores = () => {
-        navigate(`/autores?projcod=${projcod}`);
-    };
-    const irAEntrevistas = () => {
-        navigate(`/projects/${projcod}/entrevistas`);
-    };
-    const irARoles = () => {
-        navigate(`/roles?projcod=${projcod}`);
+        navigate(`/projects/${projcod}/actaAceptacion`, { state: { projectId } });
     };
 
+    const irAAutores = () => {
+        navigate(`/projects/${projcod}/autores`, { state: { projectId } });
+    };
+
+    const irAEntrevistas = () => {
+        navigate(`/projects/${projcod}/entrevistas`, { state: { projectId } });
+    };
+
+    const irARoles = () => {
+        navigate(`/projects/${projcod}/roles`, { state: { projectId } });
+    };
 
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
-      }; 
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+    };
+
     const irAListaProyecto = () => {
         navigate("/listaProyectos");
     };
@@ -59,20 +63,21 @@ const MenuProyecto = () => {
     const manejarBusqueda = (e) => {
         setCodigoAutor(e.target.value);
     };
+
     const buscarAutor = async () => {
         try {
             const response = await axios.get(`/api/authors/searchCode`, {
-                params: { codAut: codigoAutor}
+                params: { codAut: codigoAutor }
             });
-            if(response.data.length === 0){
+            if (response.data.length === 0) {
                 setMensaje("No se encontraron resultados");
-            }else {
+            } else {
                 setResultados(response.data);
                 setMensaje("");
             }
         } catch (error) {
             console.log("Error al buscar:", error);
-            setMensaje("Error al realizar la búsqueda. intenta de nuevo");
+            setMensaje("Error al realizar la búsqueda. Intenta de nuevo");
             setResultados([]);
         }
     };
