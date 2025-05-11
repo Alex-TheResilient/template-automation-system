@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoAutor.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,6 +7,7 @@ import axios from "axios";
 const EditarAutor = () => {
 
     const navigate = useNavigate();
+    const {orgcod, projcod } = useParams();
 
     // Datos controlados por el usuario
     const [apellidoPaternoAutor, setApellidoPaternoAutor] = useState("Perez");
@@ -46,7 +47,7 @@ const EditarAutor = () => {
         setAutorPantilla(event.target.value);
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
 
     const irAAutores = () => {
@@ -58,10 +59,10 @@ const EditarAutor = () => {
     };
 
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
 

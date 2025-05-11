@@ -7,6 +7,7 @@ import '../../../styles/styles.css';
 const NuevaEntrevista = () => {
     const navigate = useNavigate();
     const { proyectoId } = useParams();
+    const {orgcod, projcod } = useParams();
 
     const [entrevista, setEntrevista] = useState({
         version: "00.01",
@@ -68,10 +69,10 @@ const NuevaEntrevista = () => {
         navigate("/");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
 

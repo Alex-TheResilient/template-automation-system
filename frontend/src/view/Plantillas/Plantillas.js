@@ -16,10 +16,10 @@ const Plantillas = () => {
         navigate("/");
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyecto");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
         navigate("/menuProyecto", { state: { projectId } });

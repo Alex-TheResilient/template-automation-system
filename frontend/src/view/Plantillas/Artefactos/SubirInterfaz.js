@@ -1,17 +1,17 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesRiesgo.css';
 import '../../../styles/styles.css';
 
 const SubirInterfaz = () => {
-
+    const { orgcod, projcod } = useParams();
     const navigate = useNavigate();
 
     const irALogin = () => {
         navigate("/");
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -24,13 +24,13 @@ const SubirInterfaz = () => {
         navigate("/editarRiesgo");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyectos");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
     const irAArtefactos = () => {
         navigate("/artefactos");

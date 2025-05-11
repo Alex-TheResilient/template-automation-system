@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import axios from "axios";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import "../../../styles/stylesExpertos.css";
@@ -9,15 +9,17 @@ const Fuentes = () => {
   // Variables de enrutamiento
   const location = useLocation();
   const navigate = useNavigate();
+  const {  projcod } = useParams();
 
   const irAMenuOrganizaciones = () => {
-    navigate("/menuOrganizaciones");
+    navigate("/organizations");
   };
   const irAListaProyecto = () => {
-    navigate("/listaProyectos");
+    navigate(`/organizations/${orgcod}/projects`);
   };
   const irAMenuProyecto = (code) => {
-    navigate(`/menuProyecto?procod=${code}`);
+    //navigate(`/menuProyecto?procod=${code}`);
+    navigate(`/projects/${projcod}/menuProyecto`);
   };
   //Modificar
   const irAEditarProyecto = (projectId) => {
@@ -34,7 +36,7 @@ const Fuentes = () => {
   };
 
   const irAPlantillas = () => {
-    navigate(`/plantillas`);
+     navigate(`/projects/${projcod}/plantillas`);
   };
   // Obtener los parámetros de consulta
   const queryParams = new URLSearchParams(location.search);

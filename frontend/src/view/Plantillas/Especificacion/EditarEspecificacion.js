@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom"
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
 
 const EditarEspecificacion = () => {
 
     const navigate = useNavigate();
-
+    const { orgcod, projcod } = useParams();
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irALogin = () => {
         navigate("/");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
     const irAEspecificacion = () => {
         navigate("/especificacion");
@@ -109,7 +109,7 @@ const EditarEspecificacion = () => {
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
                     <span onClick={irAEspecificacion}>Especificacion /</span>
-                    <span>Nueva Especificacion</span>
+                    <span>Editar Especificacion</span>
                 </div>
             </header>
 

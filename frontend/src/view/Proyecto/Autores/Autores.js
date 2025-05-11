@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import '../../../styles/stylesAutores.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,7 +8,7 @@ import '../../../styles/styles.css';
 
 const Autores = () => {
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     // Organizacion 
     const [authors, setAuthors] = useState([]);
     const [error, setError] = useState(null);
@@ -108,10 +108,10 @@ const Autores = () => {
     };
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irANuevoAutor = () => {
         navigate("/nuevoAutor");
@@ -123,7 +123,7 @@ const Autores = () => {
         navigate("/");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
     return (

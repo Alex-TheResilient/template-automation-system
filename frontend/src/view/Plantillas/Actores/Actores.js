@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesAutores.css'
 import '../../../styles/stylesEliminar.css'
@@ -7,23 +7,27 @@ import '../../../styles/styles.css';
 
 
 const Actores = () => {
+    const { orgcod ,projcod} = useParams();
     const navigate = useNavigate();
 
     const irALogin = () => {
         navigate("/");
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
+        
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyectos");
-    };
+        navigate(`/projects/${projcod}/menuProyecto`);
+    };  
+
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
+
     const irANuevoActor = () => {
         navigate("/nuevoActor");
     };

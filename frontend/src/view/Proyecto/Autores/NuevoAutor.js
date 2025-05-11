@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoAutor.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,7 +7,7 @@ import axios from "axios";
 const NuevoAutor = () => {
 
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     // Datos controlados por el usuario
     const [apellidoPaterno, setApellidoPaterno] = useState("");
     const [apellidoMaterno, setApellidoMaterno] = useState("");
@@ -97,7 +97,7 @@ const NuevoAutor = () => {
     };*/
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
 
     const irAAutores = () => {
@@ -109,10 +109,10 @@ const NuevoAutor = () => {
     };
 
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
 

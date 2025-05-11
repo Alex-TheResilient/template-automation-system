@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom"
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,12 +8,12 @@ import '../../../styles/styles.css';
 
 const Artefactos = () => {
     const navigate = useNavigate();
-
+    const { orgcod, projcod } = useParams();
     const irALogin = () => {
         navigate("/");
     };
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -26,13 +26,13 @@ const Artefactos = () => {
         navigate("/editarRiesgo");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
-    const irAMenuProyecto = () => {
-        navigate("/menuProyectos");
+    const irAMenuProyecto = (projcod) => {
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
 
     const irANuevoNemonico = () => {

@@ -1,26 +1,26 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
 
 const EditarIlacion = () => {
 
     const navigate = useNavigate();
-
+    const { orgcod, projcod } = useParams();
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irALogin = () => {
         navigate("/");
     };
-    const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+     const irAListaProyecto = () => {
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
     const irAIlacion = () => {
         navigate("/Ilacion");

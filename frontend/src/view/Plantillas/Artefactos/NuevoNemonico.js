@@ -1,17 +1,18 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoNemonico.css';
 import '../../../styles/styles.css';
 
 const NuevoNemonico = () => {
 
     const navigate = useNavigate();
+         const { orgcod, projcod } = useParams();
     
         const irALogin = () => {
             navigate("/");
         };
         const irAMenuOrganizaciones = () => {
-            navigate("/menuOrganizaciones");
+            navigate("/organizations");
         };
         const irAVerRiesgo = () => {
             navigate("/verRiesgo");
@@ -24,13 +25,13 @@ const NuevoNemonico = () => {
             navigate("/editarRiesgo");
         };
         const irAListaProyecto = () => {
-            navigate("/listaProyectos");
+            navigate(`/organizations/${orgcod}/projects`);
         };
         const irAMenuProyecto = () => {
-            navigate("/menuProyectos");
+            navigate(`/projects/${projcod}/menuProyecto`);
         };
         const irAPlantillas = () => {
-            navigate("/plantillas");
+            navigate(`/projects/${projcod}/plantillas`);
         };
         const irAArtefactos = () => {
             navigate("/artefactos");

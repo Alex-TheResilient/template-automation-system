@@ -1,14 +1,14 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoRol.css';
 import '../../../styles/styles.css';
 
 const NuevoRol = () => {
 
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irARoles = () => {
         navigate("/Roles");
@@ -17,10 +17,10 @@ const NuevoRol = () => {
         navigate("/");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
 

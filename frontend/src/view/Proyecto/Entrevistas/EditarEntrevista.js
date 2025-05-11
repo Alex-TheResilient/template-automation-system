@@ -1,26 +1,26 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEntrevista.css';
 import '../../../styles/styles.css';
 
 const EditarEntrevista = () => {
 
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAEntrevistas = () => {
-        navigate("/entrevistas");
+        navigate(`/projects/${projcod}/entrevistas`);
     };
     const irALogin = () => {
         navigate("/");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     
  //valores iniciales o cargados

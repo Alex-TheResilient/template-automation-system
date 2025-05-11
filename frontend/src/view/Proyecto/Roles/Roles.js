@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import '../../../styles/stylesRoles.css'
 import '../../../styles/styles.css';
 
 const Roles = () => {
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+         navigate("/organizations");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irANuevoRol = () => {
         navigate("/nuevoRol");
@@ -26,7 +26,7 @@ const Roles = () => {
         navigate("/");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);

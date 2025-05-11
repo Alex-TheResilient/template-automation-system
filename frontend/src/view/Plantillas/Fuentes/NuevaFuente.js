@@ -1,13 +1,13 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect} from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaFuente.css';
 import '../../../styles/styles.css';
 import axios from "axios";
 
 const NuevaFuente = () => {
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     // Datos controlados por el usuario
     const [nombre, setNombre] = useState("");
     const [direccion, setDireccion] = useState("");
@@ -46,19 +46,20 @@ const NuevaFuente = () => {
     }, []);
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
       };
       const irAFuentes = () => {
         navigate("/fuentes");
       };
       const irAMenuProyecto = (code) => {
-        navigate(`/menuProyecto?procod=${code}`);
+        //navigate(`/menuProyecto?procod=${code}`);
+        navigate(`/projects/${projcod}/menuProyecto`);
       };
       const irAPlantillas = () => {
-        navigate(`/plantillas`);
+        navigate(`/projects/${projcod}/plantillas`);
       };
 
 

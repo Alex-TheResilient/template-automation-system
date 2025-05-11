@@ -71,22 +71,23 @@ const EditarExperto = () => {
     };
     
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects` );
     };
     const irAFuentes = () => {
     navigate("/fuentes");
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/projects/${projcod}/plantillas`);
     };
     const irAExpertos = () => {
     navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
     };
     const irAMenuProyecto = (code) => {
-    navigate(`/menuProyecto?procod=${code}`);
+    navigate(`/projects/${projcod}/menuProyecto`);
+    //navigate(`/menuProyecto?procod=${code}`);
     };
 
     return (

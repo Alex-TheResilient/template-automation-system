@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation} from "react-router-dom";
+import { useNavigate, useLocation, useParams} from "react-router-dom";
 import axios from "axios";
 import '../../../styles/stylesActaAceptacion.css';
 import '../../../styles/styles.css';
@@ -8,21 +8,24 @@ const EditarActaAceptacion= () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-
+    const {orgcod, projcod } = useParams();
     const [selectedFile, setSelectedFile] = useState(null);  // Para manejar el archivo cargado
     const [filePreview, setFilePreview] = useState(null);
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto");
+        navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irALogin = () => {
         navigate("/");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
+    };
+    const irAActa = () => {
+        navigate(`/actaAceptacion`);
     };
 
     const queryParams = new URLSearchParams(location.search);
@@ -78,7 +81,8 @@ const EditarActaAceptacion= () => {
                     <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
-                    <span>Acta</span>
+                    <span onClick={irAActa}>Acta /</span>
+                    <span>Editar Acta</span>
                 </div>
             </header>
 

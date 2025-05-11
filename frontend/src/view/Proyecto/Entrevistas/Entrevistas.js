@@ -9,7 +9,7 @@ import '../../../styles/styles.css';
 
 const Entrevistas = () => {
     const navigate = useNavigate();
-    const { projcod } = useParams();
+    const {orgcod, projcod } = useParams();
     const [entrevistas, setEntrevistas] = useState([]);
     const [mostrarPopup, setMostrarPopup] = useState(false);
 
@@ -55,7 +55,7 @@ const Entrevistas = () => {
         navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
  
     const abrirPopup = () => {

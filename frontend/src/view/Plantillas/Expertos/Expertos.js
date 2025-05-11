@@ -26,13 +26,14 @@ const Expertos = () => {
 
 
   const irAMenuOrganizaciones = () => {
-    navigate("/menuOrganizaciones");
+    navigate("/organizations");
   };
   const irAListaProyecto = () => {
-    navigate("/listaProyectos");
+    navigate(`/organizations/${orgcod}/projects`);
   };
   const irAMenuProyecto = (code) => {
-    navigate(`/menuProyecto?procod=${code}`);
+    //navigate(`/menuProyecto?procod=${code}`);
+    navigate(`/projects/${projcod}/menuProyecto`);
   };
   //Modificar
   const irAEditarProyecto = (projectId) => {
@@ -53,7 +54,7 @@ const Expertos = () => {
     navigate("/");
   };
   const irAPlantillas = () => {
-    navigate(`/plantillas`);
+    navigate(`/projects/${projcod}/plantillas`);
   };
 
   

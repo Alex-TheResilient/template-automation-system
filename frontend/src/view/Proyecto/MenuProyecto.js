@@ -16,17 +16,19 @@ const MenuProyecto = () => {
     const [resultados, setResultados] = useState([]);
     const [mensaje, setMensaje] = useState("");
 
+    // URL Base del API
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     useEffect(() => {
         const obtenerProyecto = async () => {
             try {
-                const response = await axios.get(`/api/v1/projects/${projcod}`);
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${orgcod}`);
                 setProyecto(response.data);
             } catch (error) {
                 console.log("Error al obtener el proyecto:", error);
             }
         };
         obtenerProyecto();
-    }, [orgcod, projcod]);
+    }, [ projcod]);
 
     const irALogin = () => {
         navigate("/");

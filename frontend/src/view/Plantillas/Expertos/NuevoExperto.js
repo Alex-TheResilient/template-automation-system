@@ -79,10 +79,10 @@ const NuevoExperto = () => {
     
 
     const irAMenuOrganizaciones = () => {
-        navigate("/menuOrganizaciones");
+        navigate("/organizations");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
     const irAFuentes = () => {
     navigate("/fuentes");
@@ -91,10 +91,11 @@ const NuevoExperto = () => {
     navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
     };
     const irAPlantillas = () => {
-        navigate(`/plantillas`);
+        navigate(`/projects/${projcod}/plantillas`);
       };
     const irAMenuProyecto = (code) => {
-    navigate(`/menuProyecto?procod=${code}`);
+    //navigate(`/menuProyecto?procod=${code}`);
+    navigate(`/projects/${projcod}/menuProyecto`);
     };
 
     // Función para registrar la organización
