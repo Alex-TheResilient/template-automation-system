@@ -61,10 +61,16 @@ export class SourceController {
       if (!project) {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
-
+      
       const source = await sourceService.getSourceByCode(srccod, project.id);
-      if (!source || source.projectId !== project.id) {
-        return res.status(404).json({ error: 'Source not found in this project.' });
+      
+      if (!source) {
+        return res.status(404).json({ error: 'Source  not found.' });
+      }
+
+      // Verificar que la educción pertenece al proyecto correcto
+      if (source.projectId !== project.id) {
+        return res.status(404).json({ error: 'Source  not found in this project.' });
       }
 
       res.status(200).json(source);
@@ -109,7 +115,7 @@ export class SourceController {
 
   async deleteSource(req: Request, res: Response) {
     try {
-      const { orgcod, projcod, srcod: srccod } = req.params;
+      const { orgcod, projcod, srccod } = req.params;
 
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
       if (!project) {
@@ -125,7 +131,8 @@ export class SourceController {
       }
 
       await sourceService.deleteSource(srccod, project.id);
-      res.status(200).json({ message: 'Source deleted successfully.' });
+      res.status(200).json({ 
+        message: 'Source deleted successfully.' });
     } catch (error) {
       const err = error as Error;
       console.error('Error deleting source:', err.message);

@@ -9,7 +9,7 @@ export class SourceService {
     return this.repo.create(projectId, data);
   }
 
-  async getSourcesByProject(projectId: string, page = 1, limit = 10) {
+  async getSourcesByProject(projectId: string, page: number = 1, limit = 10) {
     const skip = (page - 1) * limit;
     return this.repo.findAllByProject(projectId, skip, limit);
   }
@@ -37,7 +37,7 @@ export class SourceService {
     return this.repo.searchByName(projectId, name);
   }
 
-  async getNextCode(projectId: string) {
+  async getNextCode(projectId: string): Promise<string> {
     return this.repo.getNextCode(projectId);
   }
 

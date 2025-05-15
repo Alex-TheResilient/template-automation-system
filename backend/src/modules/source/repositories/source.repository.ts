@@ -4,7 +4,9 @@ import { SourceDTO } from '../models/source.model';
 
 export class SourceRepository {
   async create(projectId: string, data: SourceDTO) {
-    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    const project = await prisma.project.findUnique({ 
+      where: { id: projectId } });
+
     if (!project) throw new Error('Project not found');
 
     const code = await this.generateCode(projectId);
@@ -16,22 +18,38 @@ export class SourceRepository {
         projectId : projectId,
         creationDate: new Date(),
       },
-      include: { project: { select: { code: true } } },
+      include: { 
+        project: { 
+          select: { 
+            code: true } } },
     });
   }
 
   async update(code: string, data: Partial<SourceDTO>, newVersion?: string) {
-    const current = await prisma.source.findFirst({ where: { code } });
-    if (!current) throw new Error('Source not found');
+    const currentSour = await prisma.source.findFirst({ 
+      where: { code } });
 
-    const version = newVersion || this.incrementVersion(current.version);
+    if (!currentSour) throw new Error('Source not found');
+
+    const version = newVersion || this.incrementVersion(currentSour.version);
     return prisma.source.update({
-      where: { id: current.id },
-      data: { ...data, version, modificationDate: new Date() },
+      where: { 
+        id: currentSour.id },
+      data: { 
+        ...data, 
+        version, 
+        modificationDate: new Date() },
+      include: {
+        project: {
+          select: {
+            code: true,
+          },
+        },
+      },
     });
   }
 
-  async findAllByProject(projectId: string, skip = 0, take = 20) {
+  async findAllByProject(projectId: string, skip: number = 0, take = 20) {
     return prisma.source.findMany({
       where: { projectId },
       skip,
@@ -44,7 +62,10 @@ export class SourceRepository {
   async findByCode(code: string) {
     return prisma.source.findFirst({ 
         where: { code },
-        include: { project: { select: { code: true } } },
+        include: { 
+          project:{ 
+          select: { 
+            code: true } } },
     });
     
   }
@@ -80,7 +101,7 @@ export class SourceRepository {
     return `FUE-${counter.toString().padStart(3, '0')}`;
   }
 
-  private async getNextCounter(projectId: string): Promise<number> {
+  async getNextCounter(projectId: string): Promise<number> {
     
     if (!projectId || typeof projectId !== 'string') {
         throw new Error('Invalid project ID');
