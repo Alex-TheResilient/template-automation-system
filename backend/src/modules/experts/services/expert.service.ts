@@ -9,21 +9,23 @@ export class ExpertService {
     return this.repo.create(projectId, data);
   }
 
-  async getExpertsByProject(projectId: string, page = 1, limit = 10) {
+  async getExpertsByProject(projectId: string, page: number = 1, limit = 10) {
     const skip = (page - 1) * limit;
     return this.repo.findAllByProject(projectId, skip, limit);
   }
 
   async getExpertByCode(code: string, projectId?: string) {
-    return projectId
-      ? this.repo.findByCodeAndProject(code, projectId)
-      : this.repo.findByCode(code);
+    if (projectId) {
+      return this.repo.findByCodeAndProject(code, projectId);
+    } else {
+      return this.repo.findByCode(code);
+    }
   }
 
   async updateExpert(code: string, data: ExpertDTO) {
-    const current = await this.repo.findByCode(code);
-    if (!current) throw new Error('Expert not found');
-    const newVersion = this.incrementVersion(current.version);
+    const existingExp = await this.repo.findByCode(code);
+    if (!existingExp) throw new Error('Expert not found');
+    const newVersion = this.incrementVersion(existingExp.version);
     return this.repo.update(code, data, newVersion);
   }
 
@@ -37,7 +39,7 @@ export class ExpertService {
     return this.repo.searchByName(projectId, name);
   }
 
-  async getNextCode(projectId: string) {
+  async getNextCode(projectId: string): Promise<string> {
     return this.repo.getNextCode(projectId);
   }
 

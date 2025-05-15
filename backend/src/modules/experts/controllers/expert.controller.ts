@@ -98,7 +98,7 @@ export class ExpertController {
   async updateExpert(req: Request, res: Response) {
 
     try {
-          const { orgcod, projcod, educod: expcod } = req.params;
+          const { orgcod, projcod, expcod } = req.params;
           const expertDto: ExpertDTO = req.body;
     
           // Verificar que el proyecto pertenece a esta organización
@@ -119,11 +119,11 @@ export class ExpertController {
             return res.status(404).json({ error: 'Experto not found in this project.' });
           }
     
-          const updatedEduccion = await expertService.updateExpert(expcod, expertDto);
+          const updatedExpert = await expertService.updateExpert(expcod, expertDto);
     
           res.status(200).json({
             message: 'Experto updated successfully.',
-            educcion: updatedEduccion,
+            educcion: updatedExpert,
           });
         } catch (error) {
           const err = error as Error;
@@ -135,7 +135,7 @@ export class ExpertController {
 
   async deleteExpert(req: Request, res: Response) {
     try {
-          const { orgcod, projcod, expcod: expcod } = req.params;
+          const { orgcod, projcod, expcod } = req.params;
     
           // Verificar que el proyecto pertenece a esta organización
           const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
@@ -145,13 +145,13 @@ export class ExpertController {
           }
     
           // Verificar que el experto existe y pertenece a este proyecto
-          const existingEduccion = await expertService.getExpertByCode(expcod, project.id);
+          const existingExpert = await expertService.getExpertByCode(expcod, project.id);
     
-          if (!existingEduccion) {
+          if (!existingExpert) {
             return res.status(404).json({ error: 'Experto not found.' });
           }
     
-          if (existingEduccion.projectId !== project.id) {
+          if (existingExpert.projectId !== project.id) {
             return res.status(404).json({ error: 'Experto not found in this project.' });
           }
     
