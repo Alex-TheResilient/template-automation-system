@@ -2,14 +2,14 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import authRoutes from './routes/authRoutes';
+import { authRoutes } from './modules/auth';
 import { initSystem } from './initialization';
 import { organizationRoutes } from './modules/organizations';
 import { projectRoutes } from './modules/projects';
 import { educcionRoutes } from './modules/templates/educciones'
 // import entrevistaRoutes from './routes/entrevista.routes';
-import {expertRoutes} from './modules/experts';  // Importar las rutas de experto
-import {sourceRoutes} from './modules/source';  // Importar las rutas de fuentes
+import { expertRoutes } from './modules/experts';  // Importar las rutas de experto
+import { sourceRoutes } from './modules/source';  // Importar las rutas de fuentes
 import { nfrRoutes } from './modules/nfr';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 });
 
 // Definir rutas
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', authRoutes);
 app.use('/api/v1', organizationRoutes);
 app.use('/api/v1', projectRoutes);
 app.use('/api/v1', educcionRoutes);
