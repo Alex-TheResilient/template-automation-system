@@ -33,8 +33,8 @@ export class IlacionService {
   /**
    * Updates an existing ilacion
    */
-  async updateIlacion(code: string, data: IlacionDTO) {
-    const existingIlacion = await this.repository.findByCode(code);
+  async updateIlacion(code: string, educcionId: string, data: IlacionDTO) {
+    const existingIlacion = await this.repository.findByCodeAndEduccion(code, educcionId);
     if (!existingIlacion) {
       throw new Error('Ilacion not found');
     }
@@ -42,7 +42,7 @@ export class IlacionService {
     // Increment version
     const newVersion = this.incrementVersion(existingIlacion.version);
 
-    return this.repository.update(code, data, newVersion);
+    return this.repository.update(existingIlacion.id, data, newVersion);
   }
 
   /**

@@ -171,7 +171,7 @@ export class IlacionController {
         return res.status(400).json({ error: 'Postcondition cannot be empty.' });
       }
 
-      const updatedIlacion = await ilacionService.updateIlacion(ilacod, ilacionDto);
+      const updatedIlacion = await ilacionService.updateIlacion(ilacod, educcion.id, ilacionDto);
 
       res.status(200).json({
         message: 'Ilacion updated successfully.',

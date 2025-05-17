@@ -48,15 +48,9 @@ export class IlacionRepository {
   /**
    * Updates an existing ilacion
    */
-  async update(code: string, data: Partial<IlacionDTO>, newVersion?: string) {
-    const ilacion = await this.findByCode(code);
-
-    if (!ilacion) {
-      throw new Error('Ilacion not found');
-    }
-
+  async update(id: string, data: Partial<IlacionDTO>, newVersion?: string) {
     return prisma.ilacion.update({
-      where: { id: ilacion.id },
+      where: { id },
       data: {
         name: data.name,
         status: data.status,
@@ -65,7 +59,7 @@ export class IlacionRepository {
         procedure: data.procedure,
         postcondition: data.postcondition,
         comment: data.comment,
-        version: newVersion || this.incrementVersion(ilacion.version),
+        version: newVersion,
         modificationDate: new Date(),
       },
       include: {
