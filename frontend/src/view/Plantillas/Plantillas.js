@@ -49,7 +49,7 @@ const Plantillas = () => {
     };
 
     const irAFuentes = () => {
-        navigate(`/projects/${projcod}/fuentes`, { state: { projectId } }); // ✅ Con ID
+        navigate(`/organizations/${orgcod}/projects/${projcod}/sources`); // ✅ Con ID
     };
 
     const irAMetricas = () => {

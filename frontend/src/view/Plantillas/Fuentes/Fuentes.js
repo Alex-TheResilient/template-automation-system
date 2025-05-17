@@ -9,7 +9,40 @@ const Fuentes = () => {
   // Variables de enrutamiento
   const location = useLocation();
   const navigate = useNavigate();
-  const {  projcod } = useParams();
+  const {orgcod, projcod } = useParams();
+
+  // Estado de proyectos y errores
+    const [sources, setSources] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+      
+    // Estado para los parámetros de búsqueda
+    const [searchNombre, setSearchNombre] = useState("");
+    const [searchYear, setSearchYear] = useState("");
+    const [searchMonth, setSearchMonth] = useState("");
+  
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchSources = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+    try {
+      const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources`);
+      setSources(response.data||[]);
+    } catch (err) {
+      setError(
+        err.response
+          ? err.response.data.error
+          : "Error al obtener las fuentes"
+      );
+    }
+  }, [projcod,orgcod,API_BASE_URL]);
+
+  useEffect(() => {
+      
+      fetchSources();
+      
+    }, [fetchSources]);
+
 
   const irAMenuOrganizaciones = () => {
     navigate("/organizations");
@@ -22,9 +55,8 @@ const Fuentes = () => {
     navigate(`/projects/${projcod}/menuProyecto`);
   };
   //Modificar
-  const irAEditarProyecto = (projectId) => {
-    console.log("ID del proyecto desde listaProyecto:", projectId);
-    navigate(`/editarProyecto/${projectId}`);
+  const irAEditarProyecto = (srccod) => {
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/${srccod}`);
   };
 
   const irANuevaFuente = () => {
@@ -39,19 +71,43 @@ const Fuentes = () => {
      navigate(`/projects/${projcod}/plantillas`);
   };
   // Obtener los parámetros de consulta
-  const queryParams = new URLSearchParams(location.search);
-  const orgcod = queryParams.get("orgcod"); // Obtener 'orgcod' de los parámetros de consulta
+   // Obtener 'orgcod' de los parámetros de consulta
 
-  //Proyecto
-  const [projects, setProjects] = useState([]);
-  const [error, setError] = useState(null);
+  const handleSearch = async () => {
+  try {
+      setLoading(true);
+      let endpoint;
+      let params = {};
 
-  // Estado para los parámetros de búsqueda
-  const [searchNombre, setSearchNombre] = useState("");
-  const [searchYear, setSearchYear] = useState("");
-  const [searchMonth, setSearchMonth] = useState("");
+      // Determinar qué tipo de búsqueda realizar
+      if (searchNombre) {
+          // Búsqueda por nombre
+          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search`;
+          params.name = searchNombre;
+      } else if (searchYear || searchMonth) {
+          // Búsqueda por fecha
+          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search/date`;
+          if (searchYear) params.year = searchYear;
+          if (searchMonth) params.month = searchMonth;
+      } else {
+          // Si no hay criterios de búsqueda, cargar todos los proyectos
+          await fetchSources();
+          return;
+      }
 
-  const currentYear = new Date().getFullYear();
+      const response = await axios.get(endpoint, { params });
+      setSources(response.data);
+      setError(null);
+  } catch (err) {
+      console.error("Error en la búsqueda:", err);
+      setError(err.response?.data?.error || "Error al buscar proyectos");
+      setSources([]);
+  } finally {
+      setLoading(false);
+  }
+};
+  
+const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
   const months = [
     "Enero",
@@ -67,81 +123,6 @@ const Fuentes = () => {
     "Noviembre",
     "Diciembre",
   ];
-
-  const fetchProjects = useCallback(async () => {
-    //Obtener o listar proyectos de una organizacion
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/projects?orgcod=${orgcod}`
-      );
-      setProjects(response.data);
-    } catch (err) {
-      setError(
-        err.response
-          ? err.response.data.error
-          : "Error al obtener los proyectos"
-      );
-    }
-  }, [orgcod]);
-
-  useEffect(() => {
-    if (orgcod) {
-      fetchProjects();
-    }
-  }, [orgcod, fetchProjects]);
-
-  // Función para buscar proyectos
-  const handleSearch = async () => {
-    try {
-      // Construye los parámetros dinámicamente para evitar enviar valores vacíos
-      const params = {
-        orgcod: orgcod || "",
-      };
-
-      if (searchNombre) {
-        params.pronom = searchNombre;
-      }
-      if (searchYear) {
-        params.year = searchYear;
-      }
-      if (searchMonth) {
-        params.month = searchMonth;
-      }
-
-      const response = await axios.get(
-        "http://localhost:5000/api/projects/searchByOrganization",
-        {
-          params,
-        }
-      );
-
-      setProjects(response.data); // Actualiza la lista de proyectos con los resultados
-    } catch (err) {
-      setError(
-        err.response ? err.response.data.error : "Error al buscar proyectos"
-      );
-    }
-  };
-  // Función para eliminar un proyecto
-  const deleteProject = async (procod) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este proyecto?")) {
-      try {
-        await axios.delete(`http://localhost:5000/api/projects/${procod}`);
-        fetchProjects();
-        alert("Proyecto eliminado correctamente.");
-      } catch (err) {
-        console.error(
-          "Error al eliminar el proyecto:",
-          err.response?.data || err.message
-        );
-        alert(
-          `Hubo un error al eliminar el proyecto: ${
-            err.response?.data.error || err.message
-          }`
-        );
-      }
-    }
-  };
 
   return (
     <div className="expe-container">
@@ -247,15 +228,16 @@ const Fuentes = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map((pro) => (
-                    <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code)}>
-                      <td>{pro.code}</td>
-                      <td>{pro.name}</td>
-                      <td>{new Date(pro.creationDate).toLocaleDateString()}</td>
+                  {sources.map((source) => (
+                    <tr key={source.code} onClick={() => irAMenuProyecto(source.code)}>
+                      <td>{source.code}</td>
+                      <td>{source.name}</td>
+                      <td>{new Date(source.creationDate).toLocaleDateString()}</td>
                       <td>
-                        {new Date(pro.modificationDate).toLocaleDateString()}
+                        {new Date(source.modificationDate).toLocaleDateString()}
                       </td>
-                      <td>{pro.status}</td>
+                      <td>{source.status}</td>
+                       <td>{source.version}</td>
                       <td>
                         <button className="botton-crud">
                           <FaFolder
@@ -266,7 +248,7 @@ const Fuentes = () => {
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            irAEditarProyecto(pro.id); // Llama a la función para editar
+                            irAEditarProyecto(source.code); // Llama a la función para editar
                           }}
                         >
                           <FaPencilAlt
@@ -277,7 +259,7 @@ const Fuentes = () => {
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            deleteProject(pro.code); // Llama a la función de eliminación
+                            //deleteProject(source.code); // Llama a la función de eliminación
                           }}
                         >
                           <FaTrash
@@ -302,13 +284,13 @@ const Fuentes = () => {
             </div>
 
             <h4 className="expe-h4">
-              {projects.length === 0 ? (
+              {sources.length === 0 ? (
                 <p>No hay fuentes registradas.</p>
               ) : (
                 <table className="expe-centertabla">
                   <thead>{/* Encabezados */}</thead>
                   <tbody>
-                    {projects.map((pro) => (
+                    {sources.map((pro) => (
                       <tr key={pro.procod}>{/* Celdas */}</tr>
                     ))}
                   </tbody>

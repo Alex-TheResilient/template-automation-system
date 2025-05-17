@@ -109,7 +109,7 @@ function App() {
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
           <Route path="/organizations/:orgcod/projects/:projcod/experts" element={<Expertos />} />   
-          <Route path="/projects/:projcod/fuentes" element={<Fuentes />} />   
+          <Route path="/organizations/:orgcod/projects/:projcod/sources" element={<Fuentes />} />   
           <Route path="/nuevaFuente" element={<NuevaFuente />} /> 
           <Route path="/editarFuente" element={<EditarFuente />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/new" element={<NuevoExperto />} /> 

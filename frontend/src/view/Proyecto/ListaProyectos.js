@@ -35,7 +35,7 @@ const ListaProyectos = () => {
   const irARegistroProyecto = () => navigate(`/organizations/${orgcod}/projects/new`);
   const irALogin = () => navigate("/");
   const irAMenuProyecto = (projcod) => {
-    navigate(`${projcod}/menuProyecto`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
   };   
 
   // Obtener proyectos asociados a la organización
