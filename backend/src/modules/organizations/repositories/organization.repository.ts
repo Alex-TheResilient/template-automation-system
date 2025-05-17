@@ -165,6 +165,33 @@ export class OrganizationRepository {
     const counter = await this.getNextCounter();
     return `ORG-${counter.toString().padStart(3, '0')}`;
   }
+
+  /**
+   * Gets current counter without incrementing it
+   */
+  async getCurrentCounter() {
+    const counter = await prisma.counter.findUnique({
+      where: {
+        entity_contextId: {
+          entity: 'organization',
+          contextId: 'global'
+        }
+      },
+    });
+
+    // If no counter exists yet, return 0
+    return counter ? counter.counter : 0;
+  }
+
+  /**
+   * Gets next code for a new organization without incrementing the counter
+   */
+  async getNextCodePreview(): Promise<string> {
+    const currentCounter = await this.getCurrentCounter();
+    // Add 1 to show the next code without affecting the database
+    const nextCounter = currentCounter + 1;
+    return `ORG-${nextCounter.toString().padStart(3, '0')}`;
+  }
 }
 
 // Export singleton instance of the repository

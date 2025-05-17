@@ -94,6 +94,13 @@ export class OrganizationService {
   }
 
   /**
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview() {
+    return this.repository.getNextCodePreview();
+  }
+
+  /**
    * Initializes the main organization of the system
    */
   async initializeMainOrganization() {

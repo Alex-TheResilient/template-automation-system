@@ -173,11 +173,11 @@ export class OrganizationController {
   }
 
   /**
-   * Gets the next unique code
+   * Gets the next unique code without incrementing the counter
    */
   async getNextCode(req: Request, res: Response) {
     try {
-      const nextCode = await organizationService.getNextCode();
+      const nextCode = await organizationService.getNextCodePreview();
 
       res.status(200).json({ nextCode });
     } catch (error) {
