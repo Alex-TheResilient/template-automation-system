@@ -248,7 +248,7 @@ model Source {
 
 model Expert {
   id                String    @id @default(uuid())
-  code              String    @unique
+  code              String    
   version           String
   creationDate      DateTime  @default(now())
   modificationDate  DateTime?
