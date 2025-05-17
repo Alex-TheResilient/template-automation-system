@@ -1,11 +1,12 @@
+// risk/controllers/risk.controller.ts
+
 import { Request, Response } from 'express';
 import { riskService } from '../services/risk.service';
-import { nfrService } from '../services/nfr.service';
+import { nfrService } from '../../nfr/services/nfr.service'; // Mantener referencia para compatibilidad
 import { 
   RiskDTO, 
   RiskDuplicateCheckParams, 
-  RiskGlobalSearchParams,
-  RiskCustomizationDTO 
+  RiskGlobalSearchParams
 } from '../models/risk.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
@@ -557,8 +558,8 @@ export class RiskController {
           probability: risk.probability,
           status: risk.status,
           creationDate: risk.creationDate.toLocaleDateString(),
-          comments: risk.comments || '',
-          sourceRiskCode: risk.sourceRiskCode || '',
+          comments: risk.comments ?? '',
+          sourceRiskCode: risk.sourceRiskCode ?? '',
         });
       });
 
@@ -617,7 +618,7 @@ export class RiskController {
           probability: risk.probability,
           status: risk.status,
           creationDate: risk.creationDate.toLocaleDateString(),
-          sourceRiskCode: risk.sourceRiskCode || '',
+          sourceRiskCode: risk.sourceRiskCode ?? '',
         });
       });
 
@@ -657,7 +658,9 @@ export class RiskController {
         );
         // Filter by project as well
         risks = risks.filter(risk => risk.projectId === projcod);
-        title = `Risks for ${entityType}:${registryCode} in Project ${projcod}`;
+        const entityTypeStr = typeof entityType === 'string' ? entityType : JSON.stringify(entityType);
+        const registryCodeStr = typeof registryCode === 'string' ? registryCode : JSON.stringify(registryCode);
+        title = `Risks for ${entityTypeStr}:${registryCodeStr} in Project ${projcod}`;
       } else {
         risks = await riskService.getRisksByProject(projcod);
       }

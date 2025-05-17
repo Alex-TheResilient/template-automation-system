@@ -1,3 +1,5 @@
+// risk/models/risk.model.ts
+
 export interface RiskDTO {
   projectId: string;
   entityType: string;
@@ -51,6 +53,11 @@ export interface RiskGlobalSearchParams {
   entityType?: string;
   startDate?: Date;
   endDate?: Date;
+}
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
 }
 
 export interface FrequentRiskResponse {

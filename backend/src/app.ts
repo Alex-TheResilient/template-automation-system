@@ -12,6 +12,7 @@ import { ilacionRoutes } from './modules/templates/ilaciones';
 import { expertRoutes } from './modules/experts';  // Importar las rutas de experto
 import { sourceRoutes } from './modules/source';  // Importar las rutas de fuentes
 import { nfrRoutes } from './modules/nfr';
+import { riskRoutes } from './modules/risk';  // Importar las rutas de riesgo
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
 
@@ -43,7 +44,8 @@ app.use('/api/v1', ilacionRoutes);
 // app.use('/api/v1', entrevistaRoutes);
 app.use('/api/v1', expertRoutes);  // Rutas de expertos
 app.use('/api/v1', sourceRoutes);  // Rutas de fuentes
-app.use('/api/v1', nfrRoutes);
+app.use('/api/v1', nfrRoutes);  // Rutas de NFR
+app.use('/api/v1', riskRoutes);  // Rutas de riesgo
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
 initSystem()

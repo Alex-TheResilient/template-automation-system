@@ -1,6 +1,9 @@
+// nfr/controllers/nfr.controller.ts
+
 import { Request, Response } from 'express';
 import { nfrService } from '../services/nfr.service';
-import { NfrDTO, NfrResponse, NfrDuplicateCheckParams, NfrGlobalSearchParams } from '../models/nfr.model';
+import { riskService } from '../../risk/services/risk.service'; // Importación del servicio de Risk
+import { NfrDTO, NfrDuplicateCheckParams, NfrGlobalSearchParams } from '../models/nfr.model';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 
@@ -292,6 +295,20 @@ export class NfrController {
         return res.status(404).json({ error: 'Non-functional requirement not found in this project.' });
       }
 
+      // Primero eliminar los riesgos asociados al NFR (nuevo)
+      try {
+        const risks = await riskService.getRisksByEntityAndRegistry('NFR', nfrcod);
+        if (risks && risks.length > 0) {
+          console.log(`Eliminating ${risks.length} risks associated with NFR ${nfrcod}`);
+          for (const risk of risks) {
+            await riskService.deleteRisk(risk.id);
+          }
+        }
+      } catch (riskError) {
+        console.warn('Non-critical error removing associated risks:', riskError);
+        // Continuar con la eliminación del NFR incluso si hay un error con los riesgos
+      }
+
       await nfrService.deleteNfr(existingNfr.id);
 
       res.status(200).json({
@@ -455,8 +472,8 @@ export class NfrController {
           status: nfr.status,
           importance: nfr.importance,
           version: nfr.version,
-          comment: nfr.comment || '',
-          sourceNfrCode: nfr.sourceNfrCode || '',
+          comment: nfr.comment ?? '',
+          sourceNfrCode: nfr.sourceNfrCode ?? '',
         });
       });
 
@@ -513,7 +530,7 @@ export class NfrController {
           importance: nfr.importance,
           version: nfr.version,
           creationDate: nfr.creationDate.toLocaleDateString(),
-          sourceNfrCode: nfr.sourceNfrCode || '',
+          sourceNfrCode: nfr.sourceNfrCode ?? '',
         });
       });
 

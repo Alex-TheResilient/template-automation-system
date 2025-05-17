@@ -1,12 +1,15 @@
+// nfr/services/nfr.service.ts
+
 import { nfrRepository } from '../repositories/nfr.repository';
 import { 
   NfrDTO, 
   NfrCustomizationDTO, 
   NfrDuplicateCheckParams, 
   NfrGlobalSearchParams, 
-  FrequentNfrResponse 
+  FrequentNfrResponse,
+  NfrWithRisksResponse
 } from '../models/nfr.model';
-
+import { riskService } from '../../risk/services/risk.service'; // Importación del servicio de Risk
 import { PrismaClient } from '@prisma/client';
 
 export class NfrService {
@@ -216,8 +219,20 @@ export class NfrService {
   /**
    * Gets a non-functional requirement with its risks
    */
-  async getNfrWithRisks(code: string) {
-    return this.repository.findWithRisks(code);
+  async getNfrWithRisks(code: string): Promise<NfrWithRisksResponse | null> {
+    // Obtener el NFR
+    const nfr = await this.repository.findByCode(code);
+    if (!nfr) {
+      return null;
+    }
+
+    // Obtener riesgos asociados usando el riskService
+    const risks = await riskService.getRisksByEntityAndRegistry('NFR', code);
+
+    return {
+      ...nfr,
+      risks: risks
+    };
   }
 
   /**

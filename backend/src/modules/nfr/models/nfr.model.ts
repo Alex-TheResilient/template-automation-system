@@ -1,4 +1,6 @@
-import { RiskResponse } from './risk.model';
+// nfr/models/nfr.model.ts
+
+import { RiskResponse } from '../../risk/models/risk.model';
 
 export interface NfrDTO {
   name: string;
@@ -67,7 +69,7 @@ export interface PaginationParams {
 }
 
 export interface NfrWithRisksResponse extends NfrResponse {
-  risks: RiskResponse[];
+  risks: RiskResponse[]; // Ahora importa el tipo desde el módulo risk
 }
 
 export interface FrequentNfrResponse {

@@ -1,3 +1,5 @@
+// risk/repositories/risk.repository.ts
+
 import { prisma } from '../../../shared/database/prisma';
 import { RiskDTO } from '../models/risk.model';
 
