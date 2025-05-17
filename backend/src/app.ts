@@ -7,6 +7,7 @@ import { initSystem } from './initialization';
 import { organizationRoutes } from './modules/organizations';
 import { projectRoutes } from './modules/projects';
 import { educcionRoutes } from './modules/templates/educciones'
+import { ilacionRoutes } from './modules/templates/ilaciones';
 // import entrevistaRoutes from './routes/entrevista.routes';
 import { expertRoutes } from './modules/experts';  // Importar las rutas de experto
 import { sourceRoutes } from './modules/source';  // Importar las rutas de fuentes
@@ -36,7 +37,9 @@ app.use((req, res, next) => {
 app.use('/api/v1', authRoutes);
 app.use('/api/v1', organizationRoutes);
 app.use('/api/v1', projectRoutes);
+// Ruta de las Plantillas
 app.use('/api/v1', educcionRoutes);
+app.use('/api/v1', ilacionRoutes);
 // app.use('/api/v1', entrevistaRoutes);
 app.use('/api/v1', expertRoutes);  // Rutas de expertos
 app.use('/api/v1', sourceRoutes);  // Rutas de fuentes
