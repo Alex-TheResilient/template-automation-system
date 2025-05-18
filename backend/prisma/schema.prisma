@@ -181,14 +181,15 @@ model Ilacion {
   comment           String?
   specifications    Specification[]
   educcion          Educcion         @relation(fields: [educcionId], references: [id])
+  
   // Agregar restricción compuesta
   @@unique([code, educcionId])
 }
 
 model Specification {
   id                String    @id @default(uuid())
-  code              String    @unique
-  version           String
+  code              String    
+  version           String    @default("01.00")
   name              String
   creationDate      DateTime  @default(now())
   modificationDate  DateTime?
@@ -200,6 +201,9 @@ model Specification {
   postcondition     String
   comment           String?
   ilacion           Ilacion   @relation(fields: [ilacionId], references: [id])
+
+  // Agregar restricción compuesta
+  @@unique([code, ilacionId])
 }
 
 model Role {
