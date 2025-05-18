@@ -194,8 +194,7 @@ export class SpecificationController {
 
       const updatedSpecification = await specificationService.updateSpecification(
         existingSpecification.id,
-        ilacion.id,
-        specificationDto,
+        specificationDto
       );
 
       res.status(200).json({

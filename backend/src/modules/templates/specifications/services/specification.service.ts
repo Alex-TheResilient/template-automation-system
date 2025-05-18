@@ -29,15 +29,8 @@ export class SpecificationService {
   /**
    * Updates an existing specification
    */
-  async updateSpecification(code: string, ilacionId: string, data: Partial<SpecificationDTO>) {
-    const specification = await this.repository.findByCodeAndIlacion(code, ilacionId);
-    if (!specification) {
-      throw new Error('Specification not found');
-    }
-
-    const newVersion = this.incrementVersion(specification.version);
-
-    return this.repository.update(specification.id, ilacionId, data, newVersion);
+  async updateSpecification(id: string, data: Partial<SpecificationDTO>) {
+    return this.repository.update(id, data);
   }
 
   /**

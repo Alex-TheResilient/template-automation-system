@@ -124,20 +124,7 @@ export class SpecificationRepository {
   /**
    * Updates an existing specification
    */
-  async update(id: string, ilacionId: string, data: Partial<SpecificationDTO>, newVersion?: string) {
-    const specification = await prisma.specification.findFirst({
-      where: {
-        id,
-        ilacionId
-      }
-    });
-
-    if (!specification) {
-      throw new Error('Specification not found');
-    }
-
-    const version = newVersion || this.incrementVersion(specification.version);
-
+  async update(id: string, data: Partial<SpecificationDTO>, newVersion?: string) {
     return prisma.specification.update({
       where: { id },
       data: {
@@ -148,7 +135,7 @@ export class SpecificationRepository {
         procedure: data.procedure !== undefined ? data.procedure : undefined,
         postcondition: data.postcondition !== undefined ? data.postcondition : undefined,
         comment: data.comment !== undefined ? data.comment : undefined,
-        version,
+        version: newVersion,
         modificationDate: new Date(),
       },
       include: {
