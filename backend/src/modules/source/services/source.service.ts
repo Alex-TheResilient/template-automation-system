@@ -41,6 +41,17 @@ export class SourceService {
     return this.repo.getNextCode(projectId);
   }
 
+  async getNextCodePreview(projectId: string): Promise<string> {
+    return this.repo.getNextCodePreview(projectId);
+  }
+
+  /**
+   * Busca expertos por año y mes
+   */
+  async searchSourcesByDate(projectId: string, year?: string, month?: string) {
+    return this.repo.searchByDate(projectId, year, month);
+  }
+
   private incrementVersion(currentVersion: string): string {
     const [major, minor] = currentVersion.split('.').map(Number);
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;

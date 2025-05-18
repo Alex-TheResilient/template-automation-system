@@ -91,6 +91,59 @@ export class SourceRepository {
     });
   }
 
+
+  /**
+   * Searches projects by date
+   */
+  async searchByDate(projectId: string, year?: string, month?: string) {
+    // Buscar el proyecto en la tabla correcta
+    const project = await prisma.project.findUnique({
+      where: { id: projectId }
+    });
+
+    if (!project) {
+      throw new Error(`Project with id ${projectId} not found`);
+    }
+
+    let dateFilter = {};
+
+    if (year && month) {
+      // Filter by year and month
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(month), 0);
+      dateFilter = {
+        creationDate: {
+          gte: startDate,
+          lte: endDate
+        }
+      };
+    } else if (year) {
+      // Filter by year only
+      dateFilter = {
+        creationDate: {
+          gte: new Date(parseInt(year), 0, 1),
+          lt: new Date(parseInt(year) + 1, 0, 1)
+        }
+      };
+    } else if (month) {
+      // Filter by month only (in current year)
+      const currentYear = new Date().getFullYear();
+      dateFilter = {
+        creationDate: {
+          gte: new Date(currentYear, parseInt(month) - 1, 1),
+          lt: new Date(currentYear, parseInt(month), 0)
+        }
+      };
+    }
+
+    return await prisma.source.findMany({
+      where: {
+        projectId: project.id,
+        ...dateFilter
+      }
+    });
+  }
+
   async getNextCode(projectId: string): Promise<string> {
     const counter = await this.getNextCounter(projectId);
     return `FUE-${counter.toString().padStart(3, '0')}`;
@@ -132,6 +185,31 @@ export class SourceRepository {
         throw new Error('Failed to generate counter due to an unknown error');
     }
 }
+
+
+/**
+   * Obtiene el siguiente código de fuente sin incrementar el contador
+   */
+  async getNextCodePreview(projectId: string): Promise<string> {
+    const currentCounter = await this.getCurrentCounter(projectId);
+    const nextCounter = currentCounter + 1;
+    return `FUE-${nextCounter.toString().padStart(3, '0')}`;
+  }
+
+  /**
+   * Obtiene el contador actual sin incrementarlo
+   */
+  async getCurrentCounter(projectId: string): Promise<number> {
+    const counter = await prisma.counter.findUnique({
+      where: {
+        entity_contextId: {
+          entity: 'SOURCE',
+          contextId: projectId,
+        }
+      },
+    });
+    return counter ? counter.counter : 0;
+  }
 
   private incrementVersion(version: string): string {
     const [major, minor] = version.split('.');

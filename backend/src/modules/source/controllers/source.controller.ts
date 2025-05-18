@@ -172,7 +172,7 @@ export class SourceController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const nextCode = await sourceService.getNextCode(project.id);
+      const nextCode = await sourceService.getNextCodePreview(project.id);
       res.status(200).json({ nextCode });
     } catch (error) {
       const err = error as Error;
@@ -238,6 +238,40 @@ async exportToExcel(req: Request, res: Response) {
       res.status(500).json({ error: 'Error exporting to Excel.' });
     }
   }
+
+   /**
+     * Searches experts by date
+     */
+    async searchSourcesByDate(req: Request, res: Response) {
+      try {
+        const { orgcod, projcod } = req.params;
+        const { year, month } = req.query;
+  
+        // Verificar que el proyecto pertenece a esta organización
+        const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+        if (!project) {
+          return res.status(404).json({ error: 'Project not found in this organization.' });
+        }
+  
+        // Validar que al menos uno esté presente
+        if (!year && !month) {
+          return res.status(400).json({ error: 'You must provide at least year or month' });
+        }
+        if (year && !/^[0-9]{4}$/.test(year as string)) {
+          return res.status(400).json({ error: 'Invalid year format' });
+        }
+        if (month && (parseInt(month as string) < 1 || parseInt(month as string) > 12)) {
+          return res.status(400).json({ error: 'Month must be between 1 and 12' });
+        }
+  
+        // Buscar expertos por fecha
+        const sources = await sourceService.searchSourcesByDate(project.id, year as string, month as string);
+        res.status(200).json(sources);
+      } catch (error) {
+        console.error('Error searching sources by date:', error);
+        res.status(500).json({ error: 'Error searching sources' });
+      }
+    }
 
   /**
    * Exports to PDF

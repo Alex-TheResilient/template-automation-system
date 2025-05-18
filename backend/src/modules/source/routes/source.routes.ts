@@ -12,6 +12,7 @@ router.delete('/organizations/:orgcod/projects/:projcod/sources/:srccod', source
 
 // Auxiliary routes
 router.get('/organizations/:orgcod/projects/:projcod/sources/search', sourceController.searchSourcesByName.bind(sourceController));
+router.get('/organizations/:orgcod/projects/:projcod/experts/search/date', sourceController.searchSourcesByDate.bind(sourceController));
 router.get('/organizations/:orgcod/projects/:projcod/sources/next-code', sourceController.getNextCode.bind(sourceController));
 
 // Export routes (specific endpoints)
