@@ -10,10 +10,11 @@ import { educcionRoutes } from './modules/templates/educciones'
 import { ilacionRoutes } from './modules/templates/ilaciones';
 import { specificationRoutes } from './modules/templates/specifications';
 // import entrevistaRoutes from './routes/entrevista.routes';
-import { expertRoutes } from './modules/experts';  // Importar las rutas de experto
-import { sourceRoutes } from './modules/source';  // Importar las rutas de fuentes
+import { expertRoutes } from './modules/experts';
+import { sourceRoutes } from './modules/source';
 import { nfrRoutes } from './modules/nfr';
-import { riskRoutes } from './modules/risk';  // Importar las rutas de riesgo
+import { riskRoutes } from './modules/risk';
+import { artifactRoutes } from './modules/artifacts';
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
 
@@ -48,6 +49,10 @@ app.use('/api/v1', expertRoutes);  // Rutas de expertos
 app.use('/api/v1', sourceRoutes);  // Rutas de fuentes
 app.use('/api/v1', nfrRoutes);  // Rutas de NFR
 app.use('/api/v1', riskRoutes);  // Rutas de riesgo
+
+// General routes
+app.use('/api/v1', artifactRoutes);  // Rutas de artefactos
+
 
 // Ejecutar la función de inicialización antes de iniciar el servidor
 initSystem()
