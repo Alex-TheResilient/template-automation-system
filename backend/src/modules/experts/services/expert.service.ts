@@ -49,6 +49,13 @@ export class ExpertService {
     return this.repo.getNextCode(projectId);
   }
 
+   /**
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview(projectId: string): Promise<string>{
+    return this.repo.getNextCodePreview(projectId);
+  }
+
   private incrementVersion(currentVersion: string): string {
     const [major, minor] = currentVersion.split('.').map(Number);
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;

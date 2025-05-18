@@ -204,7 +204,7 @@ export class ExpertController {
             return res.status(404).json({ error: 'Project not found in this organization.' });
           }
     
-          const nextCode = await expertService.getNextCode(project.id);
+          const nextCode = await expertService.getNextCodePreview(project.id);
     
           res.status(200).json({ nextCode });
         } catch (error) {

@@ -219,6 +219,35 @@ export class ExpertRepository {
     }
   }
 
+  /**
+   * Gets next code for a new organization without incrementing the counter
+   */
+  async getNextCodePreview(projectId: string): Promise<string> {
+    const currentCounter = await this.getCurrentCounter(projectId);
+    //console.log(`Project ID: ${currentCounter}`);
+    // Add 1 to show the next code without affecting the database
+    const nextCounter = currentCounter + 1;
+    return `EXP-${nextCounter.toString().padStart(3, '0')}`;
+  }
+   /**
+   * Gets current counter without incrementing it
+   */
+  async getCurrentCounter(projectId: string): Promise<number> {
+  //console.log(`Project ID: ${projectId}`);
+  const counter = await prisma.counter.findUnique({
+    where: {
+      entity_contextId: {
+        entity: 'EXPERT',
+        contextId: projectId, // <-- aquí debe ir el projectId
+      }
+    },
+  });
+
+  // If no counter exists yet, return 0
+  return counter ? counter.counter : 0;
+}
+
+
   private incrementVersion(currentVersion: string): string {
     const [major, minor] = currentVersion.split('.');
     const newMinor = (parseInt(minor) + 1).toString().padStart(2, '0');
