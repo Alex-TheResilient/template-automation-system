@@ -1,4 +1,3 @@
-
 import { expertRepository } from "../repositories/expert.repository";
 import { ExpertDTO, ExpertResponse } from "../models/expert.model";
 
@@ -37,6 +36,13 @@ export class ExpertService {
 
   async searchExpertsByName(projectId: string, name: string) {
     return this.repo.searchByName(projectId, name);
+  }
+
+  /**
+   * Busca expertos por año y mes
+   */
+  async searchExpertsByDate(projectId: string, year?: string, month?: string) {
+    return this.repo.searchByDate(projectId, year, month);
   }
 
   async getNextCode(projectId: string): Promise<string> {

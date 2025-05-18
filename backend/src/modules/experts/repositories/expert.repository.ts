@@ -120,6 +120,59 @@ export class ExpertRepository {
     });
   }
 
+
+  /**
+   * Searches projects by date
+   */
+  async searchByDate(projectId: string, year?: string, month?: string) {
+    // Buscar el proyecto en la tabla correcta
+    const project = await prisma.project.findUnique({
+      where: { id: projectId }
+    });
+
+    if (!project) {
+      throw new Error(`Project with id ${projectId} not found`);
+    }
+
+    let dateFilter = {};
+
+    if (year && month) {
+      // Filter by year and month
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(month), 0);
+      dateFilter = {
+        creationDate: {
+          gte: startDate,
+          lte: endDate
+        }
+      };
+    } else if (year) {
+      // Filter by year only
+      dateFilter = {
+        creationDate: {
+          gte: new Date(parseInt(year), 0, 1),
+          lt: new Date(parseInt(year) + 1, 0, 1)
+        }
+      };
+    } else if (month) {
+      // Filter by month only (in current year)
+      const currentYear = new Date().getFullYear();
+      dateFilter = {
+        creationDate: {
+          gte: new Date(currentYear, parseInt(month) - 1, 1),
+          lt: new Date(currentYear, parseInt(month), 0)
+        }
+      };
+    }
+
+    return await prisma.expert.findMany({
+      where: {
+        projectId: project.id,
+        ...dateFilter
+      }
+    });
+  }
+
   async getNextCode(projectId: string): Promise<string> {
     const counter = await this.getNextCounter(projectId);
     return `EXP-${counter.toString().padStart(3, '0')}`;
