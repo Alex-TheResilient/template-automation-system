@@ -250,6 +250,9 @@ model Source {
   status            String
   projectId         String
   project           Project   @relation(fields: [projectId], references: [id])
+
+  // Agregar restricción compuesta
+  @@unique([code, ilacionId])
 }
 
 model Expert {
@@ -266,6 +269,9 @@ model Expert {
   status            String
   projectId         String
   project           Project   @relation(fields: [projectId], references: [id])
+
+  // Agregar restricción compuesta
+  @@unique([code, ilacionId])
 }
 
 model EntityRelationship {
