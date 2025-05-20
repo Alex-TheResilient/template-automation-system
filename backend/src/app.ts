@@ -9,7 +9,7 @@ import { projectRoutes } from './modules/projects';
 import { educcionRoutes } from './modules/templates/educciones'
 import { ilacionRoutes } from './modules/templates/ilaciones';
 import { specificationRoutes } from './modules/templates/specifications';
-// import entrevistaRoutes from './routes/entrevista.routes';
+import { interviewRoutes } from './modules//interviews';
 import { expertRoutes } from './modules/experts';
 import { sourceRoutes } from './modules/source';
 import { nfrRoutes } from './modules/nfr';
@@ -44,7 +44,7 @@ app.use('/api/v1', projectRoutes);
 app.use('/api/v1', educcionRoutes);
 app.use('/api/v1', ilacionRoutes);
 app.use('/api/v1', specificationRoutes);
-// app.use('/api/v1', entrevistaRoutes);
+app.use('/api/v1', interviewRoutes); // Rutas de entrevistas
 app.use('/api/v1', expertRoutes);  // Rutas de expertos
 app.use('/api/v1', sourceRoutes);  // Rutas de fuentes
 app.use('/api/v1', nfrRoutes);  // Rutas de NFR
