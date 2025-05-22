@@ -203,7 +203,7 @@ const exportToPDF = async () => {
                     onKeyPress={handleKeyPress}
                   />
                   <span class="tooltip-text">
-                    Filtro de búsqueda por nombre del proyecto
+                    Filtro de búsqueda por código y/o nombre del proyecto
                   </span>
                 </span>
 

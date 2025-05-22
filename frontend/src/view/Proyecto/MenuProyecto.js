@@ -142,11 +142,11 @@ const MenuProyecto = () => {
                                     value={codigoAutor}
                                     size="160"
                                     onChange={manejarBusqueda} />
-                                <span class="tooltip-text"> Buscar por codigo de autor </span>
+                                <span class="tooltip-text"> Buscar por código de autor </span>
                                 </span>
                                 <span class="message">
                                     <input class="plantillaBuscar" type="text" placeholder="Plantilla" size="160"/>
-                                    <span class="tooltip-text"> Buscar por nombre de plantilla </span>
+                                    <span class="tooltip-text"> Buscar por tipo de plantilla </span>
                                 </span>
                                 <span class="message">
                                     <input class="estadoBuscar" type="text" placeholder="Estado" size="160"/>
@@ -154,7 +154,7 @@ const MenuProyecto = () => {
                                 </span>
                                 <span class="message">
                                     <input class="fechaBuscar" type="text" placeholder="Fecha" size="160" />
-                                    <span class="tooltip-text"> Buscar por la fecha </span>
+                                    <span class="tooltip-text"> Buscar por la fecha de modificación </span>
                                 </span>
                                 
                                 <button className="search-button" onClick={buscarAutor}>Buscar</button>

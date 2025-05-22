@@ -204,7 +204,7 @@ const MenuOrganizaciones = () => {
                                     value={searchNombre}
                                     onChange={(e) => setSearchNombre(e.target.value)}
                                 />
-                                <span className="tooltip-text">Buscar por nombre</span>
+                                <span className="tooltip-text">Realizar búsquedas por nombre de organizaciones y/o fecha de creación</span>
                             </span>
                             <button className="search-button" onClick={handleSearch}>Buscar</button>
                         </div>
