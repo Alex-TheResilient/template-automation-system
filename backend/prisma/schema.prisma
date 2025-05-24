@@ -35,6 +35,7 @@ model Organization {
   status                String?
   comments              String?
   projects              Project[]
+  authors               Author[]
 }
 
 model Project {
@@ -78,7 +79,7 @@ model Interview {
   interviewName     String
   version           String
   interviewDate     DateTime
-  authorId          String
+  authorId          String?
   intervieweeName   String
   intervieweeRole   String?
   startTime         DateTime
@@ -87,7 +88,7 @@ model Interview {
   projectId         String
   agendaItems       AgendaItem[]
   conclusions       Conclusion[]
-  author            Author       @relation(fields: [authorId], references: [id])
+  author            Author?       @relation(fields: [authorId], references: [id])
   project           Project      @relation(fields: [projectId], references: [id])
   evidences         Evidence[]
 }
@@ -217,14 +218,49 @@ model Role {
 model Author {
   id              String       @id @default(uuid())
   code            String       @unique
+  version         String       @default("00.01")
+  creationDate    DateTime     @default(now())
+  modificationDate DateTime?
   firstName       String
   paternalSurname String?
   maternalSurname String?
   alias           String?
+  phone           String?
+  dni             String?     
+  password        String?
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  templateAuthorId String?
+  templateAuthor  Author? @relation("AuthorTemplate", fields: [templateAuthorId], references: [id])
+  createdAuthors  Author[]     @relation("AuthorTemplate") // Autores que este autor creó como plantilla
   status          String
+  comments        String?
   roleId          String?
   role            Role?        @relation(fields: [roleId], references: [id])
   interviews      Interview[]
+
+  // Permisos de plantillas agrupados por categorías
+  // Permisos de Gestión de Personas
+  canEditActors           Boolean @default(false)
+  canEditExperts          Boolean @default(false)
+  
+  // Permisos de Requerimientos
+  canEditRequirements     Boolean @default(false)
+  canEditSpecifications   Boolean @default(false)
+  canEditIlaciones        Boolean @default(false)
+  
+  // Permisos de Artefactos y Documentos
+  canEditArtefacts        Boolean @default(false)
+  canEditSources          Boolean @default(false)
+  canEditMetrics          Boolean @default(false)
+  
+  // Permisos de Procesos
+  canEditInterviews       Boolean @default(false)
+  canEditEducation        Boolean @default(false)
+  canEditSoftwareTests    Boolean @default(false)
+  canEditWorkplaceSafety  Boolean @default(false)
+
+  @@map("Author")
 }
 
 model Actor {
