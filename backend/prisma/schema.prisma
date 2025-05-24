@@ -79,7 +79,7 @@ model Interview {
   interviewName     String
   version           String
   interviewDate     DateTime
-  authorId          String?
+  authorId          String
   intervieweeName   String
   intervieweeRole   String?
   startTime         DateTime
@@ -88,7 +88,7 @@ model Interview {
   projectId         String
   agendaItems       AgendaItem[]
   conclusions       Conclusion[]
-  author            Author?       @relation(fields: [authorId], references: [id])
+  author            Author       @relation(fields: [authorId], references: [id])
   project           Project      @relation(fields: [projectId], references: [id])
   evidences         Evidence[]
 }
@@ -209,10 +209,15 @@ model Specification {
 
 model Role {
   id            String   @id @default(uuid())
+  code          String   @unique
   name          String   @unique
   creationDate  DateTime @default(now())
+  comments      String?
+  status        String   @default("Active")
   actors        Actor[]
   authors       Author[]
+
+  @@map("Role")
 }
 
 model Author {
