@@ -37,6 +37,9 @@ export class EvidenceController {
       });
     } catch (error) {
       const err = error as Error;
+      if (err.message.includes('Ya existe una evidencia con ese código en esta entrevista') || err.message.includes('El código de evidencia ya existe en esta entrevista')) {
+        return res.status(409).json({ error: err.message });
+      }
       return res.status(500).json({ error: `Error creating evidence: ${err.message}` });
     }
   }

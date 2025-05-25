@@ -34,16 +34,25 @@ export class EvidenceRepository {
     }
     // Elimina cualquier campo extra de data
     const { name } = data;
-    return prisma.evidence.create({
-      data: {
-        name,
-        code,
-        type,
-        interviewId,
-        file: filePath,
-        evidenceDate: new Date(),
-      },
-    });
+    // Log para depuración: muestra el code y el interviewId antes de crear la evidencia
+    console.log('Intentando crear evidencia con code:', code, 'y interviewId:', interviewId);
+    try {
+      return await prisma.evidence.create({
+        data: {
+          name,
+          code,
+          type,
+          interviewId,
+          file: filePath,
+          evidenceDate: new Date(),
+        },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new Error('Ya existe una evidencia con ese código en esta entrevista.');
+      }
+      throw error;
+    }
   }
 
   async findAllByInterview(interviewId: string): Promise<Evidence[]> {
