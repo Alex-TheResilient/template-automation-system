@@ -109,13 +109,15 @@ model Conclusion {
 
 model Evidence {
   id             String     @id @default(uuid())
-  code           String     @unique
+  code           String     
   name           String
   type           String
   interviewId    String
   evidenceDate   DateTime   @default(now())
   file           String
   interview      Interview  @relation(fields: [interviewId], references: [id])
+
+  @@unique([code, interviewId])
 }
 
 model Interface {
