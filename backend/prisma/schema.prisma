@@ -7,7 +7,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-}        
+}
 
 model User {
   id        Int     @id @default(autoincrement())
@@ -19,335 +19,321 @@ model User {
 }
 
 model Organization {
-  id                    String   @id @default(uuid())
-  code                  String   @unique
-  version               String
-  creationDate          DateTime @default(now())
-  modificationDate      DateTime?
-  name                  String
-  address               String?
-  phone                 String?
-  legalRepresentative   String?
-  representativePhone   String?
-  taxId                 String?
-  contact               String?
-  contactPhone          String?
-  status                String?
-  comments              String?
-  projects              Project[]
-  authors               Author[]
+  id                  String    @id @default(uuid())
+  code                String    @unique
+  version             String
+  creationDate        DateTime  @default(now())
+  modificationDate    DateTime?
+  name                String
+  address             String?
+  phone               String?
+  legalRepresentative String?
+  representativePhone String?
+  taxId               String?
+  contact             String?
+  contactPhone        String?
+  status              String?
+  comments            String?
+  authors             Author[]
+  projects            Project[]
 }
 
 model Project {
-  id                    String   @id @default(uuid())
-  code                  String
-  version               String   @default("00.01")
-  name                  String
-  description           String?
-  creationDate          DateTime @default(now())
-  modificationDate      DateTime?
-  status                String?
-  comments              String?
-  organizationId        String
-  organization          Organization @relation(fields: [organizationId], references: [id])
+  id                String                     @id @default(uuid())
+  code              String
+  version           String                     @default("00.01")
+  name              String
+  description       String?
+  creationDate      DateTime                   @default(now())
+  modificationDate  DateTime?
+  status            String?
+  comments          String?
+  organizationId    String
+  acceptanceRecords AcceptanceRecord[]
+  actors            Actor[]
+  educciones        Educcion[]
+  relationships     EntityRelationship[]
+  experts           Expert[]
+  interfaces        Interface[]
+  interviews        Interview[]
+  nfrs              NonFunctionalRequirement[]
+  organization      Organization               @relation(fields: [organizationId], references: [id])
+  risks             Risk[]
+  sources           Source[]
 
-  acceptanceRecords     AcceptanceRecord[]
-  actors                Actor[]
-  educciones            Educcion[]
-  interviews            Interview[]
-  experts               Expert[]
-  sources               Source[]
-  interfaces            Interface[]
-  relationships         EntityRelationship[]
-  nfrs                  NonFunctionalRequirement[]
-  risks                 Risk[]
-
-  @@unique([code, organizationId]) // Restricción compuesta: código único por organización
+  @@unique([code, organizationId])
 }
 
 model AcceptanceRecord {
-  id          String   @id @default(uuid())
-  projectId   String
-  filePath    String
-  fileType    String
-  uploadDate  DateTime @default(now())
-  project     Project  @relation(fields: [projectId], references: [id])
+  id         String   @id @default(uuid())
+  projectId  String
+  filePath   String
+  fileType   String
+  uploadDate DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id])
 }
 
 model Interview {
-  id                String       @id @default(uuid())
-  interviewName     String
-  version           String
-  interviewDate     DateTime
-  authorId          String
-  intervieweeName   String
-  intervieweeRole   String?
-  startTime         DateTime
-  endTime           DateTime?
-  observations      String?
-  projectId         String
-  agendaItems       AgendaItem[]
-  conclusions       Conclusion[]
-  author            Author       @relation(fields: [authorId], references: [id])
-  project           Project      @relation(fields: [projectId], references: [id])
-  evidences         Evidence[]
+  id              String       @id @default(uuid())
+  interviewName   String
+  version         String
+  interviewDate   DateTime
+  authorId        String
+  intervieweeName String
+  intervieweeRole String?
+  startTime       DateTime
+  endTime         DateTime?
+  observations    String?
+  projectId       String
+  agendaItems     AgendaItem[]
+  conclusions     Conclusion[]
+  evidences       Evidence[]
+  author          Author       @relation(fields: [authorId], references: [id])
+  project         Project      @relation(fields: [projectId], references: [id])
 }
 
 model AgendaItem {
-  id           String     @id @default(uuid())
-  description  String
-  interviewId  String
-  interview    Interview  @relation(fields: [interviewId], references: [id])
+  id          String    @id @default(uuid())
+  description String
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id])
 }
 
 model Conclusion {
-  id           String     @id @default(uuid())
-  description  String
-  interviewId  String
-  interview    Interview  @relation(fields: [interviewId], references: [id])
+  id          String    @id @default(uuid())
+  description String
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id])
 }
 
 model Evidence {
-  id             String     @id @default(uuid())
-  code           String     @unique
-  name           String
-  type           String
-  interviewId    String
-  evidenceDate   DateTime   @default(now())
-  file           String
-  interview      Interview  @relation(fields: [interviewId], references: [id])
+  id           String    @id @default(uuid())
+  code         String    @unique
+  name         String
+  type         String
+  interviewId  String
+  evidenceDate DateTime  @default(now())
+  file         String
+  interview    Interview @relation(fields: [interviewId], references: [id])
 }
 
 model Interface {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  name        String
-  version     String
-  date        DateTime @default(now())
-  filePath    String
-  fileType    String
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id])
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  version   String
+  date      DateTime @default(now())
+  filePath  String
+  fileType  String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
 }
 
 model NonFunctionalRequirement {
-  id                String    @id @default(uuid())
-  code              String    @unique
-  version           String
-  creationDate      DateTime  @default(now())
-  modificationDate  DateTime?
-  name              String
-  qualityAttribute  String
-  description       String
-  status            String
-  importance        String
-  comment           String?
-  projectId         String
-  sourceNfrCode     String?    // referencia a otras  NFRs
-  project           Project   @relation(fields: [projectId], references: [id])
+  id               String    @id @default(uuid())
+  code             String    @unique
+  version          String
+  creationDate     DateTime  @default(now())
+  modificationDate DateTime?
+  name             String
+  qualityAttribute String
+  description      String
+  status           String
+  importance       String
+  comment          String?
+  projectId        String
+  sourceNfrCode    String?
+  project          Project   @relation(fields: [projectId], references: [id])
 }
 
 model Educcion {
-  id                String    @id @default(uuid())
-  code              String    
-  version           String
-  creationDate      DateTime  @default(now())
-  modificationDate  DateTime?
-  name              String
-  description       String
-  comment           String?
-  status            String
-  importance        String
-  projectId         String
-  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  ilaciones         Ilacion[]
+  id               String    @id @default(uuid())
+  version          String
+  code             String
+  comment          String?
+  creationDate     DateTime  @default(now())
+  description      String
+  importance       String
+  modificationDate DateTime?
+  name             String
+  projectId        String
+  status           String
+  project          Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ilaciones        Ilacion[]
 
-  // Agregar esto para permitir códigos duplicados entre proyectos pero únicos dentro del mismo proyecto
   @@unique([code, projectId])
 }
 
 model Ilacion {
-  id                String           @id @default(uuid())
-  code              String           
-  version           String           @default("01.00")
-  name              String
-  creationDate      DateTime         @default(now())
-  modificationDate  DateTime?
-  status            String
-  importance        String
-  educcionId        String
-  precondition      String
-  procedure         String
-  postcondition     String
-  comment           String?
-  specifications    Specification[]
-  educcion          Educcion         @relation(fields: [educcionId], references: [id])
-  
-  // Agregar restricción compuesta
+  id               String          @id @default(uuid())
+  version          String          @default("01.00")
+  educcionId       String
+  code             String
+  comment          String?
+  creationDate     DateTime        @default(now())
+  importance       String
+  modificationDate DateTime?
+  name             String
+  postcondition    String
+  precondition     String
+  procedure        String
+  status           String
+  educcion         Educcion        @relation(fields: [educcionId], references: [id])
+  specifications   Specification[]
+
   @@unique([code, educcionId])
 }
 
 model Specification {
-  id                String    @id @default(uuid())
-  code              String    
-  version           String    @default("01.00")
-  name              String
-  creationDate      DateTime  @default(now())
-  modificationDate  DateTime?
-  status            String
-  importance        String
-  ilacionId         String
-  precondition      String
-  procedure         String
-  postcondition     String
-  comment           String?
-  ilacion           Ilacion   @relation(fields: [ilacionId], references: [id])
+  id               String    @id @default(uuid())
+  code             String
+  version          String    @default("01.00")
+  name             String
+  creationDate     DateTime  @default(now())
+  modificationDate DateTime?
+  status           String
+  importance       String
+  ilacionId        String
+  precondition     String
+  procedure        String
+  postcondition    String
+  comment          String?
+  ilacion          Ilacion   @relation(fields: [ilacionId], references: [id])
 
-  // Agregar restricción compuesta
   @@unique([code, ilacionId])
 }
 
 model Role {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  name          String   @unique
-  creationDate  DateTime @default(now())
-  comments      String?
-  status        String   @default("Active")
-  actors        Actor[]
-  authors       Author[]
+  id           String   @id @default(uuid())
+  name         String   @unique
+  creationDate DateTime @default(now())
+  code         String   @unique
+  comments     String?
+  status       String   @default("Active")
+  actors       Actor[]
+  authors      Author[]
 
   @@map("Role")
 }
 
 model Author {
-  id              String       @id @default(uuid())
-  code            String       @unique
-  version         String       @default("00.01")
-  creationDate    DateTime     @default(now())
-  modificationDate DateTime?
-  firstName       String
-  paternalSurname String?
-  maternalSurname String?
-  alias           String?
-  phone           String?
-  dni             String?     
-  password        String?
-  organizationId  String?
-  organization    Organization? @relation(fields: [organizationId], references: [id])
-  templateAuthorId String?
-  templateAuthor  Author? @relation("AuthorTemplate", fields: [templateAuthorId], references: [id])
-  createdAuthors  Author[]     @relation("AuthorTemplate") // Autores que este autor creó como plantilla
-  status          String
-  comments        String?
-  roleId          String?
-  role            Role?        @relation(fields: [roleId], references: [id])
-  interviews      Interview[]
-
-  // Permisos de plantillas agrupados por categorías
-  // Permisos de Gestión de Personas
-  canEditActors           Boolean @default(false)
-  canEditExperts          Boolean @default(false)
-  
-  // Permisos de Requerimientos
-  canEditRequirements     Boolean @default(false)
-  canEditSpecifications   Boolean @default(false)
-  canEditIlaciones        Boolean @default(false)
-  
-  // Permisos de Artefactos y Documentos
-  canEditArtefacts        Boolean @default(false)
-  canEditSources          Boolean @default(false)
-  canEditMetrics          Boolean @default(false)
-  
-  // Permisos de Procesos
-  canEditInterviews       Boolean @default(false)
-  canEditEducation        Boolean @default(false)
-  canEditSoftwareTests    Boolean @default(false)
-  canEditWorkplaceSafety  Boolean @default(false)
+  id                     String        @id @default(uuid())
+  code                   String        @unique
+  firstName              String
+  paternalSurname        String?
+  maternalSurname        String?
+  alias                  String?
+  status                 String
+  roleId                 String?
+  canEditActors          Boolean       @default(false)
+  canEditArtefacts       Boolean       @default(false)
+  canEditEducation       Boolean       @default(false)
+  canEditExperts         Boolean       @default(false)
+  canEditIlaciones       Boolean       @default(false)
+  canEditInterviews      Boolean       @default(false)
+  canEditMetrics         Boolean       @default(false)
+  canEditRequirements    Boolean       @default(false)
+  canEditSoftwareTests   Boolean       @default(false)
+  canEditSources         Boolean       @default(false)
+  canEditSpecifications  Boolean       @default(false)
+  canEditWorkplaceSafety Boolean       @default(false)
+  comments               String?
+  creationDate           DateTime      @default(now())
+  dni                    String?
+  modificationDate       DateTime?
+  organizationId         String?
+  password               String?
+  phone                  String?
+  templateAuthorId       String?
+  version                String        @default("00.01")
+  organization           Organization? @relation(fields: [organizationId], references: [id])
+  role                   Role?         @relation(fields: [roleId], references: [id])
+  templateAuthor         Author?       @relation("AuthorTemplate", fields: [templateAuthorId], references: [id])
+  createdAuthors         Author[]      @relation("AuthorTemplate")
+  interviews             Interview[]
 
   @@map("Author")
 }
 
 model Actor {
-  id         String   @id @default(uuid())
-  code       String   @unique
-  name       String
-  status     String
-  type       String
-  projectId  String
-  roleId     String
-  project    Project  @relation(fields: [projectId], references: [id])
-  role       Role     @relation(fields: [roleId], references: [id])
+  id        String  @id @default(uuid())
+  code      String  @unique
+  name      String
+  projectId String
+  roleId    String
+  status    String
+  type      String
+  project   Project @relation(fields: [projectId], references: [id])
+  role      Role    @relation(fields: [roleId], references: [id])
 }
 
 model Source {
-  id                String    @id @default(uuid())
-  code              String    
-  version           String
-  creationDate      DateTime  @default(now())
-  modificationDate  DateTime?
-  name              String
-  comment           String?
-  status            String
-  projectId         String
-  project           Project   @relation(fields: [projectId], references: [id])
-
+  id               String    @id @default(uuid())
+  code             String
+  version          String
+  creationDate     DateTime  @default(now())
+  modificationDate DateTime?
+  name             String
+  comment          String?
+  status           String
+  projectId        String
+  project          Project   @relation(fields: [projectId], references: [id])
 }
 
 model Expert {
-  id                String    @id @default(uuid())
-  code              String    
-  version           String
-  creationDate      DateTime  @default(now())
-  modificationDate  DateTime?
-  paternalSurname   String
-  maternalSurname   String?
-  firstName         String
-  experience        String
-  comment           String?
-  status            String
-  projectId         String
-  project           Project   @relation(fields: [projectId], references: [id])
-
+  id               String    @id @default(uuid())
+  code             String
+  version          String
+  creationDate     DateTime  @default(now())
+  modificationDate DateTime?
+  paternalSurname  String
+  maternalSurname  String?
+  firstName        String
+  experience       String
+  comment          String?
+  status           String
+  projectId        String
+  project          Project   @relation(fields: [projectId], references: [id])
 }
 
 model EntityRelationship {
-  id            String   @id @default(uuid())
-  projectId     String
-  entityType    String
-  entityId      String
-  relationType  String
-  relatedId     String
-  project       Project  @relation(fields: [projectId], references: [id])
+  id           String  @id @default(uuid())
+  projectId    String
+  entityType   String
+  entityId     String
+  relationType String
+  relatedId    String
+  project      Project @relation(fields: [projectId], references: [id])
 }
 
 model Risk {
-  id             String   @id @default(uuid())
-  projectId      String
-  entityType     String
-  registryCode   String
-  code           String   @unique
-  description    String
-  impact         String
-  probability    String
-  status         String
-  creationDate   DateTime @default(now())
-  comments       String?
-  sourceRiskCode String?
+  id               String    @id @default(uuid())
+  projectId        String
+  entityType       String
+  registryCode     String
+  code             String    @unique
+  description      String
+  impact           String
+  probability      String
+  status           String
+  creationDate     DateTime  @default(now())
+  comments         String?
   modificationDate DateTime?
-  project        Project  @relation(fields: [projectId], references: [id])
+  sourceRiskCode   String?
+  project          Project   @relation(fields: [projectId], references: [id])
 }
 
 model Artifact {
-  id        String @id @default(uuid())
-  name      String @unique
-  mnemonic  String @unique
+  id       String @id @default(uuid())
+  name     String @unique
+  mnemonic String @unique
 }
 
 model Counter {
-  id         String   @id @default(uuid())
-  entity     String   // Name of the child table, such as "education", "linking", etc.
-  contextId  String   // ID of the "parent", such as "projectId"
-  counter    Int      @default(0) // Counter value
-  @@unique([entity, contextId]) // A unique counter per entity and context
+  id        String @id @default(uuid())
+  entity    String
+  contextId String
+  counter   Int    @default(0)
+
+  @@unique([entity, contextId])
 }
