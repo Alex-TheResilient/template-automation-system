@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,6 +8,7 @@ import '../../../styles/styles.css';
 
 const RNF = () => {
     const navigate = useNavigate();
+    const {projcod,orgcod} = useParams();
 
     const irALogin = () => {
         navigate("/");
