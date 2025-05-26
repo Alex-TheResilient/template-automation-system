@@ -99,8 +99,8 @@ function App() {
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
-          <Route path="/educcion" element={<Educcion />} />
-          <Route path="/nuevaEduccion" element={<NuevaEduccion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educcion" element={<Educcion />} />
+          <Route path="organizations/:orgcod/projects/:projcod/educcion/new" element={<NuevaEduccion />} />
           <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
           <Route path="/editarIlacion" element={<EditarIlacion />} />
@@ -119,7 +119,7 @@ function App() {
           <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
           <Route path="/nuevoNemonico" element={<NuevoNemonico />} />
           <Route path="/subirInterfaz" element={<SubirInterfaz />} />
-          <Route path="/RNF" element={<RNF />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/rnf" element={<RNF />} />
           <Route path="/NuevoRNF" element={<NuevoRNF />} />
           <Route path="/EditarRNF" element={<EditarRNF />} />
           <Route path="/PruebasSoftware" element={<PruebasSoftware />} />

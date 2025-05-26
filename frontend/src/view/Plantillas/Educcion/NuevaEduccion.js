@@ -1,12 +1,70 @@
-import React from "react";
+import React,{ useState, useEffect,useRef } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEduccion.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const NuevaEduccion = () => {
 
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
+
+    const [code, setCode] = useState("");
+    const [comment, setComment] = useState("");
+    const [version, setVersion] = useState("00.01");
+    const [creationDate, setCreationDate] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [description, setDescription] = useState("");
+    const [importance, setImportance] = useState("");
+    const [modificationDate, setModificationDate] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [name, setName] = useState("");
+    const [status, setStatus] = useState("");
+    const [error, setError]=useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
+    useEffect(() => {
+    
+        const fetchNextCodigoEduccion = async () => {
+            try {
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCode(response.data.nextCode || "Ed-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
+            }
+        };
+
+        fetchNextCodigoEduccion();
+    }, [API_BASE_URL,orgcod, projcod]);
+
+    const registrarEduccion = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`, {
+                code,
+                name,
+                description,
+                importance,
+                comment, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAEduccion();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -23,7 +81,7 @@ const NuevaEduccion = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
     const irAEduccion = () => {
-        navigate("/educcion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -112,9 +170,9 @@ const NuevaEduccion = () => {
                             <label className="ne-label">Fecha</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="EDU-001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
-                            <input disabled type="text" className="ne-input" value="23/10/23" readOnly />
+                            <input disabled type="text" className="ne-input" value={code} readOnly />
+                            <input disabled type="text" className="ne-input" value={version} readOnly />
+                            <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
 
                         <div className="ne-cod-vers">
@@ -123,7 +181,7 @@ const NuevaEduccion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" placeholder="Nombre de la educción" size="100" />
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre de la educción" size="100" />
                                     <span className="tooltip-text">Nombre de la educción</span>
                                 </span>
                             </div>
@@ -135,7 +193,7 @@ const NuevaEduccion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" placeholder="" size="100" />
+                                    <input className="input-text" type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="" size="100" />
                                     <span className="tooltip-text">Añadir descripción de la educción</span>
                                 </span>
                             </div>
@@ -263,12 +321,10 @@ const NuevaEduccion = () => {
                             </div>
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
+                                value={importance}
+                                onChange={(e) => setImportance(e.target.value)}
+                                required
                             >
-                                <option value="">Seleccione una</option>
                                 <option value="baja">Baja</option>
                                 <option value="media">Media</option>
                                 <option value="alta">Alta</option>
@@ -276,12 +332,10 @@ const NuevaEduccion = () => {
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                required
                             >
-                                <option value="">Seleccione una</option>
                                 <option value="por empezar">Por empezar</option>
                                 <option value="en progreso">En progreso</option>
                                 <option value="finalizado">Finalizado</option>
@@ -293,12 +347,12 @@ const NuevaEduccion = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
 
                         <div className="ne-buttons">
                             <button onClick={irAEduccion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAEduccion} className="ne-button" size="50">Crear Educción</button>
+                            <button onClick={registrarEduccion} className="ne-button" size="50">Crear Educción</button>
                         </div>
                     </section>
                 </main>

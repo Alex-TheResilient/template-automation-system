@@ -25,7 +25,7 @@ const Plantillas = () => {
         navigate("/menuProyecto", { state: { projectId } });
     };
     const irAEduccion = () => {
-        navigate("/educcion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
     };
     const irAIlacion = () => {
         navigate("/ilacion");
