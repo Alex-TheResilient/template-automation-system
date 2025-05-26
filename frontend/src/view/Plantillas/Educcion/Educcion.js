@@ -1,14 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState,useCallback, useEffect } from 'react';
 import { useNavigate,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
+import axios from 'axios';
 
 
 const Educcion = () => {
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
+
+    // Estado de proyectos y errores
+    const [educciones, setEducciones] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+        
+    // Estado para los parámetros de búsqueda
+    const [searchNombre, setSearchNombre] = useState("");
+    const [searchYear, setSearchYear] = useState("");
+    const [searchMonth, setSearchMonth] = useState("");
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchEducciones = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`);
+            setEducciones(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [projcod,orgcod,API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchEducciones();
+    
+    }, [fetchEducciones]);
+
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+    const months = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ];
+
+    const deleteEduction = async (codigo) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
+      fetchEducciones(); // Refrescar la lista de proyectos después de eliminar uno
+    } catch (err) {
+      console.error("Error al eliminar el proyecto:", err);
+      setError(err.response?.data?.error || "Error al eliminar el proyecto");
+    }
+  };
+
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            let response;
+            if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/search`, {
+                    params: { name: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`);
+            }
+            
+            const filteredData = response.data.filter(org => org.code !== "ORG-MAIN");
+            setEducciones(filteredData);
+            //setNoResult(filteredData.length === 0);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        handleSearch();
+    }
+    }
+
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
     const irALogin = () => {
         navigate("/");
     };
@@ -16,10 +141,10 @@ const Educcion = () => {
         navigate("/organizations");
     };
     const irAVerEduccion = () => {
-        navigate("/verEduccion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`);
     };
     const irANuevaEduccion = () => {
-        navigate("/nuevaEduccion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`);
     };
     const irAEditarEduccion = () => {
         navigate("/editarEduccion");
@@ -43,6 +168,8 @@ const Educcion = () => {
     const irAPlantillas = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
+
+
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
   
@@ -108,12 +235,14 @@ const Educcion = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre o código de educción</span>
                                 </span>
                                 
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button" onClick={handleSearch}>Buscar </button>
                             </div>
                         </div>
 
@@ -165,32 +294,38 @@ const Educcion = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>EDU-0001</td>
-                                        <td>Gestión de plantillas</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Concluido</td>
-                                        <td>00.01</td>
+                                    {educciones.map((educcion) => (
+                                        <tr key={educcion.code}>
+                                        <td>{educcion.code}</td>
+                                        <td>{educcion.name}</td>
+                                        <td>{new Date(educcion.creationDate).toLocaleDateString()}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            {educcion.modificationDate
+                                            ? new Date(educcion.modificationDate).toLocaleDateString()
+                                            : "N/A"}
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td>EDU-0002</td>
-                                        <td>Gestión de proyectos</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Concluido</td>
-                                        <td>00.02</td>
+                                        <td>{educcion.status}</td>
+                                        <td>{educcion.version}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud">
+                                                <FaFolder
+                                                style={{ color: "orange", cursor: "pointer" }}
+                                            />
+                                            </button>
+                                                    <button
+                                                        className="botton-crud"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                            deleteEduction(educcion.code) // Llama a la función de eliminación
+                                                        }}
+                                                    >
+                                                        <FaTrash
+                                                            style={{ color: "red", cursor: "pointer" }}
+                                                        />
+                                                </button>
                                         </td>
-                                    </tr>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
 
@@ -210,14 +345,14 @@ const Educcion = () => {
                             
                         </div>
 
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {educciones.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onClick={exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button" onClick={exportToPDF}>PDF</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
                                 </span>
                             </div>
