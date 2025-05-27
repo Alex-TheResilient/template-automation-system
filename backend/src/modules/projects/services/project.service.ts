@@ -54,7 +54,15 @@ export class ProjectService {
   }
 
   /**
-   * Gets the next unique code for a project
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview(organizationCode: string): Promise<string> {
+    return this.repository.getNextCodePreview(organizationCode);
+  }
+
+  /**
+   * Gets the next unique code for a project and increments counter
+   * The existing method stays, but implementation changes to call repository
    */
   async getNextCode(organizationCode: string): Promise<string> {
     return this.repository.getNextCode(organizationCode);
