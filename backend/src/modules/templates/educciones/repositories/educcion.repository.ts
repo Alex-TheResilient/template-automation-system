@@ -199,7 +199,39 @@ export class EduccionRepository {
   }
 
   /**
-   * Gets next code for a new educcion
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview(projectId: string): Promise<string> {
+    // Validación del ID del proyecto
+    if (!projectId || typeof projectId !== 'string') {
+      throw new Error('Invalid project ID');
+    }
+
+    try {
+      // Solo consulta el contador sin incrementarlo
+      const counter = await prisma.counter.findUnique({
+        where: {
+          entity_contextId: {
+            entity: "EDUCCION",
+            contextId: projectId
+          }
+        }
+      });
+
+      const nextCount = (counter?.counter || 0) + 1;
+      return `EDU-${nextCount.toString().padStart(3, '0')}`;
+    } catch (error) {
+      console.error("Error getting counter preview:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get counter preview: ${error.message}`);
+      }
+      throw new Error('Failed to get counter preview due to an unknown error');
+    }
+  }
+
+  /**
+   * Gets next code for a new educcion and increments the counter
+   * (Modificar el método existente para que sea claro que incrementa)
    */
   async getNextCode(projectId: string): Promise<string> {
     const counter = await this.getNextCounter(projectId);
@@ -208,10 +240,10 @@ export class EduccionRepository {
 
   /**
    * Generates a unique code for an educcion within a project
+   * (Modificar para utilizar getNextCode y evitar duplicación)
    */
   async generateCode(projectId: string): Promise<string> {
-    const counter = await this.getNextCounter(projectId);
-    return `EDU-${counter.toString().padStart(3, '0')}`;
+    return this.getNextCode(projectId);
   }
 
   /**

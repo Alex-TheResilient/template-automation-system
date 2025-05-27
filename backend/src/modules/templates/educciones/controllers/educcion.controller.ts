@@ -205,7 +205,7 @@ export class EduccionController {
   }
 
   /**
-   * Gets the next unique code
+   * Gets the next unique code without incrementing counter
    */
   async getNextCode(req: Request, res: Response) {
     try {
@@ -218,13 +218,14 @@ export class EduccionController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const nextCode = await educcionService.getNextCode(project.id);
+      // Cambiamos a usar getNextCodePreview en lugar de getNextCode
+      const nextCode = await educcionService.getNextCodePreview(project.id);
 
       res.status(200).json({ nextCode });
     } catch (error) {
       const err = error as Error;
-      console.error('Error generating next code:', err.message);
-      res.status(500).json({ error: 'Error generating next code.' });
+      console.error('Error generating next code preview:', err.message);
+      res.status(500).json({ error: 'Error generating next code preview.' });
     }
   }
 
