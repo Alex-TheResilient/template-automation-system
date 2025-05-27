@@ -51,6 +51,7 @@ model Project {
   organizationId    String
   acceptanceRecords AcceptanceRecord[]
   actors            Actor[]
+  educciones        Educcion[]
   relationships     EntityRelationship[]
   experts           Expert[]
   interfaces        Interface[]
@@ -59,8 +60,6 @@ model Project {
   organization      Organization               @relation(fields: [organizationId], references: [id])
   risks             Risk[]
   sources           Source[]
-  educciones        Educcion[]
-  ilaciones        Ilacion[]
 
   @@unique([code, organizationId])
 }
@@ -160,7 +159,7 @@ model Educcion {
   projectId        String
   status           String
   project          Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  ilacionRelations IlacionEduccion[]
+  ilaciones        Ilacion[]
 
   @@unique([code, projectId])
 }
@@ -168,6 +167,7 @@ model Educcion {
 model Ilacion {
   id               String          @id @default(uuid())
   version          String          @default("01.00")
+  educcionId       String
   code             String
   comment          String?
   creationDate     DateTime        @default(now())
@@ -178,22 +178,10 @@ model Ilacion {
   precondition     String
   procedure        String
   status           String
-  projectId        String          // Agregar esta relación al proyecto
-  project          Project         @relation(fields: [projectId], references: [id])
+  educcion         Educcion        @relation(fields: [educcionId], references: [id])
   specifications   Specification[]
-  educcionRelations IlacionEduccion[] // Agregar esta nueva relación
-  
-  @@unique([code, projectId])
-}
 
-model IlacionEduccion {
-  id         String   @id @default(uuid())
-  ilacionId  String
-  educcionId String
-  ilacion    Ilacion  @relation(fields: [ilacionId], references: [id], onDelete: Cascade)
-  educcion   Educcion @relation(fields: [educcionId], references: [id], onDelete: Cascade)
-  
-  @@unique([ilacionId, educcionId])
+  @@unique([code, educcionId])
 }
 
 model Specification {
