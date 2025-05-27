@@ -95,12 +95,13 @@ export class ProjectController {
   }
 
   /**
-   * Gets the next unique code for a project
+   * Gets the next unique code for a project without incrementing the counter
    */
   async getNextCode(req: Request, res: Response) {
     try {
       const { orgcod } = req.params;
-      const nextCode = await projectService.getNextCode(orgcod);
+      // Cambiamos a usar getNextCodePreview
+      const nextCode = await projectService.getNextCodePreview(orgcod);
       res.status(200).json({ nextCode });
     } catch (error) {
       console.error('Error getting next code:', error);
