@@ -212,9 +212,10 @@ export class ProjectRepository {
   }
 
   /**
-   * Gets the next unique code for a project
-   */
-  async getNextCode(organizationCode: string): Promise<string> {
+ * Gets the next unique code for a project without incrementing the counter
+ * This method replaces the current getNextCode implementation
+ */
+  async getNextCodePreview(organizationCode: string): Promise<string> {
     const organization = await prisma.organization.findUnique({
       where: { code: organizationCode },
     });
@@ -237,14 +238,26 @@ export class ProjectRepository {
   }
 
   /**
-   * Generates a unique code for a project within an organization
+   * Gets the next unique code for a project and increments the counter
+   * This is a new method that follows the pattern in organization module
    */
-  private async generateCode(organizationId: string): Promise<string> {
+  async getNextCode(organizationCode: string): Promise<string> {
+    const organization = await prisma.organization.findUnique({
+      where: { code: organizationCode },
+    });
+
+    if (!organization) {
+      throw new Error(`Organization with code ${organizationCode} does not exist`);
+    }
+
+    const entity = 'project';
+    const contextId = organization.id;
+
     const counter = await prisma.counter.upsert({
-      where: { entity_contextId: { entity: 'project', contextId: organizationId } },
+      where: { entity_contextId: { entity, contextId } },
       create: {
-        entity: 'project',
-        contextId: organizationId,
+        entity,
+        contextId,
         counter: 1,
       },
       update: {
@@ -253,6 +266,23 @@ export class ProjectRepository {
     });
 
     return `PROJ-${counter.counter.toString().padStart(3, '0')}`;
+  }
+
+  /**
+   * Generates a unique code for a project within an organization
+   * Modify to use getNextCode instead of duplicating logic
+   */
+  private async generateCode(organizationId: string): Promise<string> {
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { code: true }
+    });
+
+    if (!organization) {
+      throw new Error(`Organization with id ${organizationId} not found`);
+    }
+
+    return this.getNextCode(organization.code);
   }
 
   /**
