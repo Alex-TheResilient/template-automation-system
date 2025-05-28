@@ -190,6 +190,36 @@ export class IlacionRepository {
   }
 
   /**
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview(educcionId: string): Promise<string> {
+    if (!educcionId || typeof educcionId !== 'string') {
+      throw new Error('Invalid educcion ID');
+    }
+
+    try {
+      // Solo consulta el contador sin incrementarlo
+      const counter = await prisma.counter.findUnique({
+        where: {
+          entity_contextId: {
+            entity: "ILACION",
+            contextId: educcionId
+          }
+        }
+      });
+
+      const nextCount = (counter?.counter || 0) + 1;
+      return `ILA-${nextCount.toString().padStart(3, '0')}`;
+    } catch (error) {
+      console.error("Error getting counter preview:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get counter preview: ${error.message}`);
+      }
+      throw new Error('Failed to get counter preview due to an unknown error');
+    }
+  }
+
+  /**
    * Gets next code for a new ilacion
    */
   async getNextCode(educcionId: string): Promise<string> {
@@ -201,8 +231,7 @@ export class IlacionRepository {
    * Generates a unique code for an ilacion within an educcion
    */
   async generateCode(educcionId: string): Promise<string> {
-    const counter = await this.getNextCounter(educcionId);
-    return `ILA-${counter.toString().padStart(3, '0')}`;
+    return this.getNextCode(educcionId);
   }
 
   /**

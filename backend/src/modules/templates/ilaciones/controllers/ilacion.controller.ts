@@ -259,7 +259,7 @@ export class IlacionController {
   }
 
   /**
-   * Gets the next unique code
+   * Gets the next unique code without incrementing counter
    */
   async getNextCode(req: Request, res: Response) {
     try {
@@ -277,7 +277,8 @@ export class IlacionController {
         return res.status(404).json({ error: 'Educcion not found in this project.' });
       }
 
-      const nextCode = await ilacionService.getNextCode(educcion.id);
+      // Cambiamos para usar getNextCodePreview en lugar de getNextCode
+      const nextCode = await ilacionService.getNextCodePreview(educcion.id);
       res.status(200).json({ nextCode });
     } catch (error) {
       const err = error as Error;
