@@ -291,7 +291,7 @@ export class SpecificationController {
   }
 
   /**
-   * Gets the next unique code
+   * Gets the next unique code without incrementing counter
    */
   async getNextCode(req: Request, res: Response) {
     try {
@@ -315,7 +315,7 @@ export class SpecificationController {
         return res.status(404).json({ error: 'Ilacion not found in this educcion.' });
       }
 
-      const nextCode = await specificationService.getNextCode(ilacion.id);
+      const nextCode = await specificationService.getNextCodePreview(ilacion.id);
       res.status(200).json({ nextCode });
     } catch (error) {
       const err = error as Error;

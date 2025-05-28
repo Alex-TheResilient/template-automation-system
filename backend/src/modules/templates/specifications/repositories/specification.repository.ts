@@ -168,11 +168,34 @@ export class SpecificationRepository {
   }
 
   /**
-   * Generates a unique code for a specification within an ilacion
+   * Gets the next code preview without incrementing the counter
    */
-  async generateCode(ilacionId: string): Promise<string> {
-    const counter = await this.getNextCounter(ilacionId);
-    return `ESP-${counter.toString().padStart(3, '0')}`;
+  async getNextCodePreview(ilacionId: string): Promise<string> {
+    // Validation
+    if (!ilacionId || typeof ilacionId !== 'string') {
+      throw new Error('Invalid ilacion ID');
+    }
+
+    try {
+      // Solo consulta el contador sin incrementarlo
+      const counter = await prisma.counter.findUnique({
+        where: {
+          entity_contextId: {
+            entity: "SPECIFICATION",
+            contextId: ilacionId
+          }
+        }
+      });
+
+      const nextCount = (counter?.counter || 0) + 1;
+      return `ESP-${nextCount.toString().padStart(3, '0')}`;
+    } catch (error) {
+      console.error("Error getting counter preview:", error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get counter preview: ${error.message}`);
+      }
+      throw new Error('Failed to get counter preview due to an unknown error');
+    }
   }
 
   /**
@@ -182,6 +205,14 @@ export class SpecificationRepository {
     const counter = await this.getNextCounter(ilacionId);
     return `ESP-${counter.toString().padStart(3, '0')}`;
   }
+
+  /**
+   * Generates a unique code for a specification within an ilacion
+   */
+  async generateCode(ilacionId: string): Promise<string> {
+    return this.getNextCode(ilacionId);
+  }
+
 
   /**
    * Increments and returns the counter for generating unique codes

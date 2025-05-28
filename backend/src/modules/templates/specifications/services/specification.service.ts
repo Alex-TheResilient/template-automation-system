@@ -61,6 +61,13 @@ export class SpecificationService {
     const [major, minor] = currentVersion.split('.').map(Number);
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
   }
+
+  /**
+   * Gets the next code preview without incrementing the counter
+   */
+  async getNextCodePreview(ilacionId: string): Promise<string> {
+    return this.repository.getNextCodePreview(ilacionId);
+  }
 }
 
 export const specificationService = new SpecificationService();
