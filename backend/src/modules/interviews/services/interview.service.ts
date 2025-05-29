@@ -73,6 +73,35 @@ export class InterviewService {
   async searchByName(name: string, projectId: string) {
     return this.repository.searchByName(name, projectId);
   }
+
+  /**
+   * Adds an agenda item to an interview
+   */
+  async addAgendaItem(interviewId: string, description: string) {
+    return this.repository.addAgendaItem(interviewId, description);
+  }
+
+  /**
+   * Removes an agenda item by its ID
+   */
+  async removeAgendaItem(agendaItemId: string) {
+    return this.repository.removeAgendaItem(agendaItemId);
+  }
+
+  /**
+   * Adds a conclusion to an interview
+   */
+  async addConclusion(interviewId: string, description: string) {
+    return this.repository.addConclusion(interviewId, description);
+  }
+
+  /**
+   * Removes a conclusion by its ID
+   */
+  async removeConclusion(conclusionId: string) {
+    return this.repository.removeConclusion(conclusionId);
+  }
+
 }
 
 // Export singleton instance of the service
