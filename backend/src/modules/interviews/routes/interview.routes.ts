@@ -13,5 +13,14 @@ router.delete('/organizations/:orgcod/projects/:projcod/interviews/:interviewId'
 // Search by name
 router.get('/organizations/:orgcod/projects/:projcod/interviews/search', interviewController.searchByName.bind(interviewController));
 
+
+router.post('/interviews/:id/agenda-items', interviewController.addAgendaItem.bind(interviewController));
+router.delete('/agenda-items/:id', interviewController.removeAgendaItem.bind(interviewController));
+
+router.post('/interviews/:id/conclusions', interviewController.addConclusion.bind(interviewController));
+router.delete('/conclusions/:id', interviewController.removeConclusion.bind(interviewController));
+
+
+
 // Export the router
 export default router;
