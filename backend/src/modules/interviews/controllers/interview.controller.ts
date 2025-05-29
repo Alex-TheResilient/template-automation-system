@@ -190,6 +190,32 @@ export class InterviewController {
     }
   }
 
+  async addAgendaItem(req: Request, res: Response) {
+    const { id } = req.params;
+    const { description } = req.body;
+    const result = await interviewService.addAgendaItem(id, description);
+    res.status(201).json(result);
+  }
+
+  async removeAgendaItem(req: Request, res: Response) {
+    const { id } = req.params;
+    await interviewService.removeAgendaItem(id);
+    res.status(204).send();
+  }
+
+  async addConclusion(req: Request, res: Response) {
+    const { id } = req.params;
+    const { description } = req.body;
+    const result = await interviewService.addConclusion(id, description);
+    res.status(201).json(result);
+  }
+
+  async removeConclusion(req: Request, res: Response) {
+    const { id } = req.params;
+    await interviewService.removeConclusion(id);
+    res.status(204).send();
+  }
+
 
 }
 
