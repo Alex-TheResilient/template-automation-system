@@ -1,5 +1,12 @@
 // filepath: d:\PIS2_2025A\template-automation-system\backend\src\modules\interviews\models\interview.model.ts
 
+export interface AgendaItemDTO {
+  description: string;
+}
+
+export interface ConclusionDTO {
+  description: string;
+}
 export interface InterviewDTO {
   interviewName: string;
   interviewDate: Date;
@@ -8,6 +15,9 @@ export interface InterviewDTO {
   startTime: Date;
   endTime: Date;
   observations: string;
+  agendaItems?: AgendaItemDTO[];
+  conclusions?: ConclusionDTO[];
+  authorCode: string;
 }
 
 export interface InterviewResponse {
@@ -22,4 +32,16 @@ export interface InterviewResponse {
   endTime: Date | null;
   observations?: string | null;
   projectId: string;
+  agendaItems: AgendaItemResponse[];
+  conclusions: ConclusionResponse[];
+}
+
+export interface AgendaItemResponse {
+  id: string;
+  description: string;
+}
+
+export interface ConclusionResponse {
+  id: string;
+  description: string;
 }
