@@ -108,7 +108,7 @@ model Conclusion {
 
 model Evidence {
   id           String    @id @default(uuid())
-  code         String    @unique
+  code         String    
   name         String
   type         String
   interviewId  String
