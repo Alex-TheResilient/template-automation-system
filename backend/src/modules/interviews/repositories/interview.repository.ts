@@ -102,12 +102,34 @@ const created = await prisma.interview.create({
   /**
    * Finds all interviews by project ID
    */
-  async findAllByProject(projectId: string) {
+  async findAllByProject(projectId: string, skip: number = 0, take = 20) {
     return prisma.interview.findMany({
       where: { 
         projectId 
       },
+      skip,
+      take,
+      include: {
+        author: true,
+        project: {
+          select: {
+            code: true,
+          },
+        },
+        agendaItems: true,
+        conclusions: true,
+        evidences: true,
+      },
+    });
+  }
 
+  async findAllByProjectExport(projectId: string, skip: number = 0, take = 20){
+    return prisma.interview.findMany({
+      where: { 
+        projectId 
+      },
+      skip,
+      take,
       include: {
         author: true,
         project: {

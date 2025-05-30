@@ -20,7 +20,8 @@ router.delete('/agenda-items/:id', interviewController.removeAgendaItem.bind(int
 router.post('/interviews/:id/conclusions', interviewController.addConclusion.bind(interviewController));
 router.delete('/conclusions/:id', interviewController.removeConclusion.bind(interviewController));
 
+// Export routes (specific endpoints)
+router.get('/organizations/:orgcod/projects/:projcod/interviews/exports/excel', interviewController.exportToExcel.bind(interviewController));
+router.get('/organizations/:orgcod/projects/:projcod/interviews/exports/pdf', interviewController.exportToPDF.bind(interviewController));
 
-
-// Export the router
 export default router;

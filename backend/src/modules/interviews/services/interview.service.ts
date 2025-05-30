@@ -1,6 +1,6 @@
 import { InterviewRepository } from '../repositories/interview.repository';
 import { InterviewDTO, InterviewResponse } from '../models/interview.model';
-import { promises } from 'dns';
+
 
 export class InterviewService {
   private repository = new InterviewRepository();
@@ -19,6 +19,10 @@ export class InterviewService {
     return this.repository.findAllByProject(projectId);
   }
 
+  async getInterviewByProjectExport(projectId: string, page: number = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    return this.repository.findAllByProject(projectId, skip, limit);
+  }
   /**
    * Gets an interview by its ID
    */

@@ -216,6 +216,136 @@ export class InterviewController {
     res.status(204).send();
   }
 
+  /**
+   * Exports to Excel
+   */
+  async exportToExcel(req: Request, res: Response) {
+    try {
+      const { orgcod, projcod } = req.params;
+      // Verificar que el proyecto pertenece a esta organización
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const entrevistas = await interviewService.getInterviewByProjectExport(project.id, 1, 1000);
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Entrevistas');
+
+      // Define headers
+      worksheet.columns = [
+        { header: 'Nombre', key: 'interviewName', width: 30 },
+        { header: 'Version', key: 'version', width: 10 },
+        { header: 'Fecha', key: 'creationDate', width: 20 },
+       
+      ];
+
+      // Add data
+      entrevistas.forEach(ent => {
+        worksheet.addRow({
+          interviewName: ent.interviewName,
+          version: ent.version,
+          interviewDate: ent.interviewDate.toISOString().split('T')[0],
+        });
+      });
+
+      // Style headers
+      worksheet.getRow(1).font = { bold: true };
+
+      // Configure HTTP response
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=entrevistas.xlsx');
+
+      // Send file
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting to Excel.' });
+    }
+  }
+
+  /**
+   * Exports to PDF
+   */
+  async exportToPDF(req: Request, res: Response) {
+    try {
+      const { orgcod, projcod } = req.params;
+      const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found in this organization.' });
+      }
+
+      const entrevistas = await interviewService.getInterviewByProjectExport(project.id, 1, 1000);
+      // Configure HTTP response
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=entrevistas.pdf');
+
+      // Create PDF document
+      const doc = new PDFDocument({ margin: 30 });
+
+      // Title
+      doc.fontSize(16).font('Helvetica-Bold').text('Entrevistas Report', { align: 'center' });
+      doc.moveDown();
+
+      // Generation info
+      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+      doc.moveDown(2);
+
+      // Educciones table
+      const headers = ['Nombre', 'Version', 'Fecha'];
+      const rows = entrevistas.map(int => [
+        int.interviewName,
+        int.version,
+        int.interviewDate.toISOString().split('T')[0],
+      ]);
+
+      // Draw table
+      this.drawTable(doc, headers, rows);
+
+      // Finalize document
+      doc.end();
+      doc.pipe(res);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error exporting to PDF:', err.message);
+      res.status(500).json({ error: 'Error exporting to PDF.' });
+    }
+  }
+
+  /**
+   * Helper function to draw tables in PDF
+   */
+  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
+    const columnWidths = [80, 150, 80, 80, 150]; // Adjust column widths
+    const tableMargin = 50; // Left margin
+    const rowHeight = 20;
+
+    let y = doc.y; // Initial Y position
+
+    // Draw headers
+    doc.fontSize(10).font('Helvetica-Bold');
+    headers.forEach((header, index) => {
+      const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
+      doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
+    });
+
+    y += rowHeight;
+
+    // Draw data rows
+    doc.font('Helvetica');
+    rows.forEach(row => {
+      row.forEach((cell, index) => {
+        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
+        doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
+      });
+      y += rowHeight;
+    });
+  }
 
 }
 
