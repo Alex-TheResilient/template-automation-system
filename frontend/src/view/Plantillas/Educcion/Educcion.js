@@ -290,6 +290,7 @@ const Educcion = () => {
                                         <th>Fecha modificación</th>
                                         <th>Estado</th>
                                         <th>Versión</th>
+                                        <th>Ilaciones</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
@@ -306,23 +307,30 @@ const Educcion = () => {
                                         </td>
                                         <td>{educcion.status}</td>
                                         <td>{educcion.version}</td>
+                                        <td>{educcion.ilacion}
+                                            <button className="option-button">Ver Ilación</button>
+                                        </td>
                                         <td>
                                             <button className="botton-crud">
                                                 <FaFolder
                                                 style={{ color: "orange", cursor: "pointer" }}
-                                            />
+                                            /></button>
+                                            <button className="botton-crud" /*onClick={irAEditarEduccion}*/>
+                                                <FaPencilAlt 
+                                                style={{ color: "blue", cursor: "pointer" }}
+                                                />
                                             </button>
-                                                    <button
-                                                        className="botton-crud"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                            deleteEduction(educcion.code) // Llama a la función de eliminación
-                                                        }}
-                                                    >
-                                                        <FaTrash
-                                                            style={{ color: "red", cursor: "pointer" }}
-                                                        />
-                                                </button>
+                                            <button
+                                                className="botton-crud"
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                    deleteEduction(educcion.code) // Llama a la función de eliminación
+                                                    }}
+                                                >
+                                                <FaTrash
+                                                style={{ color: "red", cursor: "pointer" }}
+                                                />
+                                            </button>
                                         </td>
                                         </tr>
                                     ))}

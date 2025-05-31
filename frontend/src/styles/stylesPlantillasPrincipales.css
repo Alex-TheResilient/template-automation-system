@@ -64,6 +64,14 @@ html, body {
     margin: 5px;
     border-radius: 5px;
 }
+.option-button{
+    background-color: #B4508A;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
 
 .sidebar {
     background-color: #E4D2DB;

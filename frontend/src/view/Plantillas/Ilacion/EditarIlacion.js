@@ -220,7 +220,7 @@ const EditarIlacion = () => {
 
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
-                            <label className="ne-label">Código de ilación*</label>
+                            <label className="ne-label">Código de especificación*</label>
                             <label className="ne-label">Importancia*</label>
                             <label className="ne-label">Estado*</label>
                         </h3>

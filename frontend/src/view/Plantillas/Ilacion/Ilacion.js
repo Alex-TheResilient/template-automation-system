@@ -161,6 +161,7 @@ const Ilacion = () => {
                                         <th>Fecha modificación</th>
                                         <th>Estado</th>
                                         <th>Versión</th>
+                                        <th>Especificaciones</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
@@ -172,6 +173,9 @@ const Ilacion = () => {
                                         <td>26/10/2023</td>
                                         <td>Concluido</td>
                                         <td>00.01</td>
+                                        <td>
+                                            <button className="option-button">Ver Especificación</button>
+                                        </td>
                                         <td>
                                             <button className="botton-crud" /*onClick={irAVerEduccion}*/><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                             <button className="botton-crud" /*onClick={irAEditarEduccion}*/><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
@@ -185,6 +189,9 @@ const Ilacion = () => {
                                         <td>26/10/2023</td>
                                         <td>Concluido</td>
                                         <td>00.02</td>
+                                        <td>
+                                            <button className="option-button">Ver Especificación</button>
+                                        </td>
                                         <td>
                                             <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                             <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
