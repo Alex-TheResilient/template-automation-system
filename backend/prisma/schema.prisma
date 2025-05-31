@@ -34,6 +34,7 @@ model Organization {
   contactPhone        String?
   status              String?
   comments            String?
+  actors              Actor[]
   authors             Author[]
   projects            Project[]
 }
@@ -108,7 +109,7 @@ model Conclusion {
 
 model Evidence {
   id           String    @id @default(uuid())
-  code         String    
+  code         String
   name         String
   type         String
   interviewId  String
@@ -167,7 +168,6 @@ model Educcion {
 model Ilacion {
   id               String          @id @default(uuid())
   version          String          @default("01.00")
-  educcionId       String
   code             String
   comment          String?
   creationDate     DateTime        @default(now())
@@ -178,6 +178,7 @@ model Ilacion {
   precondition     String
   procedure        String
   status           String
+  educcionId       String
   educcion         Educcion        @relation(fields: [educcionId], references: [id])
   specifications   Specification[]
 
@@ -246,6 +247,7 @@ model Author {
   phone                  String?
   templateAuthorId       String?
   version                String        @default("00.01")
+  actorsCreated          Actor[]       @relation("ActorAuthor")
   organization           Organization? @relation(fields: [organizationId], references: [id])
   role                   Role?         @relation(fields: [roleId], references: [id])
   templateAuthor         Author?       @relation("AuthorTemplate", fields: [templateAuthorId], references: [id])
@@ -256,15 +258,25 @@ model Author {
 }
 
 model Actor {
-  id        String  @id @default(uuid())
-  code      String  @unique
-  name      String
-  projectId String
-  roleId    String
-  status    String
-  type      String
-  project   Project @relation(fields: [projectId], references: [id])
-  role      Role    @relation(fields: [roleId], references: [id])
+  id               String        @id @default(uuid())
+  code             String        
+  name             String
+  projectId        String
+  roleId           String
+  status           String
+  type             String
+  authorId         String?
+  comments         String?
+  creationDate     DateTime      @default(now())
+  modificationDate DateTime?
+  organizationId   String?
+  version          String        @default("00.01")
+  author           Author?       @relation("ActorAuthor", fields: [authorId], references: [id])
+  organization     Organization? @relation(fields: [organizationId], references: [id])
+  project          Project       @relation(fields: [projectId], references: [id])
+  role             Role          @relation(fields: [roleId], references: [id])
+
+  @@unique([code, projectId])
 }
 
 model Source {

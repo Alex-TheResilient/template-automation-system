@@ -19,6 +19,7 @@ import { acceptanceRecordRoutes } from './modules/acceptanceRecord'; // Importar
 import { authorRoutes } from './modules/author';
 import { roleRoutes } from './modules/role';
 import { evidenceRoutes } from './modules/evidence'; // Importar las rutas de evidencia
+import  {actorRoutes} from './modules/actors'; // Importar las rutas de actores
 
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
@@ -60,6 +61,7 @@ app.use('/api/v1', acceptanceRecordRoutes); // Rutas de Acceptance Record
 app.use('/api/v1', authorRoutes); // Rutas de autores
 app.use('/api/v1', roleRoutes); // Rutas de roles
 app.use('/api/v1', evidenceRoutes); // Rutas de evidencia
+app.use('/api/v1', actorRoutes); // Rutas de actores
 
 
 
