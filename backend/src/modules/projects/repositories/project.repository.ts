@@ -292,6 +292,49 @@ export class ProjectRepository {
     const [major, minor] = currentVersion.split('.').map(Number);
     return `${major.toString().padStart(2, '0')}.${(minor + 1).toString().padStart(2, '0')}`;
   }
+
+  /**
+   * Gets all requirements associated with a project for catalog generation
+   */
+  async getProjectRequirementsCatalog(organizationCode: string, projectCode: string) {
+    const project = await prisma.project.findFirst({
+      where: {
+        code: projectCode,
+        organization: {
+          code: organizationCode,
+        }
+      },
+      include: {
+        organization: true
+      }
+    });
+
+    if (!project) {
+      throw new Error(`Project with code ${projectCode} not found`);
+    }
+
+    // Get all educciones with nested ilaciones and specifications
+    const educciones = await prisma.educcion.findMany({
+      where: {
+        projectId: project.id
+      },
+      include: {
+        ilaciones: {
+          include: {
+            specifications: true
+          },
+          orderBy: {
+            code: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        code: 'asc'
+      }
+    });
+
+    return { project, educciones };
+  }
 }
 
 // Export singleton instance of the repository

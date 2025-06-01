@@ -262,6 +262,160 @@ export class ProjectController {
       res.status(500).json({ error: 'Error exporting to PDF' });
     }
   }
+
+  /**
+   * Exports project requirements catalog to PDF
+   */
+  async exportRequirementsCatalogToPDF(req: Request, res: Response) {
+    try {
+      const { orgcod, projcod } = req.params;
+
+      // Get the project with all its requirements using the service layer
+      const { project, educciones } = await projectService.getProjectRequirementsCatalog(orgcod, projcod);
+
+      // Create PDF document
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=requirements-catalog-${project.code}.pdf`);
+
+      // Pipe PDF to response
+      doc.pipe(res);
+
+      // Configuración de tabla
+      const pageWidth = doc.page.width - 100; // Ancho de página menos márgenes
+      const colWidth1 = 150; // Ancho de la primera columna (atributos)
+      const colWidth2 = pageWidth - colWidth1; // Ancho de la segunda columna (descripciones)
+
+      // Función para agregar una fila a la tabla
+      const addTableRow = (attribute: string, value: string, x: number, y: number, fontSize: number = 10): number => {
+        // Dibujar bordes de celda
+        doc.rect(x, y, colWidth1, 25).stroke();
+        doc.rect(x + colWidth1, y, colWidth2, 25).stroke();
+
+        // Agregar texto centrado verticalmente
+        doc.fontSize(fontSize);
+        doc.text(attribute, x + 5, y + 7, { width: colWidth1 - 10 });
+        doc.text(value, x + colWidth1 + 5, y + 7, { width: colWidth2 - 10 });
+
+        return y + 25; // Devolver la nueva posición Y
+      };
+
+      // Función para crear un encabezado de sección
+      const addSectionHeader = (title: string, x: number, y: number, fontSize: number = 14): number => {
+        doc.fontSize(fontSize).text(title, x, y, { underline: true });
+        return y + 30; // Espacio después del encabezado
+      };
+
+      // Cabecera del documento
+      doc.fontSize(24).text(`Catálogo de Requisitos - ${project.name}`, { align: 'center' });
+      doc.moveDown(2);
+
+      let y = 150;
+
+      // Información del proyecto
+      y = addSectionHeader('Información del Proyecto', 50, y);
+      y = addTableRow('Código', project.code, 50, y);
+      y = addTableRow('Nombre', project.name, 50, y);
+      y = addTableRow('Organización', project.organization?.name || orgcod, 50, y);
+      y = addTableRow('Fecha de Generación', new Date().toLocaleString(), 50, y);
+
+      y += 30;
+
+      // Sección de Educciones
+      if (educciones.length === 0) {
+        y = addSectionHeader('1. Educciones', 50, y);
+        doc.text('No hay educciones registradas para este proyecto.', 50, y);
+      } else {
+        educciones.forEach((educcion, eIndex) => {
+          // Nueva página para cada educción excepto la primera
+          if (eIndex > 0) {
+            doc.addPage();
+            y = 50;
+          }
+
+          // Encabezado de educción
+          y = addSectionHeader(`1.${eIndex + 1}. Educción: ${educcion.code}`, 50, y);
+
+          // Tabla con detalles de la educción
+          y = addTableRow('Nombre', educcion.name, 50, y);
+          y = addTableRow('Descripción', educcion.description, 50, y);
+          y = addTableRow('Estado', educcion.status, 50, y);
+          y = addTableRow('Importancia', educcion.importance, 50, y);
+          if (educcion.comment) {
+            y = addTableRow('Comentarios', educcion.comment, 50, y);
+          }
+
+          y += 20;
+
+          // Sección de Ilaciones
+          if (educcion.ilaciones.length > 0) {
+            educcion.ilaciones.forEach((ilacion, iIndex) => {
+              // Verificar si es necesario agregar una nueva página
+              if (y > doc.page.height - 150) {
+                doc.addPage();
+                y = 50;
+              }
+
+              // Encabezado de ilación
+              y = addSectionHeader(`1.${eIndex + 1}.${iIndex + 1}. Ilación: ${ilacion.code}`, 50, y, 12);
+
+              // Tabla con detalles de la ilación
+              y = addTableRow('Nombre', ilacion.name, 50, y);
+              y = addTableRow('Precondición', ilacion.precondition, 50, y);
+              y = addTableRow('Procedimiento', ilacion.procedure, 50, y);
+              y = addTableRow('Postcondición', ilacion.postcondition, 50, y);
+              y = addTableRow('Estado', ilacion.status, 50, y);
+              y = addTableRow('Importancia', ilacion.importance, 50, y);
+              if (ilacion.comment) {
+                y = addTableRow('Comentarios', ilacion.comment, 50, y);
+              }
+
+              y += 15;
+
+              // Sección de Especificaciones
+              if (ilacion.specifications.length > 0) {
+                ilacion.specifications.forEach((spec, sIndex) => {
+                  // Verificar si es necesario agregar una nueva página
+                  if (y > doc.page.height - 150) {
+                    doc.addPage();
+                    y = 50;
+                  }
+
+                  // Encabezado de especificación
+                  y = addSectionHeader(`1.${eIndex + 1}.${iIndex + 1}.${sIndex + 1}. Especificación: ${spec.code}`, 50, y, 11);
+
+                  // Tabla con detalles de la especificación
+                  y = addTableRow('Nombre', spec.name, 50, y, 9);
+                  y = addTableRow('Precondición', spec.precondition, 50, y, 9);
+                  y = addTableRow('Procedimiento', spec.procedure, 50, y, 9);
+                  y = addTableRow('Postcondición', spec.postcondition, 50, y, 9);
+                  y = addTableRow('Estado', spec.status, 50, y, 9);
+                  y = addTableRow('Importancia', spec.importance, 50, y, 9);
+                  if (spec.comment) {
+                    y = addTableRow('Comentarios', spec.comment, 50, y, 9);
+                  }
+
+                  y += 15;
+                });
+              }
+            });
+          } else {
+            y = addSectionHeader(`Ilaciones de ${educcion.code}`, 50, y, 12);
+            doc.text('No hay ilaciones registradas para esta educción.', 50, y);
+          }
+        });
+      }
+
+      // Finish PDF
+      doc.end();
+
+    } catch (error) {
+      console.error('Error exporting requirements catalog:', error);
+      res.status(500).json({ error: 'Error exporting requirements catalog to PDF' });
+    }
+  }
 }
 
 // Export singleton instance of the controller

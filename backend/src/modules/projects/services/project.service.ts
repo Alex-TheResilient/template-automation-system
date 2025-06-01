@@ -67,6 +67,13 @@ export class ProjectService {
   async getNextCode(organizationCode: string): Promise<string> {
     return this.repository.getNextCode(organizationCode);
   }
+
+  /**
+   * Gets all requirements associated with a project for catalog generation
+   */
+  async getProjectRequirementsCatalog(organizationCode: string, projectCode: string) {
+    return this.repository.getProjectRequirementsCatalog(organizationCode, projectCode);
+  }
 }
 
 // Export singleton instance of the service
