@@ -290,16 +290,28 @@ export class ProjectController {
 
       // Función para agregar una fila a la tabla
       const addTableRow = (attribute: string, value: string, x: number, y: number, fontSize: number = 10): number => {
-        // Dibujar bordes de celda
-        doc.rect(x, y, colWidth1, 25).stroke();
-        doc.rect(x + colWidth1, y, colWidth2, 25).stroke();
+        // Establecer el tamaño de fuente para calcular correctamente la altura
+        doc.fontSize(fontSize);
 
-        // Agregar texto centrado verticalmente
+        // Calcular la altura requerida para el contenido de cada celda
+        const textOptions = { width: colWidth2 - 10 };
+        const valueHeight = doc.heightOfString(value, textOptions);
+        const attributeHeight = doc.heightOfString(attribute, { width: colWidth1 - 10 });
+
+        // Usar la altura mayor entre las dos celdas (mínimo 25px)
+        const rowHeight = Math.max(25, valueHeight + 14, attributeHeight + 14);
+
+        // Dibujar bordes de celda con la altura calculada
+        doc.rect(x, y, colWidth1, rowHeight).stroke();
+        doc.rect(x + colWidth1, y, colWidth2, rowHeight).stroke();
+
+        // Agregar texto con posicionamiento vertical apropiado
         doc.fontSize(fontSize);
         doc.text(attribute, x + 5, y + 7, { width: colWidth1 - 10 });
-        doc.text(value, x + colWidth1 + 5, y + 7, { width: colWidth2 - 10 });
+        doc.text(value, x + colWidth1 + 5, y + 7, textOptions);
 
-        return y + 25; // Devolver la nueva posición Y
+        // Devolver la nueva posición Y
+        return y + rowHeight;
       };
 
       // Función para crear un encabezado de sección
