@@ -1,58 +1,158 @@
 # Template Automation System
 
-> username = 'admin' & password = 'admin123';
+A comprehensive system for managing requirements engineering artifacts and templates, supporting the entire process from interviews and evidence gathering to specification creation.
 
-## Configuración
+## Overview
 
-Sigue estos pasos para configurar el sistema de automatización de plantillas:
+The Template Automation System is a full-stack application designed to streamline and automate the requirements engineering process. It provides organizations with tools to manage projects, conduct and document interviews, track evidence, create and maintain specifications, and manage various artifacts related to software requirements.
 
-1. **Clonar el repositorio**
+## Features
 
-```
-https://github.com/atipaq/template-automation-system.git
-```
+- **Organization Management**: Create and manage multiple organizations
+- **Project Management**: Set up and organize projects within organizations
+- **Interview Management**: Schedule, conduct, and document interviews with stakeholders
+- **Evidence Tracking**: Upload and manage evidence files from various sources
+- **Requirements Engineering**:
+  - Document elicitation (educciones) from stakeholders
+  - Create and maintain specifications (ilaciones)
+  - Link requirements through a structured process
+- **Actor Management**: Track all stakeholders and their roles in projects
+- **Risk Management**: Document and track risks associated with requirements
+- **Non-Functional Requirements**: Document and manage NFRs
+- **Acceptance Records**: Generate and manage acceptance records for project deliverables
+- **Role-Based Access Control**: Manage user permissions through customizable roles
 
-```
-cd requirements-system
-```
+## Tech Stack
 
-2. **Configuración del backend**
+### Backend
 
-```
-cd backend
-npm install
-npm run dev
-```
+- **Node.js** with **Express.js** framework
+- **TypeScript** for type-safe code
+- **Prisma ORM** for database operations
+- **PostgreSQL** database
+- **JWT** for authentication
+- **Multer** for file uploads
+- **PDFKit** for PDF generation
+- **ExcelJS** for Excel file generation
 
-> El backend estará corriendo en http://localhost:5000 (o el puerto configurado en el archivo .env).
+### Frontend
 
-Backend .env:
-Crea un archivo .env en la carpeta backend con el siguiente contenido:
+- **React** with functional components
+- **React Router** for navigation
+- **Axios** for API communication
+- **CSS** for styling
 
-```
-# Connect to Supabase via connection pooling with Supavisor.
-DATABASE_URL="postgresql://postgres.nkjudkvrqcmfuvfzpjxe:pass-system-pis@aws-0-us-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+## Getting Started
 
-# Direct connection to the database. Used for migrations.
-DIRECT_URL="postgresql://postgres.nkjudkvrqcmfuvfzpjxe:pass-system-pis@aws-0-us-west-1.pooler.supabase.com:5432/postgres"
+### Prerequisites
 
-# Port for the backend server
-PORT=5000
-```
+- Node.js (v16.0.0 or higher)
+- PostgreSQL database
+- npm or yarn package manager
 
-3. **Configuración del frontend**
+### Installation
 
-```
-cd ../frontend
-npm install
-npm start
-```
+1. Clone the repository:
 
-> El frontend estará corriendo en http://localhost:3000 (o el puerto configurado en el archivo .env).
+   ```bash
+   git clone <repository-url>
+   cd template-automation-system
+   ```
 
-Frontend .env:
-Crea un archivo .env en la carpeta frontend con el siguiente contenido:
+2. Install backend dependencies:
 
-```
-REACT_APP_API_BASE_URL=http://localhost:5000/api/v1
-```
+   ```bash
+   cd backend
+   npm install
+   ```
+
+3. Set up environment variables in the backend:
+   Create a `.env` file in the backend directory with the following variables:
+
+   ```
+   PORT=5000
+   DATABASE_URL=postgresql://username:password@localhost:5432/your_database
+   DIRECT_URL=postgresql://username:password@localhost:5432/your_database
+   JWT_SECRET=your_jwt_secret
+   ```
+
+4. Run Prisma migrations:
+
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+5. Install frontend dependencies:
+
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+6. Start the development servers:
+
+   In the backend directory:
+
+   ```bash
+   npm run dev
+   ```
+
+   In the frontend directory:
+
+   ```bash
+   npm start
+   ```
+
+## Project Structure
+
+### Backend
+
+- `src/app.ts`: Main application entry point
+- `src/modules/`: Feature-specific modules
+  - `auth/`: Authentication logic
+  - `organizations/`: Organization management
+  - `projects/`: Project management
+  - `interviews/`: Interview functionality
+  - `templates/`: Templates for requirements
+  - `experts/`: Expert management
+  - And many more specialized modules
+- `prisma/`: Database schema and migrations
+
+### Frontend
+
+- `src/App.js`: Main React component
+- `src/view/`: React views/pages
+- `src/styles/`: CSS styles
+- `src/iconos/`: Icons and images
+
+## Database Schema
+
+The system uses a relational database with a rich schema including entities for:
+
+- Organizations
+- Projects
+- Users and Authors
+- Interviews
+- Evidence
+- Requirements (Educciones)
+- Specifications (Ilaciones)
+- Actors
+- Roles
+- Risks
+- And more
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the ISC License.
+
+## Contact
+
+For any inquiries or support, please contact the project maintainers.
