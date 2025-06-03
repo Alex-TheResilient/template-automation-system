@@ -369,7 +369,7 @@ const EditarIlacion = () => {
 
                         <div className="ne-buttons">
                             <button onClick={irAIlacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAIlacion} className="ne-button" size="50">Guardar Cambio</button>
+                            <button onClick={irAIlacion} className="ne-button" size="50">Guardar Cambios</button>
                         </div>
                     </section>
                 </main>

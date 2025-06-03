@@ -315,7 +315,7 @@ const Educcion = () => {
                                                 <FaFolder
                                                 style={{ color: "orange", cursor: "pointer" }}
                                             /></button>
-                                            <button className="botton-crud" /*onClick={irAEditarEduccion}*/>
+                                            <button className="botton-crud" onClick={irAEditarEduccion}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
                                                 />

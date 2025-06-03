@@ -26,6 +26,7 @@ import Plantillas from './view/Plantillas/Plantillas.js';
 import Educcion from './view/Plantillas/Educcion/Educcion.js';
 import Ilacion from './view/Plantillas/Ilacion/Ilacion.js';
 import NuevaEduccion from './view/Plantillas/Educcion/NuevaEduccion.js';
+import EditarEduccion from './view/Plantillas/Educcion/EditarEduccion.js';
 import NuevaIlacion from './view/Plantillas/Ilacion/NuevaIlacion.js';
 import EditarIlacion from './view/Plantillas/Ilacion/EditarIlacion.js';
 import Artefactos from './view/Plantillas/Artefactos/Artefactos.js';
@@ -101,6 +102,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion" element={<Educcion />} />
           <Route path="organizations/:orgcod/projects/:projcod/educcion/new" element={<NuevaEduccion />} />
+          <Route path="/editarEduccion" element={<EditarEduccion />} />
           <Route path="/ilacion" element={<Ilacion />} />
           <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
           <Route path="/editarIlacion" element={<EditarIlacion />} />

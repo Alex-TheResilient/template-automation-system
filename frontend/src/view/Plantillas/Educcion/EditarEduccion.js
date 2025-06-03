@@ -1,12 +1,70 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate,useParams } from "react-router-dom"
-import '../../../styles/stylesNuevaIlacion.css';
+import React,{ useState, useEffect,useRef } from "react";
+import { useNavigate,useParams } from "react-router-dom";
+import '../../../styles/stylesNuevaEduccion.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
-const EditarEspecificacion = () => {
+const EditarEduccion = () => {
 
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
+
+    const [code, setCode] = useState("");
+    const [comment, setComment] = useState("");
+    const [version, setVersion] = useState("00.01");
+    const [creationDate, setCreationDate] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [description, setDescription] = useState("");
+    const [importance, setImportance] = useState("");
+    const [modificationDate, setModificationDate] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [name, setName] = useState("");
+    const [status, setStatus] = useState("");
+    const [error, setError]=useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
+    useEffect(() => {
+    
+        const fetchNextCodigoEduccion = async () => {
+            try {
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCode(response.data.nextCode || "Ed-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
+            }
+        };
+
+        fetchNextCodigoEduccion();
+    }, [API_BASE_URL,orgcod, projcod]);
+
+    const registrarEduccion = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`, {
+                code,
+                name,
+                description,
+                importance,
+                comment, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAEduccion();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -22,23 +80,21 @@ const EditarEspecificacion = () => {
     const irAPlantillas = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
-    const irAEspecificacion = () => {
-        navigate("/especificacion");
+    const irAEduccion = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
         actors: false,
         fuentes: false,
         expertos: false,
-        ilaciones: false,
-        artefactos: false
+        ilaciones: false
     });
     const [selectedItems, setSelectedItems] = React.useState([]);
     const actors = ["ACT-0001", "ACT-0002", "ACT-0003"];
     const fuentes = ["FUE-0001", "FUE-0002", "FUE-0003"];
     const expertos = ["EXP-0001", "EXP-0002", "EXP-0003"];
     const ilaciones = ["ILA-0001", "ILA-0002", "ILA-0003"];
-    const artefactos = ["ART-0001", "ART-0002", "ART-0003"];
 
     const handleCheckboxChange = (value) => {
         setSelectedItems((prev) =>
@@ -55,8 +111,7 @@ const EditarEspecificacion = () => {
                     actors: false,
                     fuentes: false,
                     expertos: false,
-                    ilaciones: false,
-                    artefactos:false
+                    ilaciones: false
                 });
             }
         };
@@ -66,26 +121,6 @@ const EditarEspecificacion = () => {
         };
     }, []);
 
-    // Datos simulados de la especificación seleccionada
-    const [especificacion, setEspecificacion] = useState({
-        codigo: "ESP-001",
-        version: "01.00",
-        fecha: "01/12/2024",
-        nombre: "Especificación de prueba",
-        actor: "ACT-0001",
-        autor: "AUT-0001",
-        fuente: "FUE-0001",
-        experto: "EXP-0002",
-        ilacion: "ILA-0002",
-        estado: "Activo",
-        precondicion: "Precondición de ejemplo",
-        procedimiento: "Procedimiento de ejemplo",
-        postcondicion: "Postcondición de ejemplo",
-        artefacto: "ART-0003",
-        importancia: "Alta",
-        comentario: "Comentario de ejemplo"
-    });
-
     const toggleDropdown = (dropdown) => {
         setDropdownOpen((prev) => ({
             ...prev,
@@ -93,11 +128,6 @@ const EditarEspecificacion = () => {
         }));
     };
 
-    useEffect(() => {
-        // Aquí podrías cargar datos desde la BD o API.
-        // Por ahora, los datos simulados ya están precargados en el estado inicial.
-        console.log("Datos cargados de la especificación:", especificacion);
-    }, []);
 
     return (
         <div className="ne-container">
@@ -108,8 +138,8 @@ const EditarEspecificacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span onClick={irAEspecificacion}>Especificacion /</span>
-                    <span>Editar Especificacion</span>
+                    <span onClick={irAEduccion}>Educcion /</span>
+                    <span>Editar Educción</span>
                 </div>
             </header>
 
@@ -132,17 +162,17 @@ const EditarEspecificacion = () => {
                 </aside>
 
                 <main className="ne-content">
-                    <h2>EDITAR ESPECIFICACIÓN</h2>
+                    <h2>EDITAR EDUCCIÓN</h2>
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
-                            <label className="ne-label">Código Especificación* </label>
-                            <label className="ne-label">Version*</label>
-                            <label className="ne-label">Fecha*</label>
+                            <label className="ne-label">Código </label>
+                            <label className="ne-label">Version</label>
+                            <label className="ne-label">Fecha</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value={especificacion.codigo} readOnly />
-                            <input disabled type="text" className="ne-input" value={especificacion.version} readOnly />
-                            <input disabled type="text" className="ne-input" value={especificacion.fecha} readOnly />
+                            <input disabled type="text" className="ne-input" value={code} readOnly />
+                            <input disabled type="text" className="ne-input" value={version} readOnly />
+                            <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
 
                         <div className="ne-cod-vers">
@@ -150,19 +180,24 @@ const EditarEspecificacion = () => {
                                 <h4>Nombre*</h4>
                             </div>
                             <div className="fiel-vers">
-                                <input
-                                    className="input-text"
-                                    type="text"
-                                    value={especificacion.nombre}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, nombre: e.target.value })
-                                    }
-                                    size="100"
-                                />
-                                <span className="tooltip-text">Editar el nombre de la Especificación</span>
+                                <span className="message">
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre de la educción" size="100" />
+                                    <span className="tooltip-text">Nombre de la educción</span>
+                                </span>
                             </div>
                         </div>
 
+                        <div className="ne-cod-vers">
+                            <div className="fiel-cod">
+                                <h4>Descripción*</h4>
+                            </div>
+                            <div className="fiel-vers">
+                                <span className="message">
+                                    <input className="input-text" type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="" size="100" />
+                                    <span className="tooltip-text">Añadir descripción de la educción</span>
+                                </span>
+                            </div>
+                        </div>
                     </section>
 
                     <section className="ne-organization">
@@ -255,6 +290,7 @@ const EditarEspecificacion = () => {
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
                             <label className="ne-label">Código de ilación*</label>
+                            <label className="ne-label">Importancia*</label>
                             <label className="ne-label">Estado*</label>
                         </h3>
                         <div className="ne-input-container">
@@ -283,124 +319,27 @@ const EditarEspecificacion = () => {
                                     </div>
                                 )}
                             </div>
+                            <select
+                                className="ne-input estado-input"
+                                value={importance}
+                                onChange={(e) => setImportance(e.target.value)}
+                                required
+                            >
+                                <option value="baja">Baja</option>
+                                <option value="media">Media</option>
+                                <option value="alta">Alta</option>
+                            </select>
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                required
                             >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Activo</option>
-                                <option value="en progreso">Inactivo</option>
+                                <option value="por empezar">Por empezar</option>
+                                <option value="en progreso">En progreso</option>
+                                <option value="finalizado">Finalizado</option>
                             </select>
-                            
-                        </div>
-                        <div className="ne-cod-vers">
-                            <div className="fiel-cod">
-                                <h4>Precondicion*</h4>
-                            </div>
-                            <div className="fiel-vers">
-                                <span className="message">
-                                    <input
-                                    className="input-text"
-                                    type="text"
-                                    value={especificacion.precondicion}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, precondicion: e.target.value })
-                                    }
-                                    size="100"
-                                />
-                                <span className="tooltip-text">Editar la precondición de especificación</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="ne-cod-vers">
-                            <div className="fiel-cod">
-                                <h4>Procedimiento*</h4>
-                            </div>
-                            <div className="fiel-vers">
-                            <span className="message">
-                                    <input
-                                    className="input-text"
-                                    type="text"
-                                    value={especificacion.procedimiento}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, procedimiento: e.target.value })
-                                    }
-                                    size="100"
-                                />
-                                <span className="tooltip-text">Editar la procedimeinto de especificación</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="ne-cod-vers">
-                            <div className="fiel-cod">
-                                <h4>Postcondicion*</h4>
-                            </div>
-                            <div className="fiel-vers">
-                            <span className="message">
-                                    <input
-                                    className="input-text"
-                                    type="text"
-                                    value={especificacion.postcondicion}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, postcondicion: e.target.value })
-                                    }
-                                    size="100"
-                                />
-                                <span className="tooltip-text">Editar la postcondición de especificación</span>
-                                </span>
-                            </div>
-                        </div>
-                    </section>
-                    <section className="ne-organization">
-                        <h3 className="ne-label-container">
-                            <label className="ne-label">Código de artefactos asociados*</label>
-                            <label className="ne-label">Importancia*</label>
-                            
-                        </h3>
-                        <div className="ne-input-container">
-                        <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("artefactos")}>
-                                    <span>
-                                        {selectedItems.length > 0
-                                            ? selectedItems.join(", ")
-                                            : "Seleccione una o más opciones"}
-                                    </span>
-                                    <span className="dropdown-arrow">▼</span>
-                                </div>
-                                {dropdownOpen.artefactos && (
-                                    <div className="dropdown-menu">
-                                        {artefactos.map((option, index) => (
-                                            <label key={index} className="dropdown-item">
-                                                <input
-                                                    type="checkbox"
-                                                    value={option}
-                                                    checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
-                                                />
-                                                {option}
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <select
-                                className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
-                            >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Media">Media</option>
-                                <option value="Baja">Baja</option>
-                            </select>
-
-                            
                         </div>
                     </section>
 
@@ -408,19 +347,12 @@ const EditarEspecificacion = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" 
-                            value={especificacion.comentario}
-                            onChange={(e) =>
-                                setEspecificacion({ ...especificacion, comentario: e.target.value })
-                            }
-                            
-                            ></textarea>
-                        
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
 
                         <div className="ne-buttons">
-                            <button onClick={irAEspecificacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAEspecificacion} className="ne-button" size="50">Guardar Cambios</button>
+                            <button onClick={irAEduccion} className="ne-button" size="50">Cancelar</button>
+                            <button onClick={registrarEduccion} className="ne-button" size="50">Guardar Cambios</button>
                         </div>
                     </section>
                 </main>
@@ -429,4 +361,4 @@ const EditarEspecificacion = () => {
     );
 };
 
-export default EditarEspecificacion;
+export default EditarEduccion;
