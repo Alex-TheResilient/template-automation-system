@@ -12,6 +12,8 @@ const Ilacion = () => {
     const { orgcod, projcod,educod } = useParams();
 
     const [ilaciones, setIlaciones] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchNombre, setSearchNombre] = useState("");
 
     const [error, setError] = useState(null);
 
@@ -48,6 +50,70 @@ const Ilacion = () => {
         }
     };
 
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            let response;
+            if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/search`, {
+                    params: { name: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones`);
+            }
+            
+            const filteredData = response.data.filter(ilacion => ilacion.code !== "ORG-MAIN");
+            setIlaciones(filteredData);
+            //setNoResult(filteredData.length === 0);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        handleSearch();
+    }
+    }
+
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Ilaciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Ilaciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+
 
     const irALogin = () => {
         navigate("/");
@@ -78,10 +144,10 @@ const Ilacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuproyecto`);
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
     };
     const irAEspecificaciones = (ilacod) => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}/specs`);
@@ -151,12 +217,14 @@ const Ilacion = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre o código de ilación</span>
                                 </span>
                                 
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -270,11 +338,11 @@ const Ilacion = () => {
                         <h4>Total de registros {ilaciones.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button"onClick={exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar un reporte en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button"onClick={exportToPDF}>PDF</button>
                                     <span class="tooltip-text">Generar un reporte en Pdf</span>
                                 </span>
                             </div>
@@ -294,7 +362,7 @@ const Ilacion = () => {
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre o código de ilación</span>
                                 </span>
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button"onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -424,13 +492,13 @@ const Ilacion = () => {
                                     <span class="tooltip-text">Generar reporte en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button" >PDF</button>
                                     <span class="tooltip-text">Generar reporte en Pdf</span>
                                 </span>
                             </div>
 
                         <div className="search-section-bar">
-                            <button onClick={irAPlantillas} className="atras-button">Regresar</button>
+                            <button  className="atras-button"onClick={irAPlantillas}>Regresar</button>
                         </div>
                     </section>
                 </main>
