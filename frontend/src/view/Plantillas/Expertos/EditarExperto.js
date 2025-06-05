@@ -6,7 +6,6 @@ import '../../../styles/styles.css';
 import axios from "axios";
 
 const EditarExperto = () => {
-    const hasRun = useRef(false);
 
     const navigate = useNavigate();
     const {orgcod, projcod, expcod } = useParams(); // Asegúrate de tener expertId en la ruta
@@ -42,8 +41,6 @@ const EditarExperto = () => {
     };
 
     useEffect(() => {
-        if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
-        hasRun.current = true;
         console.log("Cargando experto con código:", expcod);
         fetchExpertData();
     }, [expcod]);

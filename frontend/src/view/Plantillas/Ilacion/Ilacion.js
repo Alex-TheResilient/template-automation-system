@@ -59,7 +59,7 @@ const Ilacion = () => {
         navigate("/verEduccion");
     };
     const irANuevaIlacion = () => {
-        navigate("/nuevaIlacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/new`);
     };
     const irAEditarEduccion = () => {
         navigate("/editarEduccion");
