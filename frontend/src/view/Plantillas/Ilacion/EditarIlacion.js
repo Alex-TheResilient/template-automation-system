@@ -1,12 +1,78 @@
-import React from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useNavigate ,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const EditarIlacion = () => {
 
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const {orgcod, projcod, educod, ilacod} = useParams();
+
+    const [version, setVersion] = useState("");
+    const [comment, setComentario] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const [importance, setImportance] = useState("");
+    const [name, setName] = useState("");
+    const [postcondition, setPostCondition] = useState("");
+    const [precondition, setPreCondition] = useState("");
+    const [procedure, setProcedure] = useState("");
+    const [status, setStatus] = useState("");
+    
+
+    const [error, setError] = useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const fetchIlacionData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}`);
+            const data = response.data;
+            const rawDate = new Date(data.creationDate);
+            const formattedDate = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
+            setFecha(formattedDate);
+            setVersion(data.version);
+            setComentario(data.comment);
+            setName(data.name);
+            setVersion(data.version);
+            setPostCondition(data.postcondition);
+            setPreCondition(data.precondition);
+            setProcedure(data.procedure);
+            setStatus(data.status);
+            setImportance(data.importance);
+        } catch (err) {
+            setError("Error al obtener los datos del experto: " + err.message);
+        }
+    };
+
+    useEffect(() => {
+            console.log("Cargando ilacion con código:", ilacod);
+            fetchIlacionData();
+    }, [ilacod]);
+    
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}`, {
+                name,
+                postcondition,
+                precondition,
+                procedure,
+                importance,
+                comment, 
+                status,
+            });
+    
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irAIlacion();
+            }
+        } catch (err) {
+            setError("Error al actualizar el experto: " + err.message);
+        }
+    };
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -23,7 +89,7 @@ const EditarIlacion = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
     const irAIlacion = () => {
-        navigate("/Ilacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -112,9 +178,9 @@ const EditarIlacion = () => {
                             <label className="ne-label">Fecha*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="ILA-001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
-                            <input disabled type="text" className="ne-input" value="23/10/23" readOnly />
+                            <input disabled type="text" className="ne-input" value={ilacod} readOnly />
+                            <input disabled type="text" className="ne-input" value={version} readOnly />
+                            <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
 
                         <div className="ne-cod-vers">
@@ -123,7 +189,7 @@ const EditarIlacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)} size="100" />
                                     <span className="tooltip-text">Editar el nombre de la ilación</span>
                                 </span>
                             </div>
@@ -252,28 +318,28 @@ const EditarIlacion = () => {
                             </div>
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
+                                value={importance}
+                                onChange={(e) => setImportance(e.target.value)}
+                                required
                             >
-                                <option value="">Seleccione una o mas opciones</option>
+                                <option value="" disabled hidden>Seleccione una opción</option>
                                 <option value="baja">Baja</option>
                                 <option value="media">Media</option>
                                 <option value="alta">Alta</option>
                             </select>
 
                             <select
-                                className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                            className="ne-input estado-input"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            required
                             >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Por empezar</option>
-                                <option value="en progreso">En progreso</option>
-                                <option value="finalizado">Finalizado</option>
+                            <option value="" disabled hidden>
+                                Seleccione una opción
+                            </option>
+                            <option value="Por empezar">Por empezar</option>
+                            <option value="En progreso">En progreso</option>
+                            <option value="Finalizado">Finalizado</option>
                             </select>
                             
                         </div>
@@ -283,7 +349,7 @@ const EditarIlacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-text" type="text" value={precondition} onChange={(e) => setPreCondition(e.target.value)} size="100" />
                                     <span className="tooltip-text">Editar la Precondicion</span>
                                 </span>
                             </div>
@@ -294,7 +360,7 @@ const EditarIlacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-text" type="text" value={procedure} onChange={(e) => setProcedure(e.target.value)} size="100" />
                                     <span className="tooltip-text">Editar su procesamiento</span>
                                 </span>
                             </div>
@@ -305,7 +371,7 @@ const EditarIlacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-text" type="text" value={postcondition} onChange={(e) => setPostCondition(e.target.value)} size="100" />
                                     <span className="tooltip-text">Editar la Postcondicion</span>
                                 </span>
                             </div>
@@ -350,7 +416,7 @@ const EditarIlacion = () => {
                                     console.log("Importancia seleccionada:", selectedImportancia);
                                 }}
                             >
-                                <option value="">Seleccione una opcion</option>
+                                <option value="" disabled hidden>Seleccione una opción</option>
                                 <option value="baja">Baja</option>
                                 <option value="media">Media</option>
                                 <option value="alta">Alta</option>
@@ -363,13 +429,13 @@ const EditarIlacion = () => {
                     <section className="ne-organizations-section">
                         <h3>Comentario</h3>
 
-                        <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" ></textarea>
+                        <div className="input-text"  >
+                            <textarea className="input-fieldtext"value={comment} onChange={(e) => setComentario(e.target.value)} rows="3" ></textarea>
                         </div>
 
                         <div className="ne-buttons">
                             <button onClick={irAIlacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAIlacion} className="ne-button" size="50">Guardar Cambios</button>
+                            <button onClick={handleEdit} className="ne-button" size="50">Guardar Cambios</button>
                         </div>
                     </section>
                 </main>

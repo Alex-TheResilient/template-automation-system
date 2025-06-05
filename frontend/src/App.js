@@ -105,7 +105,7 @@ function App() {
           <Route path="/editarEduccion" element={<EditarEduccion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/new" element={<NuevaIlacion />} />
-          <Route path="/editarIlacion" element={<EditarIlacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />
           <Route path="/artefactos" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />

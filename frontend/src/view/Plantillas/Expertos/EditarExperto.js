@@ -8,7 +8,7 @@ import axios from "axios";
 const EditarExperto = () => {
 
     const navigate = useNavigate();
-    const {orgcod, projcod, expcod } = useParams(); // Asegúrate de tener expertId en la ruta
+    const {orgcod, projcod, expcod} = useParams(); // Asegúrate de tener expertId en la ruta
 
     const [paternalSurname, setApellidoPaterno] = useState("");
     const [maternalSurname, setApellidoMaterno] = useState("");
@@ -186,7 +186,7 @@ const EditarExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" value={orgcod}readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value={orgcod} readOnly size="30" />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
                                 

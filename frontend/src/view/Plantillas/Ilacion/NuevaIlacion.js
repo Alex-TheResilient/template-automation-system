@@ -51,13 +51,12 @@ const NuevaIlacion = () => {
             // Realiza la solicitud POST con los datos correctos
             await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones`, {
                 name,
-                description,
                 postcondition,
                 precondition,
                 procedure,
                 importance,
-                comment, // Asumiendo que 'comentario' es un campo adicional
-                status, // Asumiendo que 'estado' es otro campo
+                comment, 
+                status, 
             });
             
             // Redirigir a la página de expertos o realizar otra acción
@@ -319,10 +318,10 @@ const NuevaIlacion = () => {
                                 onChange={(e) => setImportance(e.target.value)}
                                 required
                             >
-                                <option value="">Seleccione una o mas opciones</option>
-                                <option value="baja">Baja</option>
-                                <option value="media">Media</option>
-                                <option value="alta">Alta</option>
+                                <option value="" disabled hidden>Seleccione una opción</option>
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
                             </select>
 
                             <select
@@ -331,10 +330,10 @@ const NuevaIlacion = () => {
                                 onChange={(e) => setStatus(e.target.value)}
                                 required
                             >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Por empezar</option>
-                                <option value="en progreso">En progreso</option>
-                                <option value="finalizado">Finalizado</option>
+                                <option value="" disabled hidden>Seleccione una opción</option>
+                                <option value="Por empezar">Por empezar</option>
+                                <option value="En progreso">En progreso</option>
+                                <option value="Finalizado">Finalizado</option>
                             </select>
                             
                         </div>

@@ -38,16 +38,6 @@ const Ilacion = () => {
         
     }, [fetchIlaciones]);
 
-    const deleteIlation = async (codigo) => {
-        try {
-            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
-            fetchIlaciones(); // Refrescar la lista de proyectos después de eliminar uno
-        } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
-        }
-    };
-
 
     const irALogin = () => {
         navigate("/");
@@ -61,8 +51,8 @@ const Ilacion = () => {
     const irANuevaIlacion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/new`);
     };
-    const irAEditarEduccion = () => {
-        navigate("/editarEduccion");
+    const irAEditarIlacion = (ilacod) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}`);
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -229,7 +219,7 @@ const Ilacion = () => {
                                                 <FaFolder
                                                 style={{ color: "orange", cursor: "pointer" }}
                                             /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}>
+                                            <button className="botton-crud" onClick={() => irAEditarIlacion(ilacion.code)}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
                                                 />
