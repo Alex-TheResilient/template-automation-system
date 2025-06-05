@@ -146,8 +146,8 @@ const Educcion = () => {
     const irANuevaEduccion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`);
     };
-    const irAEditarEduccion = () => {
-        navigate("/editarEduccion");
+    const irAEditarEduccion = (code) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}`);
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -313,8 +313,8 @@ const Educcion = () => {
                                         <td>{educcion.version}</td>
                                         <td>{educcion.ilacion}
                                             <button onClick={(e) => {
-                                                    e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                    irAIlaciones(educcion.code) // Llama a la función de eliminación
+                                                    e.stopPropagation();
+                                                    irAIlaciones(educcion.code) 
                                                     }} className="option-button">Ver Ilación</button>
                                         </td>
                                         <td>
@@ -322,7 +322,7 @@ const Educcion = () => {
                                                 <FaFolder
                                                 style={{ color: "orange", cursor: "pointer" }}
                                             /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}>
+                                            <button className="botton-crud" onClick={() => irAEditarEduccion(educcion.code)}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
                                                 />

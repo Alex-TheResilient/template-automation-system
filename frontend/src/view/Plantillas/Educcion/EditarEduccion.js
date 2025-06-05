@@ -7,12 +7,12 @@ import axios from "axios";
 const EditarEduccion = () => {
 
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const { orgcod, projcod,educod} = useParams();
 
     const [code, setCode] = useState("");
     const [comment, setComment] = useState("");
     const [version, setVersion] = useState("00.01");
-    const [creationDate, setCreationDate] = useState(
+    const [creationDate, setFecha] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
     const [description, setDescription] = useState("");
     const [importance, setImportance] = useState("");
@@ -24,46 +24,49 @@ const EditarEduccion = () => {
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     
-    useEffect(() => {
-    
-        const fetchNextCodigoEduccion = async () => {
-            try {
-                
-                // Llamar al endpoint usando parámetros de consulta
-                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/next-code`);
-
-                // Asignar el valor recibido al estado
-                setCode(response.data.nextCode || "Ed-001");
-            } catch (err) {
-                console.error("Error al obtener el siguiente código de experto:", err);
-                setError("No se pudo cargar el siguiente código del experto.");
-            }
-        };
-
-        fetchNextCodigoEduccion();
-    }, [API_BASE_URL,orgcod, projcod]);
-
-    const registrarEduccion = async (e) => {
-        e.preventDefault();
+    const fetchEductionData = async () => {
         try {
-            // Realiza la solicitud POST con los datos correctos
-            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`, {
-                code,
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}`);
+            const data = response.data;
+            const rawDate = new Date(data.creationDate);
+            const formattedDate = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
+            setFecha(formattedDate);
+            setVersion(data.version);
+            setComment(data.comment);
+            setName(data.name);
+            setDescription(data.description)
+            setStatus(data.status);
+            setImportance(data.importance);
+        } catch (err) {
+            setError("Error al obtener los datos del experto: " + err.message);
+        }
+    };
+
+    useEffect(() => {
+        console.log("Cargando ilacion con código:", educod);
+        fetchEductionData();
+    }, [educod]);
+
+     const handleEdit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}`, {
                 name,
                 description,
                 importance,
-                comment, // Asumiendo que 'comentario' es un campo adicional
-                status, // Asumiendo que 'estado' es otro campo
+                status,
+                comment, 
             });
-            
-            // Redirigir a la página de expertos o realizar otra acción
-            irAEduccion();
     
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irAEduccion();
+            }
         } catch (err) {
-            console.error("Error al registrar el experto:", err);
-            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+            setError("Error al actualizar el experto: " + err.message);
         }
-    };
+    };    
 
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
@@ -170,7 +173,7 @@ const EditarEduccion = () => {
                             <label className="ne-label">Fecha</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value={code} readOnly />
+                            <input disabled type="text" className="ne-input" value={educod} readOnly />
                             <input disabled type="text" className="ne-input" value={version} readOnly />
                             <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
@@ -325,9 +328,9 @@ const EditarEduccion = () => {
                                 onChange={(e) => setImportance(e.target.value)}
                                 required
                             >
-                                <option value="baja">Baja</option>
-                                <option value="media">Media</option>
-                                <option value="alta">Alta</option>
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
                             </select>
 
                             <select
@@ -336,9 +339,9 @@ const EditarEduccion = () => {
                                 onChange={(e) => setStatus(e.target.value)}
                                 required
                             >
-                                <option value="por empezar">Por empezar</option>
-                                <option value="en progreso">En progreso</option>
-                                <option value="finalizado">Finalizado</option>
+                                <option value="Por empezar">Por empezar</option>
+                                <option value="En progreso">En progreso</option>
+                                <option value="Finalizado">Finalizado</option>
                             </select>
                         </div>
                     </section>
@@ -352,7 +355,7 @@ const EditarEduccion = () => {
 
                         <div className="ne-buttons">
                             <button onClick={irAEduccion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={registrarEduccion} className="ne-button" size="50">Guardar Cambios</button>
+                            <button onClick={handleEdit} className="ne-button" size="50">Guardar Cambios</button>
                         </div>
                     </section>
                 </main>
