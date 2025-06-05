@@ -109,39 +109,62 @@ const Expertos = () => {
 
   //funcion para buscaar proyectos por fecha y nombre
   const handleSearch = async () => {
-  try {
-      setLoading(true);
-      let endpoint;
-      let params = {};
+        setLoading(true);
+        try {
+            let response;
+            if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/search`, {
+                    params: { firstName: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts`);
+            }
+            
+            const filteredData = response.data.filter(exp => exp.code !== "ORG-MAIN");
+            setExpertos(filteredData);
+            //setNoResult(filteredData.length === 0);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
+        }
+    };
+  
+  const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Expertos.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
 
-      // Determinar qué tipo de búsqueda realizar
-      if (searchNombre) {
-          // Búsqueda por nombre
-          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search`;
-          params.name = searchNombre;
-      } else if (searchYear || searchMonth) {
-          // Búsqueda por fecha
-          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search/date`;
-          if (searchYear) params.year = searchYear;
-          if (searchMonth) params.month = searchMonth;
-      } else {
-          // Si no hay criterios de búsqueda, cargar todos los proyectos
-          await fetchExpertos();
-          return;
-      }
-
-      const response = await axios.get(endpoint, { params });
-      setExpertos(response.data);
-      setError(null);
-  } catch (err) {
-      console.error("Error en la búsqueda:", err);
-      setError(err.response?.data?.error || "Error al buscar proyectos");
-      setExpertos([]);
-  } finally {
-      setLoading(false);
-  }
-};
-
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Expertos.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
 
   return (
@@ -314,8 +337,8 @@ const Expertos = () => {
               )}
             </h4>
             <div className="expe-export-buttons">
-              <button className="expe-export-button">Excel</button>
-              <button className="expe-export-button">PDF</button>
+              <button className="expe-export-button"onClick={exportToExcel}>Excel</button>
+              <button className="expe-export-button"onClick={exportToPDF}>PDF</button>
             </div>
           </section>
         </main>
