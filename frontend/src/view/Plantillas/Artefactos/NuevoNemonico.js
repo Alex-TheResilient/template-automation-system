@@ -1,12 +1,36 @@
-import React from "react";
+import React,{ useState, useEffect,useRef } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoNemonico.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const NuevoNemonico = () => {
 
     const navigate = useNavigate();
          const { orgcod, projcod } = useParams();
+         const [name, setName] = useState("");
+         const [mnemonic, setMnemonic] = useState("");
+         const [error, setError]=useState(null);
+
+         const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const registrarMnemonic = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/artifacts`, {
+                name,
+                mnemonic
+            });
+            
+            // Redirigir a la página de artefactos o realizar otra acción
+            irAArtefactos();
+    
+        } catch (err) {
+            console.error("Error al registrar el artefacto:", err);
+            setError("No se pudo registrar el artefacto. Inténtalo de nuevo.");
+        }
+    };
     
         const irALogin = () => {
             navigate("/");
@@ -34,7 +58,7 @@ const NuevoNemonico = () => {
             navigate(`/projects/${projcod}/plantillas`);
         };
         const irAArtefactos = () => {
-            navigate("/artefactos");
+            navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts`);
         };
 
 
@@ -78,7 +102,7 @@ const NuevoNemonico = () => {
                         <div className="fiel-cod2">
                                 <h4>Artefacto*</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text" placeholder=""  size="400" />
+                                    <input  className="inputnombre-field" type="text"  value={name} onChange={(e) => setName(e.target.value)} placeholder=""  size="400" />
                                     <span class="tooltip-text">Nombre del artefacto en donde se creará el nemónico.</span>
                                 </span>
                         </div>
@@ -86,7 +110,7 @@ const NuevoNemonico = () => {
                         <div className="fiel-cod2">
                                 <h4>Nemónico*</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text" placeholder=""  size="400" />
+                                    <input  className="inputnombre-field" type="text" value={mnemonic} onChange={(e) => setMnemonic(e.target.value)}  placeholder=""  size="400" />
                                     <span class="tooltip-text">Nemónico a crear, sea lo mas breve y corto posible.</span>
                                 </span>
 
@@ -95,7 +119,7 @@ const NuevoNemonico = () => {
 
                         <div className="rr-buttons">
                             <button onClick={irAArtefactos} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={irAArtefactos} className="rp-button" size="50">Guardar</button>
+                            <button onClick={registrarMnemonic} className="rp-button" size="50">Guardar</button>
                         </div>
 
                     </section>

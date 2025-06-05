@@ -1,14 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState,useCallback, useEffect } from 'react';
 import { useNavigate,useParams } from "react-router-dom"
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
-
+import axios from 'axios';
 
 const Artefactos = () => {
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
+    // Estado de proyectos y errores
+    const [mnemonic, setMnemonic] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [noResult, setNoResult] = useState(false);
+
+    // Estados para búsqueda
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchMnemonic = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/artifacts`);
+            setMnemonic(response.data.data); 
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchMnemonic();
+    
+    }, [fetchMnemonic]);
+
+    const handleSearch = async (searchType) => { 
+    setLoading(true);
+    try {
+        let response;
+        if (searchTerm) { 
+            if (searchType === 'name') {
+                response = await axios.get(`${API_BASE_URL}/artifacts/search/name`, {
+                    params: { query: searchTerm } 
+                });
+            } else if (searchType === 'mnemonic') {
+                response = await axios.get(`${API_BASE_URL}/artifacts/search/mnemonic`, {
+                    params: { query: searchTerm } 
+                });
+            }
+        } else {
+            response = await axios.get(`${API_BASE_URL}/artifacts`);
+        }
+        const data = response.data.data || []; 
+        setMnemonic(data);
+        setNoResult(data.length === 0);
+        setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar artefactos");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const irALogin = () => {
         navigate("/");
     };
@@ -28,15 +88,15 @@ const Artefactos = () => {
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
-    const irAMenuProyecto = (projcod) => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+    const irAMenuProyecto = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
     };
 
     const irANuevoNemonico = () => {
-        navigate("/nuevoNemonico");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/new`);
     };
     const irASubirInterfaz = () => {
         navigate("/subirInterfaz");
@@ -97,17 +157,19 @@ const Artefactos = () => {
                             <button onClick={irANuevoNemonico} className="nuevo-pp-button">Nuevo Nemónico</button>
                             <div className="sectionTextBuscar">
                                 <span class="message">
-                                <input 
-                                    className="textBuscar" 
-                                    type="text" 
-                                    placeholder="Buscar" 
-                                    style={{ width: "500px" }} 
-                                    />
+                                <input
+                                    className="textBuscar"
+                                    type="text"
+                                    placeholder="Buscar por Artefacto o Nemónico" 
+                                    style={{ width: "500px" }}
+                                    value={searchTerm} 
+                                    onChange={(e) => setSearchTerm(e.target.value)} 
+                                />
                                     <span class="tooltip-text">Filtrar información por artefacto o por neumonico</span>
                                 </span>
                                 
-                                <button className="search-button">Busqueda por Artefactos</button>
-                                <button className="search-button">Buqueda por Neomonico</button>
+                                <button className="search-button" onClick={() => handleSearch('name')}>Búsqueda por Artefacto</button>
+                                <button className="search-button" onClick={() => handleSearch('mnemonic')}>Búsqueda por Nemónico</button>
                             </div>
                         </div>
 
@@ -117,13 +179,17 @@ const Artefactos = () => {
                             <table className="menu-centertabla">
                                 <thead>
                                     <tr>
-                                        <th>Interfaz Grafica de Usuario</th>
-                                        <th>INT</th>
+                                        <th>ARTEFACTO</th>
+                                        <th>NEMÓNICO</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                    </tr>
+                                    {mnemonic.map((mn) => (
+                                    <tr key={mn.id}>
+                                        <td>{mn.name}</td>
+                                        <td>{mn.mnemonic}</td>
+                                    </tr>  
+                                    ))}
                                 </tbody>
                             </table>                                          
                         </div>                          

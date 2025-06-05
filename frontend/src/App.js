@@ -106,7 +106,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/new" element={<NuevaIlacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />
-          <Route path="/artefactos" element={<Artefactos />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/artifacts" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
@@ -119,7 +119,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod/specs" element={<Especificacion />} />
           <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
           <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
-          <Route path="/nuevoNemonico" element={<NuevoNemonico />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/artifacts/new" element={<NuevoNemonico />} />
           <Route path="/subirInterfaz" element={<SubirInterfaz />} />
           <Route path="/organizations/:orgcod/projects/:projcod/rnf" element={<RNF />} />
           <Route path="/NuevoRNF" element={<NuevoRNF />} />
