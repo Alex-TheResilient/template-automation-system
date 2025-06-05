@@ -73,10 +73,10 @@ function App() {
           <Route path="/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
           <Route path="/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
 
-          {/* Educciones */}
-          <Route path="/projects/:projcod/educciones" element={<Educcion />} />
-          <Route path="/projects/:projcod/educciones/new" element={<NuevaEduccion />} />
-          {/* <Route path="/projects/:projcod/educciones/:educod" element={<EditarEduccion />} /> */}
+          {/* Educciones }
+          //<Route path="/projects/:projcod/educciones" element={<Educcion />} />
+          //<Route path="/projects/:projcod/educciones/new" element={<NuevaEduccion />} />
+          { <Route path="/projects/:projcod/educciones/:educod" element={<EditarEduccion />} /> */}
           {/* <Route path="/educcion" element={<Educcion />} />
           <Route path="/nuevaEduccion" element={<NuevaEduccion />} /> */}
 
@@ -101,9 +101,9 @@ function App() {
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion" element={<Educcion />} />
-          <Route path="organizations/:orgcod/projects/:projcod/educcion/new" element={<NuevaEduccion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educcion/new" element={<NuevaEduccion />} />
           <Route path="/editarEduccion" element={<EditarEduccion />} />
-          <Route path="/ilacion" element={<Ilacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/nuevaIlacion" element={<NuevaIlacion />} />
           <Route path="/editarIlacion" element={<EditarIlacion />} />
           <Route path="/artefactos" element={<Artefactos />} />
@@ -116,7 +116,7 @@ function App() {
           <Route path="/editarFuente" element={<EditarFuente />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/new" element={<NuevoExperto />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/:expcod" element={<EditarExperto />} /> 
-          <Route path="/especificacion" element={<Especificacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod/specs" element={<Especificacion />} />
           <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
           <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
           <Route path="/nuevoNemonico" element={<NuevoNemonico />} />

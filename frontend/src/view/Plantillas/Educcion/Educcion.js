@@ -61,14 +61,14 @@ const Educcion = () => {
     ];
 
     const deleteEduction = async (codigo) => {
-    try {
-      await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
-      fetchEducciones(); // Refrescar la lista de proyectos después de eliminar uno
-    } catch (err) {
-      console.error("Error al eliminar el proyecto:", err);
-      setError(err.response?.data?.error || "Error al eliminar el proyecto");
-    }
-  };
+        try {
+            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
+            fetchEducciones(); // Refrescar la lista de proyectos después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err);
+            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+        }
+    };
 
     const handleSearch = async () => {
         setLoading(true);
@@ -167,6 +167,10 @@ const Educcion = () => {
     };
     const irAPlantillas = () => {
         navigate(`/projects/${projcod}/plantillas`);
+    };
+
+    const irAIlaciones = (code) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}/ilaciones`);
     };
 
 
@@ -308,7 +312,10 @@ const Educcion = () => {
                                         <td>{educcion.status}</td>
                                         <td>{educcion.version}</td>
                                         <td>{educcion.ilacion}
-                                            <button className="option-button">Ver Ilación</button>
+                                            <button onClick={(e) => {
+                                                    e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                    irAIlaciones(educcion.code) // Llama a la función de eliminación
+                                                    }} className="option-button">Ver Ilación</button>
                                         </td>
                                         <td>
                                             <button className="botton-crud">

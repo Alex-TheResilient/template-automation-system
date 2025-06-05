@@ -1,14 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect} from 'react';
 import { useNavigate ,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
+import axios from 'axios';
 
 
 const Ilacion = () => {
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const { orgcod, projcod,educod } = useParams();
+
+    const [ilaciones, setIlaciones] = useState([]);
+
+    const [error, setError] = useState(null);
+
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    
+    const fetchIlaciones = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones`);
+            setIlaciones(response.data.ilaciones||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [projcod,orgcod,educod,API_BASE_URL]);
+    
+    useEffect(() => {
+        
+        fetchIlaciones();
+        
+    }, [fetchIlaciones]);
+
+    const deleteIlation = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
+            fetchIlaciones(); // Refrescar la lista de proyectos después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err);
+            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+        }
+    };
+
+
     const irALogin = () => {
         navigate("/");
     };
@@ -42,6 +82,9 @@ const Ilacion = () => {
     };
     const irAPlantillas = () => {
         navigate(`/projects/${projcod}/plantillas`);
+    };
+    const irAEspecificaciones = (ilacod) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}/specs`);
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -103,7 +146,7 @@ const Ilacion = () => {
                         <div className="search-section-bar">
                             <button onClick={irANuevaIlacion} className="nuevo-pp-button">Nueva Ilación</button>
                             <div className="sectionTextBuscar">
-                                <span class="message">
+                                <span className="message">
                                 <input 
                                     className="textBuscar" 
                                     type="text" 
@@ -152,7 +195,7 @@ const Ilacion = () => {
                         </div>
 
                         <div className="menu-tabla-center">
-                            <table className="menu-centertabla">
+                        <table className="menu-centertabla">
                                 <thead>
                                     <tr>
                                         <th>Código</th>
@@ -166,38 +209,45 @@ const Ilacion = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>ILA-0001</td>
-                                        <td>Gestión de plantillas</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Concluido</td>
-                                        <td>00.01</td>
+                                    {ilaciones.map((ilacion) => (
+                                        <tr key={ilacion.code}>
+                                        <td>{ilacion.code}</td>
+                                        <td>{ilacion.name}</td>
+                                        <td>{new Date(ilacion.creationDate).toLocaleDateString()}</td>
                                         <td>
-                                            <button className="option-button">Ver Especificación</button>
+                                            {ilacion.modificationDate
+                                            ? new Date(ilacion.modificationDate).toLocaleDateString()
+                                            : "N/A"}
+                                        </td>
+                                        <td>{ilacion.status}</td>
+                                        <td>{ilacion.version}</td>
+                                        <td>{ilacion.ilacion}
+                                            <button onClick={() => irAEspecificaciones(ilacion.code)} className="option-button">Ver Especificacion</button>
                                         </td>
                                         <td>
-                                            <button className="botton-crud" /*onClick={irAVerEduccion}*/><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" /*onClick={irAEditarEduccion}*/><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" /*onClick={abrirPopup}*/><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud">
+                                                <FaFolder
+                                                style={{ color: "orange", cursor: "pointer" }}
+                                            /></button>
+                                            <button className="botton-crud" onClick={irAEditarEduccion}>
+                                                <FaPencilAlt 
+                                                style={{ color: "blue", cursor: "pointer" }}
+                                                />
+                                            </button>
+                                            <button
+                                                className="botton-crud"
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                    deleteIlation(ilacion.code) // Llama a la función de eliminación
+                                                    }}
+                                                >
+                                                <FaTrash
+                                                style={{ color: "red", cursor: "pointer" }}
+                                                />
+                                            </button>
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td>ILA-0002</td>
-                                        <td>Gestión de proyectos</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Concluido</td>
-                                        <td>00.02</td>
-                                        <td>
-                                            <button className="option-button">Ver Especificación</button>
-                                        </td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEduccion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEduccion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
-                                    </tr>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
 
@@ -217,7 +267,7 @@ const Ilacion = () => {
                             
                         </div>
 
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {ilaciones.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>
