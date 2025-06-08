@@ -14,6 +14,8 @@ const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchNombre, setSearchNombre] = useState("");
+    const [searchStatus, setSearcStatus] = useState("");
+    
 
     const [error, setError] = useState(null);
 
@@ -40,6 +42,73 @@ const Roles = () => {
         
     }, [fetchRoles]);
 
+    const deleteRol = async (id) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/roles/${id}`);
+            fetchRoles(); // Refrescar la lista de proyectos después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err);
+            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+        }
+    };
+
+    const handleSearch = async () => {
+    setLoading(true);
+    try {
+        let response;
+         if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/roles/search`, {
+                    params: { name: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/roles`);
+            }
+
+        const filteredData = response.data.filter(rol => rol.code !== "ORG-MAIN");
+        setRoles(filteredData);
+        setError(null);
+    } catch (err) {
+        setError(err.response?.data?.error || "Error al buscar roles");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/roles/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Roles.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/roles/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Roles.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
          navigate("/organizations");
@@ -56,15 +125,7 @@ const Roles = () => {
     });
     };
 
-    const deleteRol = async (id) => {
-        try {
-            await axios.delete(`${API_BASE_URL}/roles/${id}`);
-            fetchRoles(); // Refrescar la lista de proyectos después de eliminar uno
-        } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
-        }
-    };
+    
 
     const irAVerRol = () => {
         navigate("/verRol");
@@ -75,6 +136,7 @@ const Roles = () => {
             orgcod: orgcod,
             projcod: projcod,
             idRol,
+            codeRol,
         }
     });
     };
@@ -138,10 +200,12 @@ const Roles = () => {
                             <button onClick={irANuevoRol} className="rol-register-button">Nuevo Rol</button>
                             <div className="rol-sectionTextBuscar ">
                                 <span class="message">
-                                    <input className="rol-textBuscar" type="text" placeholder="Buscar" size="50"/>
+                                    <input className="rol-textBuscar" type="text" placeholder="Buscar" value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
+                                    style={{ width: "500px" }} size="50"/>
                                     <span class="tooltip-text">Filtrar información por nombre de rol</span>
                                 </span>
-                                <button className="rol-search-button">Buscar</button>
+                                <button className="rol-search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
                        
