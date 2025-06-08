@@ -31,6 +31,7 @@ import NuevaIlacion from './view/Plantillas/Ilacion/NuevaIlacion.js';
 import EditarIlacion from './view/Plantillas/Ilacion/EditarIlacion.js';
 import Artefactos from './view/Plantillas/Artefactos/Artefactos.js';
 import RegistroRiesgo from './view/Plantillas/Riesgos/RegistroRiesgo.js';
+import EditarRiesgo from './view/Plantillas/Riesgos/EditarRiesgo.js';
 import Actores from './view/Plantillas/Actores/Actores.js';
 import NuevoActor from './view/Plantillas/Actores/NuevoActor.js';
 import Expertos from './view/Plantillas/Expertos/Expertos.js';
@@ -90,7 +91,7 @@ function App() {
           <Route path="/ilaciones/:ilacod/especificaciones/new" element={<NuevaEspecificacion />} />
           <Route path="/ilaciones/:ilacod/especificaciones/:especod" element={<EditarEspecificacion />} /> */}
 
-          <Route path="/projects/:projcod/actaAceptacion" element={<ActaAceptacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/actaAceptacion" element={<ActaAceptacion />} />
           <Route path="/projects/:projcod/autores" element={<Autores />} />
           <Route path="/nuevoAutor" element={<NuevoAutor />} />
           <Route path="/editarAutor" element={<EditarAutor />} />
@@ -108,6 +109,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/artifacts" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
+          <Route path="/editarRiesgo" element={<EditarRiesgo />} />
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
           <Route path="/organizations/:orgcod/projects/:projcod/experts" element={<Expertos />} />   

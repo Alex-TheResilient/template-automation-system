@@ -39,7 +39,11 @@ const MenuProyecto = () => {
     };
 
     const irAActaAceptacion = () => {
-        navigate(`/projects/${projcod}/actaAceptacion`, { state: { proid } });
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actaAceptacion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAAutores = () => {
