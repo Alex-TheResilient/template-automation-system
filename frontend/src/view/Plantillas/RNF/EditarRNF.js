@@ -1,11 +1,74 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect,useRef } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const EditarRNF = () => {
 
     const navigate = useNavigate();
+    const {orgcod, projcod,rnfcod} = useParams();
+    const location = useLocation();
+    const { proid } = location.state || {};
+
+    const [version, setVersion] = useState("");
+    const [comment, setComentario] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const [importance, setImportance] = useState("");
+    const [qualityAttribute, setQualityAttribute] = useState("");
+    const [description, setDescription] = useState("");
+    const [name, setName] = useState("");
+    const [status, setStatus] = useState("");
+
+    const [error, setError] = useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const fetchRnfData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs/${rnfcod}`);
+            const data = response.data;
+            const rawDate = new Date(data.creationDate);
+            const formattedDate = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
+            setFecha(formattedDate);
+            setVersion(data.version);
+            setComentario(data.comment);
+            setName(data.name);
+            setVersion(data.version);
+            setQualityAttribute(data.qualityAttribute)
+            setStatus(data.status);
+            setDescription(data.description)
+            setImportance(data.importance);
+        } catch (err) {
+            setError("Error al obtener los datos del experto: " + err.message);
+        }
+    };
+
+    useEffect(() => {
+            fetchRnfData();
+    }, [rnfcod]);
+    
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.put(`${API_BASE_URL}/projects/${proid}/nfrs/${rnfcod}`, {
+                name,
+                qualityAttribute,
+                description,
+                status,
+                importance,
+                comment,
+            });
+    
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irARNF();
+            }
+        } catch (err) {
+            setError("Error al actualizar el experto: " + err.message);
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
@@ -23,7 +86,11 @@ const EditarRNF = () => {
         navigate("/plantillas");
     };
     const irARNF = () => {
-        navigate("/RNF");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -107,9 +174,9 @@ const EditarRNF = () => {
                             <label className="ne-label">Fecha*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="RNF-001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
-                            <input disabled type="text" className="ne-input" value="23/10/23" readOnly />
+                            <input disabled type="text" className="ne-input" value={rnfcod} readOnly />
+                            <input disabled type="text" className="ne-input" value={version} readOnly />
+                            <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
 
                         <div className="ne-cod-vers">
@@ -118,7 +185,7 @@ const EditarRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" value="Seguridad de datos"placeholder="Nombre del RNF" size="100" />
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)}placeholder="Nombre del RNF" size="100" />
                                     <span className="tooltip-text">Ingresar el nombre del RNF</span>
                                 </span>
                             </div>
@@ -129,12 +196,25 @@ const EditarRNF = () => {
                                 <h4>Atributo de Calidad*</h4>
                             </div>
                             <div className="fiel-vers">
-                                <span className="message">
-                                    <input disabled type="text" className="ne-input" value="Seguridad y datos" readOnly size="100"/>
-                                    <span className="tooltip-text">Selecciona atributo de calidad</span>
-                                </span>
+                                <select
+                                className="estado2-input "
+                                style={{ width: "600px" }} 
+                                value={qualityAttribute}
+                                onChange={(e) => setQualityAttribute(e.target.value)}
+                                required
+                                >
+                                <option value="">Seleccione una opcion</option>
+                                <option value="seguridad">Seguridad</option>
+                                <option value="accesibilidad">Accesibilidad</option>
+                                <option value="eficiencia">Eficiencia</option>
+                                <option value="usabilidad">Usabilidad</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                </select>
+                                <span className="tooltip-text">Selecciona atributo de calidad</span>
                             </div>
+                            
                         </div>
+                      
 
                         <div className="ne-cod-vers">
                             <div className="fiel-cod">
@@ -142,7 +222,7 @@ const EditarRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" value="Asegurarse que los datos esten protegidos" size="100" />
+                                    <input className="input-text" type="text" value={description} onChange={(e) => setDescription(e.target.value)} size="100" />
                                     <span className="tooltip-text">Ingresar detalles sobre el requerimiento no funcional</span>
                                 </span>
                             </div>
@@ -220,10 +300,9 @@ const EditarRNF = () => {
                         <div className="ne-input-container">
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
+                                value={importance}
+                                onChange={(e) => setImportance(e.target.value)}
+                                required
                             >
                                 <option value="">Seleccione una opcion</option>
                                 <option value="por empezar">Alta</option>
@@ -233,10 +312,9 @@ const EditarRNF = () => {
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                required
                             >
                                 <option value="">Seleccione una opcion</option>
                                 <option value="por empezar">Activo</option>
@@ -251,12 +329,12 @@ const EditarRNF = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir comentarios "></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComentario(e.target.value)}placeholder="Añadir comentarios "></textarea>
                         </div>
 
                         <div className="ne-buttons">
                             <button onClick={irARNF} className="ne-button" size="100">Cancelar</button>
-                            <button onClick={irARNF} className="ne-button" size="100">Guardar RNF</button>
+                            <button onClick={handleEdit} className="ne-button" size="100">Guardar RNF</button>
                         </div>
                     </section>
                 </main>

@@ -9,7 +9,7 @@ const MenuProyecto = () => {
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
     const location = useLocation();
-    const { projectId } = location.state || {};
+    const { proid } = location.state || {};
 
     const [proyecto, setProyecto] = useState({});
     const [codigoAutor, setCodigoAutor] = useState("");
@@ -39,15 +39,15 @@ const MenuProyecto = () => {
     };
 
     const irAActaAceptacion = () => {
-        navigate(`/projects/${projcod}/actaAceptacion`, { state: { projectId } });
+        navigate(`/projects/${projcod}/actaAceptacion`, { state: { proid } });
     };
 
     const irAAutores = () => {
-        navigate(`/projects/${projcod}/autores`, { state: { projectId } });
+        navigate(`/projects/${projcod}/autores`, { state: { proid } });
     };
 
     const irAEntrevistas = () => {
-        navigate(`/projects/${projcod}/entrevistas`, { state: { projectId } });
+        navigate(`/projects/${projcod}/entrevistas`, { state: { proid } });
     };
 
     const irARoles = () => {
@@ -60,7 +60,11 @@ const MenuProyecto = () => {
 };
 
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAListaProyecto = () => {

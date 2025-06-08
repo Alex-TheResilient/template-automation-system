@@ -53,6 +53,13 @@ body {
     font-size: 1em;
     margin-left: auto;
 }
+.estado2-input{
+    border: 1px solid #a3616c;
+    background-color: #E4D2DB;
+    text-align: center;
+    color: black;
+    border-radius: 5px;
+}
 
 .logout-button,
 .ne-button {

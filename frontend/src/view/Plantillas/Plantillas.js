@@ -7,7 +7,7 @@ const Plantillas = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { projcod,orgcod } = useParams();
-    const { projectId } = location.state || {}; // ✅ Recibe projectId
+    const { proid } = location.state || {}; // ✅ Recibe projectId
 
     const queryParams = new URLSearchParams(location.search);
     const codigo = queryParams.get('projcod');
@@ -22,7 +22,7 @@ const Plantillas = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto", { state: { projectId } });
+        navigate("/menuProyecto", { state: { proid } });
     };
     const irAEduccion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
@@ -41,7 +41,11 @@ const Plantillas = () => {
     };
 
     const irARequerimientosNoFuncionales = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`,{
+        state: {
+            proid
+        }
+    });
     };
 
     const irAExpertos = () => {
