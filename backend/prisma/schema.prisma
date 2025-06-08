@@ -304,8 +304,12 @@ model Expert {
   experience       String
   comment          String?
   status           String
+  externalOrganization String? 
   projectId        String
   project          Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([code, projectId]) 
+
 }
 
 model EntityRelationship {
