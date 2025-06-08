@@ -1,14 +1,120 @@
-import React, { useState } from 'react';
-import { useNavigate,useParams } from "react-router-dom";
+import React, { useState, useCallback, useEffect} from 'react';
+import { useNavigate,useParams,useLocation } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
+import axios from 'axios';
 
 
 const RNF = () => {
     const navigate = useNavigate();
     const {projcod,orgcod} = useParams();
+    const location = useLocation();
+    const { proid } = location.state || {};
+
+    const [rnfs, setRnfs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchNombre, setSearchNombre] = useState("");
+
+    const [error, setError] = useState(null);
+
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchRnfs = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs`);
+            setRnfs(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [proid,API_BASE_URL]);
+    
+    useEffect(() => {
+        
+        fetchRnfs();
+        
+    }, [fetchRnfs]);
+
+
+    const deleteRnf = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/projects/${proid}/nfrs/${codigo}`);
+            fetchRnfs(); // Refrescar la lista de proyectos después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err);
+            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+        }
+    };
+
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            let response;
+            if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs/search/name`, {
+                    params: { name: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs`);
+            }
+            
+            const filteredData = response.data.filter(ilacion => ilacion.code !== "ORG-MAIN");
+            setRnfs(filteredData);
+            //setNoResult(filteredData.length === 0);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        handleSearch();
+    }
+    }
+
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Requisitos no Funcionales.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'RequisitosRNF.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
     const irALogin = () => {
         navigate("/");
@@ -20,10 +126,18 @@ const RNF = () => {
         navigate("/verRNF");
     };
     const irANuevoRNF = () => {
-        navigate("/nuevoRNF");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
-    const irAEditarRNF = () => {
-        navigate("/editarRNF");
+    const irAEditarRNF = (code) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf/${code}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -109,12 +223,14 @@ const RNF = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por código, nombre y estado del RNF</span>
                                 </span>
                                 
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -166,33 +282,43 @@ const RNF = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>RNF-0001</td>
-                                        <td>Seguridad de datos</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>En proceso</td>
-                                        <td>00.01</td>
+                                    {rnfs.map((rnf) => (
+                                        <tr key={rnf.code}>
+                                        <td>{rnf.code}</td>
+                                        <td>{rnf.name}</td>
+                                        <td>{new Date(rnf.creationDate).toLocaleDateString()}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerRNF}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarRNF}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            {rnf.modificationDate
+                                            ? new Date(rnf.modificationDate).toLocaleDateString()
+                                            : "N/A"}
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td>RNF-0002</td>
-                                        <td>Adaptabilidad</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Concluido</td>
-                                        <td>00.02</td>
+                                        <td>{rnf.status}</td>
+                                        <td>{rnf.version}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerRNF}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarRNF}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud">
+                                                <FaFolder
+                                                style={{ color: "orange", cursor: "pointer" }}
+                                            /></button>
+                                            <button className="botton-crud" onClick={() => irAEditarRNF(rnf.code)}>
+                                                <FaPencilAlt 
+                                                style={{ color: "blue", cursor: "pointer" }}
+                                                />
+                                            </button>
+                                            <button
+                                                className="botton-crud"
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                    deleteRnf(rnf.code) // Llama a la función de eliminación
+                                                    }}
+                                                >
+                                                <FaTrash
+                                                style={{ color: "red", cursor: "pointer" }}
+                                                />
+                                            </button>
                                         </td>
-                                    </tr>
-                                </tbody>
+                                        </tr>
+                                    ))}
+                                </tbody>    
                             </table>
 
                             {mostrarPopup && (
@@ -214,11 +340,11 @@ const RNF = () => {
                         <h4>Total de registros 2</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button"onClick={exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de los RNF en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button" onClick={exportToPDF}>PDF</button>
                                     <span class="tooltip-text">Generar reporte de los RNF en Pdf</span>
                                 </span>
                             </div>
