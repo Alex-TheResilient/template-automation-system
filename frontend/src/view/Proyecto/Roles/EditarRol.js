@@ -1,18 +1,71 @@
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useCallback, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import '../../../styles/stylesNuevoRol.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const EditarRol = () => {
 
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    
+
+    const location = useLocation();
+    const { orgcod, projcod, idRol } = location.state || {};
+
+    const [comments, setComments] = useState("");
+    const [name, setName] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const [error, setError] = useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const fetchRolData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/roles/${idRol}`);
+            const data = response.data;
+            const rawDate = new Date(data.creationDate);
+            const formattedDate = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
+            setFecha(formattedDate);
+            setComments(data.comments);
+            setName(data.name);
+        } catch (err) {
+            setError("Error al obtener los datos del experto: " + err.message);
+        }
+    };
+
+    useEffect(() => {
+            fetchRolData();
+    }, [idRol]);
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.put(`${API_BASE_URL}/roles/${idRol}`, {
+                name,
+                comments, 
+            });
+    
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irARoles();
+            }
+        } catch (err) {
+            setError("Error al actualizar el experto: " + err.message);
+        }
+    };
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");;
     };
-    const irARoles = () => {
-        navigate("/Roles");
-    };
+   const irARoles = () => {
+        navigate("/roles", {
+            state: {
+                orgcod: orgcod,
+                projcod: projcod
+            }
+        }
+    )};
     const irALogin = () => {
         navigate("/");
     };
@@ -23,18 +76,6 @@ const EditarRol = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
 
-
-    //valores iniciales o cargados
-    const [nombreRol, setNombreRol] = useState("Diseñador de software"); 
-    const [fechaCreacionRol, setFechaCreacionRol] = useState("23/10/2023"); 
-    const [comentarioRol, setComentarioRol] = useState("Encargado de realizar interfaces"); 
-
-    // Función para manejar cambios en el input
-    const handleChange = (event) => {
-        setNombreRol(event.target.value);
-        setFechaCreacionRol(event.target.value);
-        setComentarioRol(event.target.value);
-    };
     return (
         <div className="rr-container">
             <header className="rr-header">
@@ -80,8 +121,8 @@ const EditarRol = () => {
                                     type="text"
                                     placeholder=""
                                     size="50"
-                                    value={nombreRol} 
-                                    onChange={handleChange} 
+                                    value={name} 
+                                    onChange={(e) => setName(e.target.value)} 
                                     />
                                     <span class="tooltip-text">Modificar nombre del rol</span>
                                 </span>
@@ -94,8 +135,7 @@ const EditarRol = () => {
                                     placeholder=""
                                     readOnly
                                     size="50"
-                                    value={fechaCreacionRol} 
-                                    onChange={handleChange} 
+                                    value={creationDate}  
                                     />
                             </div>
                         </div>
@@ -109,14 +149,14 @@ const EditarRol = () => {
                             <textarea 
                             className="input-fieldtext" 
                             rows="3" 
-                            value={comentarioRol} 
-                            onChange={handleChange} 
+                            value={comments} 
+                            onChange={(e) => setComments(e.target.value)} 
                             ></textarea>
                         </div>
 
                         <div className="rr-buttons">
                             <button onClick={irARoles} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={irARoles} className="rp-button" size="50">Guardar</button>
+                            <button onClick={handleEdit} className="rp-button" size="50">Guardar</button>
                         </div>
                     </section>
 
