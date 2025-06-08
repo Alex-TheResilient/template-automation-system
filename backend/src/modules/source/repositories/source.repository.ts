@@ -25,9 +25,9 @@ export class SourceRepository {
     });
   }
 
-  async update(code: string, data: Partial<SourceDTO>, newVersion?: string) {
+  async update(code: string, projectId: string, data: Partial<SourceDTO>, newVersion?: string) {
     const currentSour = await prisma.source.findFirst({ 
-      where: { code } });
+      where: { code, projectId } });
 
     if (!currentSour) throw new Error('Source not found');
 

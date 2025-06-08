@@ -116,6 +116,8 @@ model Evidence {
   evidenceDate DateTime  @default(now())
   file         String
   interview    Interview @relation(fields: [interviewId], references: [id])
+
+  @@unique([code, interviewId])
 }
 
 model Interface {
@@ -290,6 +292,8 @@ model Source {
   status           String
   projectId        String
   project          Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([code, projectId])
 }
 
 model Expert {

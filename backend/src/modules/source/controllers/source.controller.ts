@@ -101,7 +101,7 @@ export class SourceController {
       }
      
 
-      const updatedSource = await sourceService.updateSource(srccod, sourceDto);
+      const updatedSource = await sourceService.updateSource(srccod,project.id, sourceDto);
       res.status(200).json({
         message: 'Source updated successfully.',
         source: updatedSource,

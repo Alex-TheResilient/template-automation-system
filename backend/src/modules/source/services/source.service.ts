@@ -20,12 +20,11 @@ export class SourceService {
       : this.repo.findByCode(code);
   }
 
-  async updateSource(code: string, data: SourceDTO) {
-    const current = await this.repo.findByCode(code);
-    if (!current) throw new Error('Source not found');
-    const newVersion = this.incrementVersion(current.version);
-    return this.repo.update(code, data, newVersion);
-  }
+ async updateSource(code: string, projectId: string, data: SourceDTO) {
+  const existingSource = await this.repo.findByCodeAndProject(code, projectId);
+  if (!existingSource) throw new Error('Source not found');
+  return this.repo.update(code, projectId, data);
+}
 
   async deleteSource(code: string, projectId: string) {
     const source = await this.repo.findByCodeAndProject(code, projectId);
