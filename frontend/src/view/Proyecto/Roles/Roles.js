@@ -1,12 +1,46 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useCallback, useEffect} from 'react';
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import '../../../styles/stylesRoles.css'
 import '../../../styles/styles.css';
+import axios from 'axios';
 
 const Roles = () => {
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+
+    const location = useLocation();
+    const { orgcod, projcod } = location.state || {};
+    
+    const [roles, setRoles] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchNombre, setSearchNombre] = useState("");
+
+    const [error, setError] = useState(null);
+
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchRoles = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/roles`);
+            setRoles(response.data.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [API_BASE_URL]);
+    
+    useEffect(() => {
+        
+        fetchRoles();
+        
+    }, [fetchRoles]);
+
+
     const irAMenuOrganizaciones = () => {
          navigate("/organizations");
     };
@@ -14,13 +48,35 @@ const Roles = () => {
         navigate(`/projects/${projcod}/menuProyecto`);
     };
     const irANuevoRol = () => {
-        navigate("/nuevoRol");
+        navigate("/nuevoRol",{
+        state: {
+            orgcod: orgcod,
+            projcod: projcod
+        }
+    });
     };
+
+    const deleteRol = async (id) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/roles/${id}`);
+            fetchRoles(); // Refrescar la lista de proyectos después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar el proyecto:", err);
+            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+        }
+    };
+
     const irAVerRol = () => {
         navigate("/verRol");
     };
-    const irAEditarRol = () => {
-        navigate("/editarRol");
+    const irAEditarRol = (idRol,codeRol) => {
+        navigate(`/editarRol/${codeRol}`,{
+        state: {
+            orgcod: orgcod,
+            projcod: projcod,
+            idRol,
+        }
+    });
     };
     const irALogin = () => {
         navigate("/");
@@ -100,33 +156,34 @@ const Roles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Diseñador de Software</td>
-                                    <td>26/10/2023</td>
+                                {roles.map((rol) => (
+                                    <tr key={rol.code}>
+                                    <td>{rol.name}</td>
+                                    <td>{new Date(rol.creationDate).toLocaleDateString()}</td>
                                     <td>
-                                        <button className="botton-crud" onClick={irAVerRol}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={irAEditarRol}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                        <button className="botton-crud">
+                                            <FaFolder
+                                            style={{ color: "orange", cursor: "pointer" }}
+                                        /></button>
+                                        <button className="botton-crud" onClick={() => irAEditarRol(rol.id,rol.code)}>
+                                            <FaPencilAlt 
+                                            style={{ color: "blue", cursor: "pointer" }}
+                                            />
+                                        </button>
+                                        <button
+                                            className="botton-crud"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                deleteRol(rol.id) // Llama a la función de eliminación
+                                                }}
+                                            >
+                                            <FaTrash
+                                            style={{ color: "red", cursor: "pointer" }}
+                                            />
+                                        </button>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td>Arquitecto de software</td>
-                                    <td>26/10/2023</td>
-                                    <td>
-                                        <button className="botton-crud" onClick={irAVerRol}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={irAEditarRol}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Tester/ QA</td>
-                                    <td>26/10/2023</td> 
-                                    <td>
-                                        <button className="botton-crud" onClick={irAVerRol}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={irAEditarRol}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                        <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                    </td>
-                                </tr>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
 

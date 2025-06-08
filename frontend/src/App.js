@@ -94,9 +94,9 @@ function App() {
           <Route path="/projects/:projcod/autores" element={<Autores />} />
           <Route path="/nuevoAutor" element={<NuevoAutor />} />
           <Route path="/editarAutor" element={<EditarAutor />} />
-          <Route path="/projects/:projcod/roles" element={< Roles/>} />
+          <Route path="/roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
-          <Route path="/editarRol" element={<EditarRol />} />
+          <Route path="/editarRol/:rolCod" element={<EditarRol />} />
           <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />

@@ -51,8 +51,13 @@ const MenuProyecto = () => {
     };
 
     const irARoles = () => {
-        navigate(`/projects/${projcod}/roles`, { state: { projectId } });
-    };
+    navigate("/roles", {
+        state: {
+            orgcod: orgcod,
+            projcod: projcod
+        }
+    });
+};
 
     const irAPlantillas = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
