@@ -118,7 +118,7 @@ export class ExpertController {
             return res.status(404).json({ error: 'Experto not found in this project.' });
           }
     
-          const updatedExpert = await expertService.updateExpert(expcod, expertDto);
+          const updatedExpert = await expertService.updateExpert(expcod, project.id,expertDto);
     
           res.status(200).json({
             message: 'Experto updated successfully.',

@@ -21,11 +21,10 @@ export class ExpertService {
     }
   }
 
-  async updateExpert(code: string, data: ExpertDTO) {
-    const existingExp = await this.repo.findByCode(code);
-    if (!existingExp) throw new Error('Expert not found');
+  async updateExpert(code: string, projectId: string,data: ExpertDTO) {
+    const existingExp = await this.repo.findByCodeAndProject(code, projectId);    if (!existingExp) throw new Error('Expert not found');
     const newVersion = this.incrementVersion(existingExp.version);
-    return this.repo.update(code, data, newVersion);
+    return this.repo.update(code, projectId, data, newVersion);
   }
 
   async deleteExpert(code: string, projectId: string) {

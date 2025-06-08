@@ -21,6 +21,7 @@ export class ExpertRepository {
       data: {
         ...data,
         version: '01.00',
+        externalOrganization: data.externalOrganization ?? null,
         code: code,
         projectId: projectId,
         creationDate: new Date(),
@@ -33,9 +34,9 @@ export class ExpertRepository {
     });
   }
 
-  async update(code: string, data: Partial<ExpertDTO>, newVersion?: string) {
+  async update(code: string,projectId: string, data: Partial<ExpertDTO>, newVersion?: string) {
     const currentExp = await prisma.expert.findFirst({ 
-      where: { code } 
+      where: { code, projectId  } 
     });
     if (!currentExp) throw new Error('Expert not found');
 
@@ -45,6 +46,7 @@ export class ExpertRepository {
       where: { id: currentExp.id },
       data: {
         ...data,
+        externalOrganization: data.externalOrganization ?? currentExp.externalOrganization,
         version,
         modificationDate: new Date(),
       },

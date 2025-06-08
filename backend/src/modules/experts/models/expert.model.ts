@@ -7,6 +7,7 @@ export interface ExpertDTO {
     experience: string;
     comment: string;
     status: string;
+    externalOrganization?: string;
   }
   
   export interface ExpertResponse {
@@ -21,6 +22,7 @@ export interface ExpertDTO {
     experience: string;
     comment?: string | null;
     status: string;
+    externalOrganization?: string | null;
     projectId: string;
   }
   
