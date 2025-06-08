@@ -1,11 +1,71 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React,{ useState, useEffect,useRef } from "react";
+import { useNavigate,useParams,useLocation } from "react-router-dom";
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const NuevoRNF = () => {
 
     const navigate = useNavigate();
+
+    const {projcod,orgcod} = useParams();
+    const location = useLocation();
+    const { proid } = location.state || {};
+
+    const [code, setCode] = useState("");
+    const [version, setVersion] = useState("1.00");
+    const [creationDate, setCreationDate] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [name, setName] = useState("");
+    const [qualityAttribute, setQualityAttribute] = useState("");
+    const [description, setDescripcion] = useState("");
+    const [status, setStatus] = useState("");
+    const [importance, setImportance] = useState("");
+    const [comment, setComment] = useState("");
+    const [error, setError]=useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    useEffect(() => {
+    
+        const fetchNextCodigoRnf = async () => {
+            try {
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/projects/${proid}/nfrs/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCode(response.data.nextCode || "Ed-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
+            }
+        };
+
+        fetchNextCodigoRnf();
+    }, [API_BASE_URL,proid]);
+
+    const registrarRnf = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/projects/${proid}/nfrs`, {
+                name,
+                qualityAttribute,
+                description,
+                status,
+                importance,
+                comment, 
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irARNF();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };    
 
     const irAMenuOrganizaciones = () => {
         navigate("/menuOrganizaciones");
@@ -23,7 +83,11 @@ const NuevoRNF = () => {
         navigate("/plantillas");
     };
     const irARNF = () => {
-        navigate("/RNF");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -106,9 +170,9 @@ const NuevoRNF = () => {
                             <label className="ne-label">Fecha*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="RNF-001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
-                            <input disabled type="text" className="ne-input" value="23/10/23" readOnly />
+                            <input disabled type="text" className="ne-input" value={code} readOnly />
+                            <input disabled type="text" className="ne-input" value={version} readOnly />
+                            <input disabled type="text" className="ne-input" value={creationDate} readOnly />
                         </div>
 
                         <div className="ne-cod-vers">
@@ -117,7 +181,7 @@ const NuevoRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" placeholder="Nombre del RNF" size="100" />
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre del RNF" size="100" />
                                     <span className="tooltip-text">Ingresar el nombre del RNF</span>
                                 </span>
                             </div>
@@ -128,10 +192,20 @@ const NuevoRNF = () => {
                                 <h4>Atributo de Calidad*</h4>
                             </div>
                             <div className="fiel-vers">
-                                <span className="message">
-                                    <input disabled type="text" className="ne-input" value="---" readOnly size="100"/>
-                                    <span className="tooltip-text">Selecciona atributo de calidad</span>
-                                </span>
+                                <select
+                                className="estado2-input "
+                                style={{ width: "600px" }} 
+                                value={qualityAttribute}
+                                onChange={(e) => setQualityAttribute(e.target.value)}
+                                required
+                                >
+                                <option value="">Seleccione una opcion</option>
+                                <option value="seguridad">Seguridad</option>
+                                <option value="accesibilidad">Accesibilidad</option>
+                                <option value="eficiencia">Eficiencia</option>
+                                <option value="usabilidad">Usabilidad</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                </select>
                             </div>
                         </div>
 
@@ -141,7 +215,7 @@ const NuevoRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" size="100" />
+                                    <input className="input-text" type="text" value={description} onChange={(e) => setDescripcion(e.target.value)}size="100" />
                                     <span className="tooltip-text">Ingresar detalles sobre el requerimiento no funcional</span>
                                 </span>
                             </div>
@@ -219,27 +293,25 @@ const NuevoRNF = () => {
                         <div className="ne-input-container">
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
+                                value={importance}
+                                onChange={(e) => setImportance(e.target.value)}
+                                required
                             >
                                 <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Alta</option>
-                                <option value="en progreso">Media</option>
-                                <option value="en progreso">Baja</option>
+                                <option value="Alta">Alta</option>
+                                <option value="Media">Media</option>
+                                <option value="Baja">Baja</option>
                             </select>
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                required
                             >
                                 <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Activo</option>
-                                <option value="en progreso">Inactivo</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
                             </select>
                             
                         </div>
@@ -250,12 +322,12 @@ const NuevoRNF = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir comentarios "></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Añadir comentarios "></textarea>
                         </div>
 
                         <div className="ne-buttons">
                             <button onClick={irARNF} className="ne-button" size="100">Cancelar</button>
-                            <button onClick={irARNF} className="ne-button" size="100">Crear RNF</button>
+                            <button onClick={registrarRnf} className="ne-button" size="100">Crear RNF</button>
                         </div>
                     </section>
                 </main>

@@ -122,8 +122,8 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/artifacts/new" element={<NuevoNemonico />} />
           <Route path="/subirInterfaz" element={<SubirInterfaz />} />
           <Route path="/organizations/:orgcod/projects/:projcod/rnf" element={<RNF />} />
-          <Route path="/NuevoRNF" element={<NuevoRNF />} />
-          <Route path="/EditarRNF" element={<EditarRNF />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/rnf/new" element={<NuevoRNF />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/rnf/:rnfcod" element={<EditarRNF />} />
           <Route path="/PruebasSoftware" element={<PruebasSoftware />} />
           <Route path="/NuevaPS" element={<NuevaPS />} />
 

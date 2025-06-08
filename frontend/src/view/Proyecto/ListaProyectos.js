@@ -34,9 +34,12 @@ const ListaProyectos = () => {
   };
   const irARegistroProyecto = () => navigate(`/organizations/${orgcod}/projects/new`);
   const irALogin = () => navigate("/");
-  const irAMenuProyecto = (projcod) => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
-  };   
+  const irAMenuProyecto = (projcod,proid) => {
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });};   
 
   // Obtener proyectos asociados a la organización
   const fetchProjects = useCallback(async () => {
@@ -258,7 +261,7 @@ const exportToPDF = async () => {
                 </thead>
                   <tbody>
                     {projects.map((pro) => (
-                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code)}>
+                      <tr key={pro.id} onClick={() => irAMenuProyecto(pro.code,pro.id)}>
                         <td>{pro.code}</td>
                         <td>{pro.name}</td>
                         <td>{new Date(pro.creationDate).toLocaleDateString()}</td>
