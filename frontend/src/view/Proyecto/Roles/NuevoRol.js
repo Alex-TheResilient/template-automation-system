@@ -1,18 +1,56 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import '../../../styles/stylesNuevoRol.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const NuevoRol = () => {
 
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    
+    const location = useLocation();
+    const { orgcod, projcod } = location.state || {};
+
+    const [name, setName] = useState("");
+    const [creationDate, setCreationDate] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [comments, setComments] = useState("");
+    const [error, setError]=useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+
+    const registrarRol = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/roles`, {
+                name,
+                comments,
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irARoles();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
+
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
+
     const irARoles = () => {
-        navigate("/Roles");
-    };
+        navigate("/roles", {
+            state: {
+                orgcod: orgcod,
+                projcod: projcod
+            }
+        }
+    )};
+    
     const irALogin = () => {
         navigate("/");
     };
@@ -64,13 +102,13 @@ const NuevoRol = () => {
                             <div className="fiel-cod">
                                 <h4>Nombre del Rol</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text" placeholder=""  size="50" />
+                                    <input  className="inputnombre-field" type="text" placeholder="" value={name} onChange={(e) => setName(e.target.value)} size="50" />
                                     <span class="tooltip-text">Nombre del rol que se creará para el proyecto</span>
                                 </span>
                             </div>
                             <div className="fiel-vers">
                                 <h4>Fecha de Creacion</h4>
-                                <input disabled type="text" className="inputBloq-field" value="26/10/23" readOnly size="50" />
+                                <input disabled type="text" className="inputBloq-field"  value={creationDate} readOnly size="50" />
                             </div>
                         </div>
 
@@ -80,12 +118,12 @@ const NuevoRol = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
 
                         <div className="rr-buttons">
                             <button onClick={irARoles} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={irARoles} className="rp-button" size="50">Crear</button>
+                            <button onClick={registrarRol} className="rp-button" size="50">Crear</button>
                         </div>
                     </section>
 
