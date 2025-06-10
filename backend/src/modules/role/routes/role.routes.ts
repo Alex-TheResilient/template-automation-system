@@ -1,4 +1,3 @@
-// routes/role.routes.ts
 import { Router } from 'express';
 import { roleController } from '../controllers/role.controller';
 
@@ -13,6 +12,10 @@ router.get('/roles/next-code', roleController.getNextCode.bind(roleController));
 router.get('/roles/search', roleController.searchRoles.bind(roleController));
 router.get('/roles/stats', roleController.getRoleStats.bind(roleController));
 router.get('/roles/active', roleController.getActiveRolesForDropdown.bind(roleController));
+
+// Export routes (NEW)
+router.get('/roles/exports/excel', roleController.exportToExcel.bind(roleController));
+router.get('/roles/exports/pdf', roleController.exportToPDF.bind(roleController));
 
 // Status specific routes
 router.get('/roles/status/:status', roleController.getRolesByStatus.bind(roleController));
