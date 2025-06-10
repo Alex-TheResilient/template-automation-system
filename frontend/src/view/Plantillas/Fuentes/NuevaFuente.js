@@ -1,5 +1,5 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect,useRef} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaFuente.css';
 import '../../../styles/styles.css';
@@ -7,43 +7,66 @@ import axios from "axios";
 
 const NuevaFuente = () => {
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    const hasFetched = useRef(false);
+    // Obtener datos del proyecto del URL
+        const { projcod,orgcod } = useParams();
+    
+        const [code, setCodigoFuente] = useState("");
+        const [version, setVersionFuente] = useState("00.01");
+        const [creationDate, setFechaCreacion] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        );
+        const [modificationDate, setFechaModificacion] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        );
+    
+
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
-
-    // Datos automáticos
-    const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState("");
-    const [tipo, setTipo] = useState("Contratante");
-    const [autor, setAutor] = useState("AUT-00.00");
-
+        const [name, setNombre] = useState("");
+        const [status, setEstado] = useState("");
+        const [comment, setComentario] = useState("");
+    //Estados para manejar errores
     const [error, setError] = useState(null);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
+    // Obtener el siguiente código de experto
     useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
+        if (hasFetched.current) return; // Previene segunda ejecución
+        hasFetched.current = true;
+        const fetchNextCodigoFuente = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/organizations/last");
-                const nextCode = response.data.nextCode || "ORG-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCodigoFuente(response.data.nextCode || "FUE-001");
             } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
             }
         };
-        fetchAutomaticData();
-    }, []);
+
+        fetchNextCodigoFuente();
+    }, [API_BASE_URL,orgcod, projcod]);
+    const registrarFuente = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources`, {
+                name,
+                comment, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAFuentes();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
@@ -52,46 +75,18 @@ const NuevaFuente = () => {
         navigate(`/organizations/${orgcod}/projects`);
       };
       const irAFuentes = () => {
-        navigate("/fuentes");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/sources`);
       };
       const irAMenuProyecto = (code) => {
         //navigate(`/menuProyecto?procod=${code}`);
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
       };
       const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
       };
 
 
-    // Función para registrar la organización
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/api/organizations", {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
-            });
-            if (response.status === 201) {
-                alert("Organización registrada correctamente");
-                irAMenuOrganizaciones();
-            }
-        } catch (err) {
-            setError("Error al registrar la organización: " + err.message);
-        }
-    };
+    
 
     return (
         <div className="ro-container">
@@ -129,13 +124,13 @@ const NuevaFuente = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
 
@@ -146,11 +141,11 @@ const NuevaFuente = () => {
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text"  onChange={(e) => setContacto(e.target.value)} size="110" />
+                                    <input className="inputnombre-field" type="text"  value={name} onChange={(e) => setNombre(e.target.value)} size="110" />
                                     <span class="tooltip-text"> Ingresar el nombre de la fuente </span>
                                 </span><br />
                                 <span class="message">
-                                    <input className="inputautores-field"  type="text" onChange={(e) => setContacto(e.target.value)} size="110" style={{ height: '50px' }} />
+                                    <input className="inputautores-field"  type="text" size="110" style={{ height: '50px' }} />
                                     <span class="tooltip-text"> Ingresar los autores de la fuente </span>
                                 </span>
                             </div>
@@ -169,7 +164,7 @@ const NuevaFuente = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputfechafuen-field" value={codigo} size="30" />
+                                    <input type="text" className="inputfechafuen-field" value={code} size="30" />
                                     <span class="tooltip-text"> Ingresar la fecha de la fuente </span>
                                 </span>
                                 
@@ -194,12 +189,12 @@ const NuevaFuente = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario*</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
+                            <textarea className="input-fieldtext" rows="3"   placeholder="Añadir comentarios sobre la fuente"></textarea>
                         </div>
 
                         <div className="ro-buttons">
                             <button onClick={irAFuentes} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button">Registrar</button>
+                            <button onClick={registrarFuente} className="ro-button">Registrar</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

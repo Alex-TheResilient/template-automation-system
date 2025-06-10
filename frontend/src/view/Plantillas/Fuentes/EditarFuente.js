@@ -1,49 +1,62 @@
 // frontend/src/view/RegistroOrganizacion.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaFuente.css';
 import '../../../styles/styles.css';
 import axios from "axios";
 
 const EditarFuente = () => {
+    const hasRun = useRef(false);
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    const {orgcod, projcod,fuecod } = useParams();
     // Datos controlados por el usuario
-    const [nombre, setNombre] = useState("");
-    const [direccion, setDireccion] = useState("");
-    const [telefonoOrganizacion, setTelefonoOrganizacion] = useState("");
-    const [representanteLegal, setRepresentanteLegal] = useState("");
-    const [telefonoRepresentante, setTelefonoRepresentante] = useState("");
-    const [ruc, setRuc] = useState("");
-    const [contacto, setContacto] = useState("");
-    const [telefonoContacto, setTelefonoContacto] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
-
-    // Datos automáticos
-    const [codigo, setCodigo] = useState("");
-    const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState("");
-    const [tipo, setTipo] = useState("Contratante");
-    const [autor, setAutor] = useState("AUT-00.00");
-
+    const [name, setNombre] = useState("");
+    const [status, setEstado] = useState("");
+    const [version, setVersion] = useState("");
+    const [comment, setComentario] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     const [error, setError] = useState(null);
-
+    // GET: traer los datos de la fuente
+    const fetchSourceData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${fuecod}`);
+            const data = response.data;
+            setNombre(data.name);
+            setEstado(data.status);
+            setVersion(data.version);
+            setComentario(data.comment);
+            setFecha(data.creationDate);
+        } catch (err) {
+            setError("Error al obtener los datos de la fuente: " + err.message);
+        }
+    };
     useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/organizations/last");
-                const nextCode = response.data.nextCode || "ORG-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
-            } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
+            if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
+            hasRun.current = true;
+            console.log("Cargando fuente con código:", fuecod);
+            fetchSourceData();
+        }, [fuecod]);
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        console.log("Guardando fuente con código:", fuecod);
+        try {
+            const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${fuecod}`, {
+                name,
+                status,
+                comment,
+                creationDate
+            });
+    
+            if (response.status === 200) {
+                alert("Fuente actualizada correctamente");
+                irAFuentes();
             }
-        };
-        fetchAutomaticData();
-    }, []);
+        } catch (err) {
+            setError("Error al actualizar la fuente: " + err.message);
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
          navigate("/organizations");
@@ -52,45 +65,17 @@ const EditarFuente = () => {
         navigate(`/organizations/${orgcod}/projects`);
       };
       const irAFuentes = () => {
-        navigate("/fuentes");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/sources`);
       };
       const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
       };
       const irAMenuProyecto = (code) => {
         //navigate(`/menuProyecto?procod=${code}`);
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
       };
-
-    // Función para registrar la organización
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/api/organizations", {
-                orgcod: codigo,
-                orgver: version,
-                orgfeccrea: fecha,
-                orgtiporgcod: tipo,
-                orgautcod: autor,
-                orgnom: nombre,
-                orgdir: direccion,
-                orgtel: telefonoOrganizacion,
-                orgrepleg: representanteLegal,
-                orgtelrepleg: telefonoRepresentante,
-                orgruc: ruc,
-                orgcontact: contacto,
-                orgtelcon: telefonoContacto,
-                orgest: estado,
-                orgcom: comentario,
-            });
-            if (response.status === 201) {
-                alert("Organización registrada correctamente");
-                irAMenuOrganizaciones();
-            }
-        } catch (err) {
-            setError("Error al registrar la organización: " + err.message);
-        }
-    };
+      
+ 
 
     return (
         <div className="ro-container">
@@ -128,13 +113,13 @@ const EditarFuente = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={fuecod} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field"  readOnly size="30" />
+                                <input type="text" className="inputBloq-field"  value={creationDate} readOnly size="30" />
                             </div>
                         </div>
 
@@ -145,11 +130,11 @@ const EditarFuente = () => {
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text"  onChange={(e) => setContacto(e.target.value)} size="110" />
+                                    <input className="inputnombre-field" type="text" value={name}  size="110" />
                                     <span class="tooltip-text"> Editar el nombre de la fuente </span>
                                 </span><br />
                                 <span class="message">
-                                    <input className="inputautores-field"  type="text" onChange={(e) => setContacto(e.target.value)} size="110" style={{ height: '50px' }} />
+                                    <input className="inputautores-field"  type="text"  size="110" style={{ height: '50px' }} />
                                     <span class="tooltip-text"> Editar los autores de la fuente </span>
                                 </span>
                             </div>
@@ -168,7 +153,7 @@ const EditarFuente = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputfechafuen-field" value={codigo} size="30" />
+                                    <input type="text" className="inputfechafuen-field" value={creationDate}  size="30" />
                                     <span class="tooltip-text"> Editar la fecha de la fuente </span>
                                 </span>
                                 
@@ -193,12 +178,12 @@ const EditarFuente = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario*</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre la fuente"></textarea>
                         </div>
 
                         <div className="ro-buttons">
                             <button onClick={irAFuentes} className="ro-button">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button">Guardar Cambios</button>
+                            <button onClick={handleEdit} className="ro-button">Guardar Cambios</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>

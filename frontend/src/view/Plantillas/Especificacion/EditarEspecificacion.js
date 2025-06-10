@@ -6,7 +6,7 @@ import '../../../styles/styles.css';
 const EditarEspecificacion = () => {
 
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const { orgcod, projcod,educod,ilacod } = useParams();
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -17,10 +17,16 @@ const EditarEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+    };
+    const irAEducciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+    };
+    const irAIlaciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
     const irAEspecificacion = () => {
         navigate("/especificacion");
@@ -108,7 +114,8 @@ const EditarEspecificacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span onClick={irAEspecificacion}>Especificacion /</span>
+                    <span onClick={irAEducciones}>Educciones /</span>
+                    <span onClick={irAIlaciones}>Ilaciones /</span>
                     <span>Editar Especificacion</span>
                 </div>
             </header>
@@ -420,7 +427,7 @@ const EditarEspecificacion = () => {
 
                         <div className="ne-buttons">
                             <button onClick={irAEspecificacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAEspecificacion} className="ne-button" size="50">Guardar Cambios</button>
+                            <button onClick={irAEspecificacion} className="ne-button" size="50">Crear Especificación</button>
                         </div>
                     </section>
                 </main>

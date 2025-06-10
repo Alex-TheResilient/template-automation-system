@@ -150,7 +150,7 @@ const Ilacion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
     };
     const irAEspecificaciones = (ilacod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}/specs`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);

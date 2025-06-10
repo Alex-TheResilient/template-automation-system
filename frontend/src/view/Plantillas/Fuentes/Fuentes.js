@@ -52,23 +52,21 @@ const Fuentes = () => {
   };
   const irAMenuProyecto = (code) => {
     //navigate(`/menuProyecto?procod=${code}`);
-    navigate(`/projects/${projcod}/menuProyecto`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
   };
-  //Modificar
-  const irAEditarProyecto = (srccod) => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/${srccod}`);
-  };
-
+    
   const irANuevaFuente = () => {
-    navigate(`/nuevaFuente?orgcod=${orgcod}`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/sources/new`);
   };
-
+  const irAEditarFuente = (fuecod) => {
+    navigate(`/organizations/${orgcod}/projects/${projcod}/sources/${fuecod}`);
+  };
   const irALogin = () => {
     navigate("/");
   };
 
   const irAPlantillas = () => {
-     navigate(`/projects/${projcod}/plantillas`);
+     navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
   };
   // Obtener los parámetros de consulta
    // Obtener 'orgcod' de los parámetros de consulta
@@ -82,11 +80,11 @@ const Fuentes = () => {
       // Determinar qué tipo de búsqueda realizar
       if (searchNombre) {
           // Búsqueda por nombre
-          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search`;
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search`;
           params.name = searchNombre;
       } else if (searchYear || searchMonth) {
           // Búsqueda por fecha
-          endpoint = `${API_BASE_URL}/organizaciones/${orgcod}/proyectos/${projcod}/experts/search/date`;
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search/date`;
           if (searchYear) params.year = searchYear;
           if (searchMonth) params.month = searchMonth;
       } else {
@@ -100,12 +98,56 @@ const Fuentes = () => {
       setError(null);
   } catch (err) {
       console.error("Error en la búsqueda:", err);
-      setError(err.response?.data?.error || "Error al buscar proyectos");
+      setError(err.response?.data?.error || "Error al buscar fuentes");
       setSources([]);
   } finally {
       setLoading(false);
   }
 };
+// Eliminar una fuente 
+  const deleteSource = async (codigo) => {
+    try {
+      // /organizations/:orgcod/projects/:projcod/sources/:srccod'
+      await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${codigo}`);
+      fetchSources(); // Refrescar la lista de fuentes después de eliminar uno
+    } catch (err) {
+      console.error("Error al eliminar la fuente:", err);
+      setError(err.response?.data?.error || "Error al eliminar la fuente");
+    }
+  };
+// Exportar a Excel
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'fuentes.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'organizaciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
   
 const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -229,7 +271,7 @@ const currentYear = new Date().getFullYear();
                 </thead>
                 <tbody>
                   {sources.map((source) => (
-                    <tr key={source.code} onClick={() => irAMenuProyecto(source.code)}>
+                    <tr key={source.code} onClick={() => irAEditarFuente(source.code)}>
                       <td>{source.code}</td>
                       <td>{source.name}</td>
                       <td>{new Date(source.creationDate).toLocaleDateString()}</td>
@@ -248,7 +290,7 @@ const currentYear = new Date().getFullYear();
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            irAEditarProyecto(source.code); // Llama a la función para editar
+                            irAEditarFuente(source.code); // Llama a la función para editar
                           }}
                         >
                           <FaPencilAlt
@@ -259,7 +301,7 @@ const currentYear = new Date().getFullYear();
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            //deleteProject(source.code); // Llama a la función de eliminación
+                            deleteSource(source.code);//deleteProject(source.code); // Llama a la función de eliminación
                           }}
                         >
                           <FaTrash
@@ -298,8 +340,8 @@ const currentYear = new Date().getFullYear();
               )}
             </h4>
             <div className="expe-export-buttons">
-              <button className="expe-export-button">Excel</button>
-              <button className="expe-export-button">PDF</button>
+              <button className="expe-export-button"onClick={exportToExcel}>Excel</button>
+              <button className="expe-export-button"onClick={exportToPDF}>PDF</button>
             </div>
           </section>
         </main>

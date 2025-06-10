@@ -6,7 +6,7 @@ import '../../../styles/styles.css';
 const NuevaEspecificacion = () => {
 
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const { orgcod, projcod,educod } = useParams();
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -17,10 +17,16 @@ const NuevaEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+    };
+    const irAEducciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+    };
+    const irAIlaciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
     const irAEspecificacion = () => {
         navigate("/especificacion");
@@ -83,7 +89,8 @@ const NuevaEspecificacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span onClick={irAEspecificacion}>Especificacion /</span>
+                    <span onClick={irAEducciones}>Educciones /</span>
+                    <span onClick={irAIlaciones}>Ilaciones /</span>
                     <span>Nueva Especificacion</span>
                 </div>
             </header>

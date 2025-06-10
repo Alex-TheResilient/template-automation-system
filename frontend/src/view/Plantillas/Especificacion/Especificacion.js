@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate,useParams } from "react-router-dom"
+import React, { useState,useEffect,useCallback } from 'react';
+import { useLocation,useNavigate,useParams } from "react-router-dom"
+import axios from "axios";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,7 +9,36 @@ import '../../../styles/styles.css';
 
 const Especificacion = () => {
     const navigate = useNavigate();
-    const { orgcod, projcod } = useParams();
+    const { orgcod, projcod,educod,ilacod,specod } = useParams();
+// Estado de proyectos y errores
+    const [sources, setSources] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+      
+    // Estado para los parámetros de búsqueda
+    const [searchNombre, setSearchNombre] = useState("");
+    const [searchYear, setSearchYear] = useState("");
+    const [searchMonth, setSearchMonth] = useState("");
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const fetchSources = useCallback(async () => {
+    //Obtener o listar expertos de 
+    try {
+      const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
+      setSources(response.data||[]);
+    } catch (err) {
+      setError(
+        err.response
+          ? err.response.data.error
+          : "Error al obtener las especificaciones"
+      );
+    }
+  }, [projcod,orgcod,API_BASE_URL]);
+    useEffect(() => {
+        
+        fetchSources();
+        
+      }, [fetchSources]);
+
     const irALogin = () => {
         navigate("/");
     };
@@ -16,13 +46,13 @@ const Especificacion = () => {
         navigate("/organizations");
     };
     const irAVerEspecificacion = () => {
-        navigate("/verEspecificacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
     };
     const irANuevaEspecificacion = () => {
-        navigate("/nuevaEspecificacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/new`);
     };
-    const irAEditarEspecificacion = () => {
-        navigate("/editarEspecificacion");
+    const irAEditarEspecificacion = (especod) => {
+       navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -38,10 +68,16 @@ const Especificacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+    };
+    const irAEducciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+    };
+    const irAIlaciones = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -53,16 +89,89 @@ const Especificacion = () => {
     const cerrarPopup = () => {
       setMostrarPopup(false);
     };
-  
-    const eliminarEspecificacion = () => {
-      console.log("Especificacion eliminada");
-      cerrarPopup();
+    // Eliminar una fuente 
+    const deleteEspecification = async (codigo) => {
+        try {
+        // /organizations/:orgcod/projects/:projcod/sources/:srccod'
+        await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
+        fetchSources(); // Refrescar la lista de fuentes después de eliminar uno
+        } catch (err) {
+        console.error("Error al eliminar la especificacion:", err);
+        setError(err.response?.data?.error || "Error al eliminar la especificcacion");
+        }
+    };
+    
+    // Exportar a Excel
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'fuentes.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
     };
 
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'organizaciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
     const eliminarRiesgo = () => {
         console.log("Riesgo eliminado");
         cerrarPopup();
       };
+    const handleSearch = async () => {
+    try {
+      setLoading(true);
+      let endpoint;
+      let params = {};
+
+      // Determinar qué tipo de búsqueda realizar
+      if (searchNombre) {
+          // Búsqueda por nombre 
+          // '/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/search'
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/search`;
+          params.name = searchNombre;
+      } else if (searchYear || searchMonth) {
+          // Búsqueda por fecha
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search/date`;
+          if (searchYear) params.year = searchYear;
+          if (searchMonth) params.month = searchMonth;
+      } else {
+          // Si no hay criterios de búsqueda, cargar todos los proyectos
+          await fetchSources();
+          return;
+      }
+
+      const response = await axios.get(endpoint, { params });
+      setSources(response.data);
+      setError(null);
+  } catch (err) {
+      console.error("Error en la búsqueda:", err);
+      setError(err.response?.data?.error || "Error al buscar fuentes");
+      setSources([]);
+  } finally {
+      setLoading(false);
+  }
+}; 
 
     return (
         <div className="menu-container">
@@ -73,6 +182,8 @@ const Especificacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
+                    <span onClick={irAEducciones}>Educciones /</span>
+                    <span onClick={irAIlaciones}>Ilaciones /</span>
                     <span>Especificación</span>
                 </div>
             </header>
@@ -108,14 +219,15 @@ const Especificacion = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    onChange={(e) => setSearchNombre(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por código, nombre y estado de gestión de especificación</span>
                                 </span>
                                 
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
-                        </div>
+                        </div> 
 
                         <div className="pp-search-section-text">
                             <div className="pp-searchbar">
@@ -165,52 +277,53 @@ const Especificacion = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>ESP-0001</td>
-                                        <td>Especificación 1</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Activo</td>
-                                        <td>00.01</td>
+                                    {sources.map((esp) => (
+                                        <tr key={esp.code} onClick={() => irAEditarEspecificacion(esp.code)}>
+                                        <td>{esp.code}</td>
+                                        <td>{esp.name}</td>
+                                        <td>{new Date(esp.creationDate).toLocaleDateString()}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEspecificacion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEspecificacion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            {new Date(esp.modificationDate).toLocaleDateString()}
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td>ESP-0002</td>
-                                        <td>Especificacion 2</td>
-                                        <td>23/10/2023</td>
-                                        <td>26/10/2023</td>
-                                        <td>Inactivo</td>
-                                        <td>00.02</td>
+                                        <td>{esp.status}</td>
+                                        <td>{esp.version}</td>
                                         <td>
-                                            <button className="botton-crud" onClick={irAVerEspecificacion}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEspecificacion}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                            <button className="botton-crud">
+                                            <FaFolder
+                                                style={{ color: "orange", cursor: "pointer" }}
+                                            />
+                                            </button>
+                                            <button
+                                            className="botton-crud"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                irAEditarEspecificacion(esp.code); // Llama a la función para editar
+                                            }}
+                                            >
+                                            <FaPencilAlt
+                                                style={{ color: "blue", cursor: "pointer" }}
+                                            />
+                                            </button>
+                                            <button
+                                            className="botton-crud"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                deleteEspecification(esp.code);//deleteProject(esp.code); // Llama a la función de eliminación
+                                            }}
+                                            >
+                                            <FaTrash
+                                                style={{ color: "red", cursor: "pointer" }}
+                                            />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
                             </table>
-
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta especificación?</p>
-                                    <button onClick={eliminarEspecificacion} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
-                                </div>
-                            )}
-                            
+                                                        
                         </div>
 
-                        <h4>Total de registros 2</h4>
+                        
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>
@@ -358,7 +471,7 @@ const Especificacion = () => {
                         <h4>Total de registros 2</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onclick = {exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de los riesgos de especificación en Excel</span>
                                 </span>
                                 <span class="message">

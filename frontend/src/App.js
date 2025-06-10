@@ -113,14 +113,18 @@ function App() {
           <Route path="/actores" element={<Actores />} />
           <Route path="/nuevoActor" element={<NuevoActor />} />
           <Route path="/organizations/:orgcod/projects/:projcod/experts" element={<Expertos />} />   
+          {/*Fuentes*/} 
           <Route path="/organizations/:orgcod/projects/:projcod/sources" element={<Fuentes />} />   
-          <Route path="/nuevaFuente" element={<NuevaFuente />} /> 
-          <Route path="/editarFuente" element={<EditarFuente />} /> 
+          <Route path="/organizations/:orgcod/projects/:projcod/sources/new" element={<NuevaFuente />} /> 
+          <Route path="/organizations/:orgcod/projects/:projcod/sources/:fuecod" element={<EditarFuente />} />
+          {/*Especificaciones*/} 
+          <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications" element={<Especificacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/new" element={<NuevaEspecificacion />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/:specod" element={<EditarEspecificacion />} />
+
           <Route path="/organizations/:orgcod/projects/:projcod/experts/new" element={<NuevoExperto />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/:expcod" element={<EditarExperto />} /> 
-          <Route path="/organizations/:orgcod/projects/:projcod/educcion/:educod/ilaciones/:ilacod/specs" element={<Especificacion />} />
-          <Route path="/nuevaEspecificacion" element={<NuevaEspecificacion />} />
-          <Route path="/editarEspecificacion" element={<EditarEspecificacion />} />
+      
           <Route path="/organizations/:orgcod/projects/:projcod/artifacts/new" element={<NuevoNemonico />} />
           <Route path="/subirInterfaz" element={<SubirInterfaz />} />
           <Route path="/organizations/:orgcod/projects/:projcod/rnf" element={<RNF />} />
