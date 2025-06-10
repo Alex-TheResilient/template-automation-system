@@ -72,7 +72,7 @@ const MenuProyecto = () => {
     };
 
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
     const manejarBusqueda = (e) => {
