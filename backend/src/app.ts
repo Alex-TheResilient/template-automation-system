@@ -19,7 +19,8 @@ import { acceptanceRecordRoutes } from './modules/acceptanceRecord'; // Importar
 import { authorRoutes } from './modules/author';
 import { roleRoutes } from './modules/role';
 import { evidenceRoutes } from './modules/evidence'; // Importar las rutas de evidencia
-import  {actorRoutes} from './modules/actors'; // Importar las rutas de actores
+import {actorRoutes} from './modules/actors'; // Importar las rutas de actores
+import { interfaceRoutes } from './modules/interface';
 
 
 dotenv.config(); // Cargar las variables de entorno desde el archivo .env
@@ -45,6 +46,7 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static('uploads'));
 
 // Definir rutas
+app.use('/api/v1', interfaceRoutes); // Rutas de interfaces
 app.use('/api/v1', authRoutes);
 app.use('/api/v1', organizationRoutes);
 app.use('/api/v1', projectRoutes);
