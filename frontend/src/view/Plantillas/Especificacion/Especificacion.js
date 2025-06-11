@@ -11,7 +11,7 @@ const Especificacion = () => {
     const navigate = useNavigate();
     const { orgcod, projcod,educod,ilacod,specod } = useParams();
 // Estado de proyectos y errores
-    const [sources, setSources] = useState([]);
+    const [espec, setSpecification] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
       
@@ -20,11 +20,11 @@ const Especificacion = () => {
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-    const fetchSources = useCallback(async () => {
+    const fetchSpecification = useCallback(async () => {
     //Obtener o listar expertos de 
     try {
       const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
-      setSources(response.data||[]);
+      setSpecification(response.data||[]);
     } catch (err) {
       setError(
         err.response
@@ -35,9 +35,9 @@ const Especificacion = () => {
   }, [projcod,orgcod,API_BASE_URL]);
     useEffect(() => {
         
-        fetchSources();
-        
-      }, [fetchSources]);
+        fetchSpecification();
+         
+      }, [fetchSpecification]);
 
     const irALogin = () => {
         navigate("/");
@@ -51,7 +51,7 @@ const Especificacion = () => {
     const irANuevaEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/new`);
     };
-    const irAEditarEspecificacion = (especod) => {
+    const irAEditarEspecificacion = (specod) => {
        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
     };
     const irAVerRiesgo = () => {
@@ -89,12 +89,12 @@ const Especificacion = () => {
     const cerrarPopup = () => {
       setMostrarPopup(false);
     };
-    // Eliminar una fuente 
-    const deleteEspecification = async (codigo) => {
+    // Eliminar una especificacion
+    const deleteEspecification = async (specod) => {
         try {
         // /organizations/:orgcod/projects/:projcod/sources/:srccod'
         await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
-        fetchSources(); // Refrescar la lista de fuentes después de eliminar uno
+        fetchSpecification(); // Refrescar la lista de fuentes después de eliminar uno
         } catch (err) {
         console.error("Error al eliminar la especificacion:", err);
         setError(err.response?.data?.error || "Error al eliminar la especificcacion");
@@ -152,22 +152,22 @@ const Especificacion = () => {
           params.name = searchNombre;
       } else if (searchYear || searchMonth) {
           // Búsqueda por fecha
-          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search/date`;
+          endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/search/date`;
           if (searchYear) params.year = searchYear;
           if (searchMonth) params.month = searchMonth;
       } else {
           // Si no hay criterios de búsqueda, cargar todos los proyectos
-          await fetchSources();
+          await fetchSpecification();
           return;
       }
 
       const response = await axios.get(endpoint, { params });
-      setSources(response.data);
+      setSpecification(response.data);
       setError(null);
   } catch (err) {
       console.error("Error en la búsqueda:", err);
       setError(err.response?.data?.error || "Error al buscar fuentes");
-      setSources([]);
+      setSpecification([]);
   } finally {
       setLoading(false);
   }
@@ -277,16 +277,16 @@ const Especificacion = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sources.map((esp) => (
-                                        <tr key={esp.code} onClick={() => irAEditarEspecificacion(esp.code)}>
-                                        <td>{esp.code}</td>
-                                        <td>{esp.name}</td>
-                                        <td>{new Date(esp.creationDate).toLocaleDateString()}</td>
+                                    {espec.map((specification) => (
+                                        <tr key={specification.code} onClick={() => irAEditarEspecificacion(specification.code)}>
+                                        <td>{specification.code}</td>
+                                        <td>{specification.name}</td>
+                                        <td>{new Date(specification.creationDate).toLocaleDateString()}</td>
                                         <td>
-                                            {new Date(esp.modificationDate).toLocaleDateString()}
+                                            {new Date(specification.modificationDate).toLocaleDateString()}
                                         </td>
-                                        <td>{esp.status}</td>
-                                        <td>{esp.version}</td>
+                                        <td>{specification.status}</td>
+                                        <td>{specification.version}</td>
                                         <td>
                                             <button className="botton-crud">
                                             <FaFolder
@@ -297,7 +297,7 @@ const Especificacion = () => {
                                             className="botton-crud"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                irAEditarEspecificacion(esp.code); // Llama a la función para editar
+                                                irAEditarEspecificacion(specification.code); // Llama a la función para editar
                                             }}
                                             >
                                             <FaPencilAlt
@@ -308,17 +308,17 @@ const Especificacion = () => {
                                             className="botton-crud"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                deleteEspecification(esp.code);//deleteProject(esp.code); // Llama a la función de eliminación
+                                                deleteEspecification(specification.code);//deleteProject(source.code); // Llama a la función de eliminación
                                             }}
                                             >
                                             <FaTrash
                                                 style={{ color: "red", cursor: "pointer" }}
                                             />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                                            </button>
+                                        </td>
+                                        </tr>
+                                 ))}
+                                </tbody>
                             </table>
                                                         
                         </div>

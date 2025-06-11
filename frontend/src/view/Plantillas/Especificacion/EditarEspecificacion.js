@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef} from "react";
 import { useNavigate,useParams } from "react-router-dom"
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
-
+import axios from "axios";
 const EditarEspecificacion = () => {
 
     const navigate = useNavigate();
-    const { orgcod, projcod,educod,ilacod } = useParams();
+    const hasRun = useRef(false);
+    const { orgcod, projcod,educod,ilacod,specod } = useParams();
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -29,9 +30,44 @@ const EditarEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
     const irAEspecificacion = () => {
-        navigate("/especificacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
     };
-
+    // Datos controlados por el usuario
+    //const [code, setCodigoEspecificacion] = useState("");
+    const [creationDate, setFecha] = useState("");
+    const [version, setVersion] = useState("");
+    const [name, setNombre] = useState("");
+    const [status, setEstado] = useState("");
+    const [precondition, setPrecondicion] = useState("");
+    const [procedure, setProcedure] = useState("");
+    const [postcondition, setPostcondicion] = useState("");
+    const [comment, setComentario] = useState("");
+    const [importance, setImporancia] = useState("");
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    const [error, setError] = useState(null);
+    // GET: traer los datos de especificacion
+    const fetchSpecificationData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
+            const data = response.data;
+            setNombre(data.name);
+            setEstado(data.status);
+            setVersion(data.version);
+            setPrecondicion(data.precondition);
+            setProcedure(data.procedure);
+            setPostcondicion(data.postcondition);
+            setComentario(data.comment);
+            setFecha(data.creationDate);
+        } catch (err) {
+            setError("Error al obtener los datos de la fuente: " + err.message);
+        }
+    };
+    useEffect(() => {
+            if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
+            hasRun.current = true;
+            console.log("Cargando Especificacion con código:", specod);
+            fetchSpecificationData();
+        }, [specod]);
     const [dropdownOpen, setDropdownOpen] = React.useState({
         actors: false,
         fuentes: false,
@@ -73,24 +109,24 @@ const EditarEspecificacion = () => {
     }, []);
 
     // Datos simulados de la especificación seleccionada
-    const [especificacion, setEspecificacion] = useState({
-        codigo: "ESP-001",
-        version: "01.00",
-        fecha: "01/12/2024",
-        nombre: "Especificación de prueba",
-        actor: "ACT-0001",
-        autor: "AUT-0001",
-        fuente: "FUE-0001",
-        experto: "EXP-0002",
-        ilacion: "ILA-0002",
-        estado: "Activo",
-        precondicion: "Precondición de ejemplo",
-        procedimiento: "Procedimiento de ejemplo",
-        postcondicion: "Postcondición de ejemplo",
-        artefacto: "ART-0003",
-        importancia: "Alta",
-        comentario: "Comentario de ejemplo"
-    });
+    //const [especificacion, setEspecificacion] = useState({
+      //  codigo: "ESP-001",
+        //version: "01.00",
+        //fecha: "01/12/2024",
+        //nombre: "Especificación de prueba",
+        //actor: "ACT-0001",
+        //autor: "AUT-0001",
+        //fuente: "FUE-0001",
+        //experto: "EXP-0002",
+        //ilacion: "ILA-0002",
+        //estado: "Activo",
+        //precondicion: "Precondición de ejemplo",
+        //procedimiento: "Procedimiento de ejemplo",
+        //postcondicion: "Postcondición de ejemplo",
+        //artefacto: "ART-0003",
+        //importancia: "Alta",
+        //comentario: "Comentario de ejemplo"
+    //});
 
     const toggleDropdown = (dropdown) => {
         setDropdownOpen((prev) => ({
@@ -98,12 +134,12 @@ const EditarEspecificacion = () => {
             [dropdown]: !prev[dropdown]
         }));
     };
-
-    useEffect(() => {
-        // Aquí podrías cargar datos desde la BD o API.
-        // Por ahora, los datos simulados ya están precargados en el estado inicial.
-        console.log("Datos cargados de la especificación:", especificacion);
-    }, []);
+     useEffect(() => {
+            if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
+            hasRun.current = true;
+            console.log("Cargando fuente con código:", specod);
+            fetchSpecificationData();
+        }, [specod]);
 
     return (
         <div className="ne-container">
@@ -116,6 +152,7 @@ const EditarEspecificacion = () => {
                     <span onClick={irAPlantillas}>Plantillas /</span>
                     <span onClick={irAEducciones}>Educciones /</span>
                     <span onClick={irAIlaciones}>Ilaciones /</span>
+                    <span onClick={irAEspecificacion}>Especificaciones /</span>
                     <span>Editar Especificacion</span>
                 </div>
             </header>
@@ -146,10 +183,16 @@ const EditarEspecificacion = () => {
                             <label className="ne-label">Version*</label>
                             <label className="ne-label">Fecha*</label>
                         </h3>
-                        <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value={especificacion.codigo} readOnly />
-                            <input disabled type="text" className="ne-input" value={especificacion.version} readOnly />
-                            <input disabled type="text" className="ne-input" value={especificacion.fecha} readOnly />
+                        <div className="ro-cod-vers">
+                            <div className="ro-fiel-cod">
+                                <input type="text" className="inputBloq-field" value={specod} readOnly size="30" />
+                            </div>
+                            <div className="ro-fiel-vers">
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                            </div>
+                            <div className="ro-fiel-fecha">
+                                <input type="text" className="inputBloq-field"  value={creationDate} readOnly size="30" />
+                            </div>
                         </div>
 
                         <div className="ne-cod-vers">
@@ -160,10 +203,7 @@ const EditarEspecificacion = () => {
                                 <input
                                     className="input-text"
                                     type="text"
-                                    value={especificacion.nombre}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, nombre: e.target.value })
-                                    }
+                                    value={name}
                                     size="100"
                                 />
                                 <span className="tooltip-text">Editar el nombre de la Especificación</span>
@@ -197,7 +237,7 @@ const EditarEspecificacion = () => {
                                                     type="checkbox"
                                                     value={option}
                                                     checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
+                                                    //onChange={(e) => handleCheckboxChange(e.target.value)}
                                                 />
                                                 {option}
                                             </label>
@@ -223,7 +263,7 @@ const EditarEspecificacion = () => {
                                                     type="checkbox"
                                                     value={option}
                                                     checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
+                                                    //onChange={(e) => handleCheckboxChange(e.target.value)}
                                                 />
                                                 {option}
                                             </label>
@@ -248,7 +288,7 @@ const EditarEspecificacion = () => {
                                                     type="checkbox"
                                                     value={option}
                                                     checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
+                                                    //onChange={(e) => handleCheckboxChange(e.target.value)}
                                                 />
                                                 {option}
                                             </label>
@@ -282,7 +322,7 @@ const EditarEspecificacion = () => {
                                                     type="checkbox"
                                                     value={option}
                                                     checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
+                                                    //onChange={(e) => handleCheckboxChange(e.target.value)}
                                                 />
                                                 {option}
                                             </label>
@@ -293,14 +333,12 @@ const EditarEspecificacion = () => {
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value ={status} 
+                                onChange={(e) => setEstado(e.target.value)}
                             >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Activo</option>
-                                <option value="en progreso">Inactivo</option>
+                                <option value ={status} >{status}</option>
+                                <option value ='Activo'>Activo</option>
+                                <option value ='Inactivo'>Inactivo</option>
                             </select>
                             
                         </div>
@@ -313,10 +351,7 @@ const EditarEspecificacion = () => {
                                     <input
                                     className="input-text"
                                     type="text"
-                                    value={especificacion.precondicion}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, precondicion: e.target.value })
-                                    }
+                                    value={precondition}
                                     size="100"
                                 />
                                 <span className="tooltip-text">Editar la precondición de especificación</span>
@@ -332,10 +367,8 @@ const EditarEspecificacion = () => {
                                     <input
                                     className="input-text"
                                     type="text"
-                                    value={especificacion.procedimiento}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, procedimiento: e.target.value })
-                                    }
+                                    value={procedure}
+                                    
                                     size="100"
                                 />
                                 <span className="tooltip-text">Editar la procedimeinto de especificación</span>
@@ -351,10 +384,7 @@ const EditarEspecificacion = () => {
                                     <input
                                     className="input-text"
                                     type="text"
-                                    value={especificacion.postcondicion}
-                                    onChange={(e) =>
-                                        setEspecificacion({ ...especificacion, postcondicion: e.target.value })
-                                    }
+                                    value={postcondition}
                                     size="100"
                                 />
                                 <span className="tooltip-text">Editar la postcondición de especificación</span>
@@ -386,7 +416,7 @@ const EditarEspecificacion = () => {
                                                     type="checkbox"
                                                     value={option}
                                                     checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
+                                                    //onChange={(e) => handleCheckboxChange(e.target.value)}
                                                 />
                                                 {option}
                                             </label>
@@ -416,11 +446,7 @@ const EditarEspecificacion = () => {
 
                         <div className="input-text">
                             <textarea className="input-fieldtext" rows="3" 
-                            value={especificacion.comentario}
-                            onChange={(e) =>
-                                setEspecificacion({ ...especificacion, comentario: e.target.value })
-                            }
-                            
+                            value={comment}
                             ></textarea>
                         
                         </div>

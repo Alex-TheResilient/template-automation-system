@@ -126,17 +126,17 @@ const EditarFuente = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <h4 >Nombre* </h4> <br />
-                                <h4>Autores de la Fuente* </h4>                             
+                                {/*<h4>Autores de la Fuente* </h4>*/}                             
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={name}  size="110" />
                                     <span class="tooltip-text"> Editar el nombre de la fuente </span>
                                 </span><br />
-                                <span class="message">
+                                {/*<span class="message">
                                     <input className="inputautores-field"  type="text"  size="110" style={{ height: '50px' }} />
                                     <span class="tooltip-text"> Editar los autores de la fuente </span>
-                                </span>
+                                </span>*/}
                             </div>
                             
                             
@@ -147,7 +147,7 @@ const EditarFuente = () => {
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo">Fecha Fuente* </label>
-                            <label className="ro-version">Autor de plantilla </label>
+                            {/*<label className="ro-version">Autor de plantilla </label>*/}
                             <label className="ro-Fecha">Estado* </label>
                         </h3>
                         <div className="ro-cod-vers">
@@ -158,13 +158,13 @@ const EditarFuente = () => {
                                 </span>
                                 
                             </div>
-                            <div className="ro-fiel-vers">
+                            {/*<div className="ro-fiel-vers">
                                 <span class="message">
                                     <input type="text" className="inputBloq-field"  readOnly size="30" />
                                     <span class="tooltip-text"> Codigo del autor de la fuente </span>
                                 </span>
                                 
-                            </div>
+                            </div>*/}
                             <div className="ro-fiel-fecha">
                                 <select id="estado" name="estado" required>
                                     <option value="">Seleccione un estado</option>

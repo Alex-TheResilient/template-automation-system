@@ -117,7 +117,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/sources" element={<Fuentes />} />   
           <Route path="/organizations/:orgcod/projects/:projcod/sources/new" element={<NuevaFuente />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/sources/:fuecod" element={<EditarFuente />} />
-          {/*Especificaciones*/} 
+        {/*Especificaciones*/} 
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications" element={<Especificacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/new" element={<NuevaEspecificacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/:specod" element={<EditarEspecificacion />} />

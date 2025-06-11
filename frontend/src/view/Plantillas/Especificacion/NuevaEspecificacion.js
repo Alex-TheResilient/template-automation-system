@@ -1,12 +1,80 @@
-import React from "react";
-import { useNavigate,useParams } from "react-router-dom"
+import axios from "axios";
+import React, {useState, useEffect, useRef } from "react";
+import {  useNavigate,useParams } from "react-router-dom"
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
 
 const NuevaEspecificacion = () => {
 
-    const navigate = useNavigate();
-    const { orgcod, projcod,educod } = useParams();
+    const navigate = useNavigate();    
+    const hasFetched = useRef(false);
+     // Obtener datos del proyecto del URL
+        const { orgcod, projcod,educod,ilacod } = useParams();
+    
+        const [code, setCodigoEspecificacion] = useState("");
+        const [version, setVersionEspecificacion] = useState("00.01");
+        const [creationDate, setFechaCreacion] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        );
+        const [modificationDate, setFechaModificacion] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        );
+    
+     // Datos controlados por el usuario
+        const [name, setNombre] = useState("");
+        const [status, setEstado] = useState("");
+        const [precondition, setPrecondicion] = useState("");
+        const [procedure, setProcedure] = useState("");
+        const [postcondition, setPostcondicion] = useState("");
+        const [comment, setComentario] = useState("");
+        const [importance, setImporancia] = useState("");
+    //Estados para manejar errores
+    const [error, setError] = useState(null);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    
+    // Obtener el siguiente código de especificacion
+    useEffect(() => {
+        if (hasFetched.current) return; // Previene segunda ejecución
+        hasFetched.current = true;
+        const fetchNextCodigoEspecificacion = async () => {
+            try {
+                
+                // Llamar al endpoint usando parámetros de consulta
+                ///organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/next-code
+                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCodigoEspecificacion(response.data.nextCode || "ESP-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
+            }
+        };
+
+        fetchNextCodigoEspecificacion();
+    }, [API_BASE_URL,orgcod, projcod]);
+    //Registrar nueva especificcion
+    const registrarEspecificacion = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+                await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`, {
+                name,
+                comment, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
+                precondition,
+                procedure,
+                postcondition,
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAEspecificacion();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -29,7 +97,10 @@ const NuevaEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
     };
     const irAEspecificacion = () => {
-        navigate("/especificacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
+    };
+    const irAEditarEspecificacion = (espcod) => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${espcod}`);
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -53,33 +124,7 @@ const NuevaEspecificacion = () => {
                 : [...prev, value] // Agrega si no está seleccionado
         );
     };
-    // Cerrar el dropdown al hacer clic fuera
-    React.useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest(".custom-select-dropdown")) {
-                setDropdownOpen({
-                    actors: false,
-                    fuentes: false,
-                    expertos: false,
-                    ilaciones: false,
-                    artefactos:false
-                });
-            }
-        };
-        document.addEventListener("click", handleClickOutside);
-        return () => {
-            document.removeEventListener("click", handleClickOutside);
-        };
-    }, []);
-
-    const toggleDropdown = (dropdown) => {
-        setDropdownOpen((prev) => ({
-            ...prev,
-            [dropdown]: !prev[dropdown]
-        }));
-    };
-
-
+    
     return (
         <div className="ne-container">
             <header className="ne-header">
@@ -91,6 +136,7 @@ const NuevaEspecificacion = () => {
                     <span onClick={irAPlantillas}>Plantillas /</span>
                     <span onClick={irAEducciones}>Educciones /</span>
                     <span onClick={irAIlaciones}>Ilaciones /</span>
+                    <span onClick={irAEspecificacion}>Especificaciones/</span>
                     <span>Nueva Especificacion</span>
                 </div>
             </header>
@@ -121,10 +167,16 @@ const NuevaEspecificacion = () => {
                             <label className="ne-label">Version*</label>
                             <label className="ne-label">Fecha*</label>
                         </h3>
-                        <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="ILA-001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
-                            <input disabled type="text" className="ne-input" value="23/10/23" readOnly />
+                        <div className="ro-cod-vers">
+                            <div className="ro-fiel-cod">
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
+                            </div>
+                            <div className="ro-fiel-vers">
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                            </div>
+                            <div className="ro-fiel-fecha">
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                            </div>
                         </div>
 
                         <div className="ne-cod-vers">
@@ -133,7 +185,7 @@ const NuevaEspecificacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" placeholder="Nombre de la ilación" size="100" />
+                                    <input className="input-text" type="text" value={name} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre de la Especificacion" size="100" />
                                     <span className="tooltip-text">Ingresar el nombre de la Especificación</span>
                                 </span>
                             </div>
@@ -150,7 +202,7 @@ const NuevaEspecificacion = () => {
                         </h3>
                         <div className="ne-input-container">
                             <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("actors")}>
+                                <div className="dropdown-toggle" >
                                     <span>
                                         {selectedItems.length > 0
                                             ? selectedItems.join(", ")
@@ -176,7 +228,7 @@ const NuevaEspecificacion = () => {
                             </div>
                             <input disabled type="text" className="ne-input" value="AUT-0000" readOnly />
                             <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("fuentes")}>
+                                <div className="dropdown-toggle">
                                     <span>
                                         {selectedItems.length > 0
                                             ? selectedItems.join(", ")
@@ -201,7 +253,7 @@ const NuevaEspecificacion = () => {
                                 )}
                             </div>
                             <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("expertos")}>
+                                <div className="dropdown-toggle" >
                                     <span>
                                         {selectedItems.length > 0
                                             ? selectedItems.join(", ")
@@ -234,8 +286,11 @@ const NuevaEspecificacion = () => {
                             <label className="ne-label">Estado*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("ilaciones")}>
+                            <div className="ro-fiel-cod">
+                                <input type="text" className="inputBloq-field" value={ilacod} readOnly size="30" />
+                            </div>
+                            {/*<div className="custom-select-dropdown">
+                                <div className="dropdown-toggle" >
                                     <span>
                                         {selectedItems.length > 0
                                             ? selectedItems.join(", ")
@@ -258,18 +313,23 @@ const NuevaEspecificacion = () => {
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </div>*/}
+
 
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado seleccionado:", selectedEstado);
-                                }}
+                                value ={status}
+                                onChange={(e) => setEstado(e.target.value)}
+                                //onChange={(e) => handleCheckboxChange(e.target.value)}
+                                //onChange={(e) => {
+                                   // const selectedEstado = e.target.value;
+                                    //console.log("Estado seleccionado:", selectedEstado);
+                                // } 
+                                //}
                             >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="por empezar">Activo</option>
-                                <option value="en progreso">Inactivo</option>
+                                <option value =''>Seleccione una opcion</option>
+                                <option value ='Activo'>Activo</option>
+                                <option value ='Inactivo'>Inactivo</option>
                             </select>
                             
                         </div>
@@ -279,7 +339,7 @@ const NuevaEspecificacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-textpr" type="text"  size="100" value= {precondition} onChange={(e) => setPrecondicion(e.target.value)} />
                                     <span className="tooltip-text">Ingresar la Precondicion</span>
                                 </span>
                             </div>
@@ -290,7 +350,7 @@ const NuevaEspecificacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-textpr" type="text"  size="100" value= {procedure} onChange={(e) => setProcedure(e.target.value)} />
                                     <span className="tooltip-text">Describir su procesamiento</span>
                                 </span>
                             </div>
@@ -301,7 +361,7 @@ const NuevaEspecificacion = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text"  size="100" />
+                                    <input className="input-textpr" type="text"  size="100" value= {postcondition} onChange={(e) => setPostcondicion(e.target.value)} />
                                     <span className="tooltip-text">Ingresar la Postcondicion</span>
                                 </span>
                             </div>
@@ -314,8 +374,9 @@ const NuevaEspecificacion = () => {
                             
                         </h3>
                         <div className="ne-input-container">
-                        <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("artefactos")}>
+                             {/*¨Select Codigo Artefactos Asociados */}
+                            <div className="custom-select-dropdown">
+                                <div className="dropdown-toggle" >
                                     <span>
                                         {selectedItems.length > 0
                                             ? selectedItems.join(", ")
@@ -339,13 +400,12 @@ const NuevaEspecificacion = () => {
                                     </div>
                                 )}
                             </div>
+                            {/*¨Select importancia*/}
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImportancia = e.target.value;
-                                    console.log("Importancia seleccionada:", selectedImportancia);
-                                }}
-                            >
+                                value ={importance}
+                                onChange={(e) => setImporancia(e.target.value)}
+                                >
                                 <option value="">Seleccione una opcion</option>
                                 <option value="Alta">Alta</option>
                                 <option value="Media">Media</option>
@@ -360,12 +420,12 @@ const NuevaEspecificacion = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir comentarios "></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios "></textarea>
                         </div>
 
                         <div className="ne-buttons">
                             <button onClick={irAEspecificacion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAEspecificacion} className="ne-button" size="50">Crear Especificación</button>
+                            <button onClick={registrarEspecificacion} className="ne-button" size="50">Crear Especificación</button>
                         </div>
                     </section>
                 </main>

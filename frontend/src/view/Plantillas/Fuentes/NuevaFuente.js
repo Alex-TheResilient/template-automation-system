@@ -29,7 +29,7 @@ const NuevaFuente = () => {
     const [error, setError] = useState(null);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
-    // Obtener el siguiente código de experto
+    // Obtener el siguiente código de fuente
     useEffect(() => {
         if (hasFetched.current) return; // Previene segunda ejecución
         hasFetched.current = true;
@@ -49,6 +49,8 @@ const NuevaFuente = () => {
 
         fetchNextCodigoFuente();
     }, [API_BASE_URL,orgcod, projcod]);
+
+    //Registrar Nueva fuente
     const registrarFuente = async (e) => {
         e.preventDefault();
         try {
@@ -137,45 +139,43 @@ const NuevaFuente = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <h4 >Nombre* </h4> <br />
-                                <h4>Autores de la Fuente* </h4>                             
+                                {/*<h4>Autores de la Fuente* </h4>*/}                             
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
                                     <input className="inputnombre-field" type="text"  value={name} onChange={(e) => setNombre(e.target.value)} size="110" />
                                     <span class="tooltip-text"> Ingresar el nombre de la fuente </span>
                                 </span><br />
-                                <span class="message">
+                                {/*<span class="message">
                                     <input className="inputautores-field"  type="text" size="110" style={{ height: '50px' }} />
                                     <span class="tooltip-text"> Ingresar los autores de la fuente </span>
-                                </span>
+                                </span>*/} 
                             </div>
-                            
-                            
-                              
+                                                                                     
                         </div>
                        
                     </section>
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo">Fecha Fuente* </label>
-                            <label className="ro-version">Autor de plantilla </label>
+                            {/*<label className="ro-version">Autor de plantilla </label>*/}
                             <label className="ro-Fecha">Estado* </label>
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputfechafuen-field" value={code} size="30" />
+                                    <input type="text" className="inputfechafuen-field"  size="30" />
                                     <span class="tooltip-text"> Ingresar la fecha de la fuente </span>
                                 </span>
                                 
                             </div>
-                            <div className="ro-fiel-vers">
+                            {/*<div className="ro-fiel-vers">
                                 <span class="message">
                                     <input type="text" className="inputBloq-field"  readOnly size="30" />
                                     <span class="tooltip-text"> Codigo del autor de la fuente </span>
                                 </span>
                                 
-                            </div>
+                            </div>*/}
                             <div className="ro-fiel-fecha">
                                 <select id="estado" name="estado" required>
                                     <option value="">Seleccione un estado</option>
