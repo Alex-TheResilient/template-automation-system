@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect} from 'react';
-import { useNavigate ,useParams } from "react-router-dom";
+import { useLocation, useNavigate ,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -9,6 +9,7 @@ import axios from 'axios';
 
 const Ilacion = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { orgcod, projcod,educod } = useParams();
 
     const [ilaciones, setIlaciones] = useState([]);
@@ -16,6 +17,7 @@ const Ilacion = () => {
     const [searchNombre, setSearchNombre] = useState("");
 
     const [error, setError] = useState(null);
+    const { proid } = location.state || {};
 
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -125,10 +127,18 @@ const Ilacion = () => {
         navigate("/verEduccion");
     };
     const irANuevaIlacion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarIlacion = (ilacod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones/${ilacod}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -144,13 +154,33 @@ const Ilacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuproyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuproyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
+    };
+
+    const irAEduccion = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEspecificaciones = (ilacod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -182,6 +212,7 @@ const Ilacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
+                    <span onClick={irAEduccion}>Educción /</span>
                     <span>Ilación</span>
                 </div>
             </header>
@@ -498,7 +529,7 @@ const Ilacion = () => {
                             </div>
 
                         <div className="search-section-bar">
-                            <button  className="atras-button"onClick={irAPlantillas}>Regresar</button>
+                            <button  className="atras-button"onClick={irAEduccion}>Regresar</button>
                         </div>
                     </section>
                 </main>

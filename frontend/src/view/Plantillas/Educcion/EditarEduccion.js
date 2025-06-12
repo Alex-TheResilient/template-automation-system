@@ -1,5 +1,5 @@
 import React,{ useState, useEffect,useRef } from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEduccion.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,7 +7,9 @@ import axios from "axios";
 const EditarEduccion = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { orgcod, projcod,educod} = useParams();
+    const { proid } = location.state || {};
 
     const [code, setCode] = useState("");
     const [comment, setComment] = useState("");
@@ -78,13 +80,25 @@ const EditarEduccion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({

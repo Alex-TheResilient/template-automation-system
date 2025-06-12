@@ -11,7 +11,6 @@ import RegistroProyecto from './view/Proyecto/RegistroProyecto.js';
 import EditarProyecto from './view/Proyecto/EditarProyecto.js';
 import MenuProyecto from './view/Proyecto/MenuProyecto.js';
 import ActaAceptacion from './view/Proyecto/ActaAceptacion/ActaAceptacion.js';
-import EditarActaAceptacion from './view/Proyecto/ActaAceptacion/EditarActaAceptacion.js';
 import Autores from './view/Proyecto/Autores/Autores.js';
 import NuevoAutor from './view/Proyecto/Autores/NuevoAutor.js';
 import EditarAutor from './view/Proyecto/Autores/EditarAutor.js';
@@ -98,7 +97,6 @@ function App() {
           <Route path="/roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol/:rolCod" element={<EditarRol />} />
-          <Route path="/editarActaAceptacion" element={<EditarActaAceptacion />} />
           <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion" element={<Educcion />} />

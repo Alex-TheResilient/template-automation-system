@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useRef } from "react";
-import { useNavigate ,useParams } from "react-router-dom";
+import { useLocation, useNavigate ,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,7 +7,9 @@ import axios from "axios";
 const EditarIlacion = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     const {orgcod, projcod, educod, ilacod} = useParams();
+    const { proid } = location.state || {};
 
     const [version, setVersion] = useState("");
     const [comment, setComentario] = useState("");
@@ -83,13 +85,32 @@ const EditarIlacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAIlacion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`,{
+        state: {
+            proid:proid
+        }
+    });
+    };
+    const irAEduccion = () => {
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -146,6 +167,7 @@ const EditarIlacion = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
+                    <span onClick={irAEduccion}>Educción /</span>
                     <span onClick={irAIlacion}>Ilacion /</span>
                     <span>Editar Ilación</span>
                 </div>

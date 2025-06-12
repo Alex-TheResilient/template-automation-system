@@ -51,7 +51,11 @@ const MenuProyecto = () => {
     };
 
     const irAEntrevistas = () => {
-        navigate(`/projects/${projcod}/entrevistas`, { state: { proid } });
+        navigate(`/projects/${projcod}/entrevistas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irARoles = () => {

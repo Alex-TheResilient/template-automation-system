@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef} from "react";
-import { useNavigate,useParams } from "react-router-dom"
+import { useLocation, useNavigate,useParams } from "react-router-dom"
 import '../../../styles/stylesNuevaIlacion.css';
 import '../../../styles/styles.css';
 import axios from "axios";
 const EditarEspecificacion = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     const hasRun = useRef(false);
+
+    const { proid } = location.state || {};
+    
     const { orgcod, projcod,educod,ilacod,specod } = useParams();
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
@@ -18,19 +22,39 @@ const EditarEspecificacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEducciones = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAIlaciones = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEspecificacion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     // Datos controlados por el usuario
     //const [code, setCodigoEspecificacion] = useState("");

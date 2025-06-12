@@ -75,11 +75,7 @@ const ActaAceptacion = () => {
 
     const irAListaProyecto = () => {
 
-        navigate(`/organizations/${orgcod}/projects`,{
-        state: {
-            proid: proid
-        }
-    });
+        navigate(`/organizations/${orgcod}/projects`);
     };
 
     const queryParams = new URLSearchParams(location.search);
