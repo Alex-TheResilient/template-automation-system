@@ -75,28 +75,6 @@ const MenuProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
 
-    const manejarBusqueda = (e) => {
-        setCodigoAutor(e.target.value);
-    };
-
-    const buscarAutor = async () => {
-        try {
-            const response = await axios.get(`/api/authors/searchCode`, {
-                params: { codAut: codigoAutor }
-            });
-            if (response.data.length === 0) {
-                setMensaje("No se encontraron resultados");
-            } else {
-                setResultados(response.data);
-                setMensaje("");
-            }
-        } catch (error) {
-            console.log("Error al buscar:", error);
-            setMensaje("Error al realizar la búsqueda. Intenta de nuevo");
-            setResultados([]);
-        }
-    };
-
     return (
         <div className="menu-container">
             <header className="menu-header">
@@ -141,38 +119,13 @@ const MenuProyecto = () => {
                     </section>
                     <section className="avance-section">
                         <h3>Avance del Proyecto</h3>
-                        <h4>AVANCE DEL PROYECTO</h4>
-                        <div style={{ height: '80px' }}></div>
-                    </section>
-                    <section className="historial-section">
-                        <h3>Historial</h3>
-                        <h2>Filtro de búsqueda</h2>
-
                         <div class="boton-container">
-                            <div class="sectionTextBuscar">
-                                <span class="message">
-                                    <input class="codigoBuscar" type="text" placeholder="Código de autor"
-                                    value={codigoAutor}
-                                    size="160"
-                                    onChange={manejarBusqueda} />
-                                <span class="tooltip-text"> Buscar por código de autor </span>
-                                </span>
-                                <span class="message">
-                                    <input class="plantillaBuscar" type="text" placeholder="Plantilla" size="160"/>
-                                    <span class="tooltip-text"> Buscar por tipo de plantilla </span>
-                                </span>
-                                <span class="message">
-                                    <input class="estadoBuscar" type="text" placeholder="Estado" size="160"/>
-                                    <span class="tooltip-text"> Buscar por su estado </span>
-                                </span>
-                                <span class="message">
-                                    <input class="fechaBuscar" type="text" placeholder="Fecha" size="160" />
-                                    <span class="tooltip-text"> Buscar por la fecha de modificación </span>
-                                </span>
-                                
-                                <button className="search-button" onClick={buscarAutor}>Buscar</button>
-                            </div>
+                            <button className="catalogo-button">DESCARGAR CATÁLOGO DE REQUISITOS</button>
                         </div>
+                    </section>
+                    
+                    <section className="historial-section">
+                        <h3>Historial de cambios</h3>
                         {mensaje && <div className="mensaje">{mensaje}</div>}  {/* Mostrar mensaje si hay error o no resultados */}
                         <div className="menu-tabla-center">
                             <table className="menu-centertabla">

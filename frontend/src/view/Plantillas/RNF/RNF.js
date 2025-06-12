@@ -150,13 +150,25 @@ const RNF = () => {
         navigate("/editarRiesgo");
     };
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyectos");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);

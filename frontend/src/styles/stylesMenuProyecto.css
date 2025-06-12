@@ -153,6 +153,20 @@ h4 {
     font-size: 1.3em;
 }
 
+.catalogo-button {
+    background-color: #B4508A;
+    color: white;
+    border: none;
+    padding: 15px 30px; 
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center; 
+    font-size: 1.3em;
+    display: block; 
+    margin: 20px auto; 
+    max-width: fit-content;
+}
+
 .menu-centertabla {
     width: 100%;
     border-collapse: collapse;

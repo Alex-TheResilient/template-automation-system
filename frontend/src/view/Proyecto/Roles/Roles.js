@@ -31,7 +31,7 @@ const Roles = () => {
             setError(
                 err.response
                 ? err.response.data.error
-                : "Error al obtener los proyectos"
+                : "Error al obtener los roles"
             );
         }
     }, [API_BASE_URL]);
@@ -114,7 +114,7 @@ const Roles = () => {
          navigate("/organizations");
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irANuevoRol = () => {
         navigate("/nuevoRol",{
