@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
@@ -6,28 +6,101 @@ import '../../../styles/stylesEntrevistas.css'
 import '../../../styles/stylesEliminar.css'
 import '../../../styles/styles.css';
 
-
 const Entrevistas = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {orgcod, projcod } = useParams();
+
     const [entrevistas, setEntrevistas] = useState([]);
+
+    const [error, setError] = useState(null);
     const [evidencias, setEvidencias] = useState([]);
     const [mostrarPopup, setMostrarPopup] = useState(false);
     const { proid } = location.state || {};
 
-    useEffect(() => {
-        const fetchEntrevistas = async () => {
-            try {
-                const response = await axios.get(`/api/projects/${projcod}/entrevistas`);
-                setEntrevistas(response.data);
-            } catch (error) {
-                console.error("Error al obtener las entrevistas:", error);
-            }
-        };
+    const [searchNombre, setSearchNombre] = useState("");
+    const [loading, setLoading] = useState(true);
 
-        fetchEntrevistas();
-    }, [projcod]);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
+    const fetchEentrevistas = useCallback(async () => {
+    //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews`);
+            setEntrevistas(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [projcod,orgcod,API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchEentrevistas();
+    
+    }, [fetchEentrevistas]);
+
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            let response;
+            if (searchNombre) {
+                // Búsqueda por nombre
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/search`, {
+                    params: { interviewName: searchNombre }
+                });
+            } else {
+                // Sin criterios de búsqueda
+                response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews`);
+            }
+            
+            const filteredData = response.data.filter(org => org.code !== "ORG-MAIN");
+            setEntrevistas(filteredData);
+            //setNoResult(filteredData.length === 0);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar organizaciones");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Entrevistas.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Entrevistas.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
     const irALogin = () => {
         navigate("/");
@@ -52,9 +125,10 @@ const Entrevistas = () => {
     };
 
     const irAEditarEntrevista = (entrecod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/entrevistas/${entrecod}`,{
+        navigate(`/organizations/${orgcod}/projects/${projcod}/entrevistas/edit`,{
         state: {
-            proid:proid
+            proid:proid,
+            id:entrecod
         }
     });
     };
@@ -146,12 +220,14 @@ const Entrevistas = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchNombre}
+                                    onChange={(e) => setSearchNombre(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre de entrevista</span>
                                 </span>
                                 
-                                <button className="search-button">Buscar</button>
+                                <button  className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -168,9 +244,9 @@ const Entrevistas = () => {
                                 <tbody>
                                     {entrevistas.map((entrevista) => (
                                         <tr key={entrevista.id}>
-                                            <td>{entrevista.nombreEntrevista}</td>
+                                            <td>{entrevista.interviewName}</td>
                                             <td>{entrevista.version}</td>
-                                            <td>{new Date(entrevista.fechaEntrevista).toLocaleDateString()}</td>
+                                            <td>{new Date(entrevista.interviewDate).toLocaleDateString()}</td>
                                             <td>
                                                 <button className="botton-crud" onClick={() => navigate(`/projects/${projcod}/entrevistas/${entrevista.id}`)}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                                 <button className="botton-crud" onClick={() => irAEditarEntrevista(entrevista.id)}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
@@ -179,14 +255,7 @@ const Entrevistas = () => {
                                         </tr>
                                     ))}
                                     <tr>
-                                        <td>Entrevista 1</td>
-                                        <td>00.01</td>
-                                        <td>23/10/2023</td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEntrevista}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={irAEditarEntrevista}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -211,11 +280,11 @@ const Entrevistas = () => {
                             <h4>Total de registros 2</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onClick={exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button"onClick={exportToPDF}>PDF</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
                                 </span>
                             </div>
