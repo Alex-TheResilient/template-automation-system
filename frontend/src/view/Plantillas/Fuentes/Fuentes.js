@@ -124,7 +124,7 @@ const Fuentes = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'fuentes.xlsx');
+            link.setAttribute('download', 'Fuentes.xlsx');
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -141,7 +141,7 @@ const Fuentes = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'organizaciones.pdf');
+            link.setAttribute('download', 'Fuentes.pdf');
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -279,7 +279,7 @@ const currentYear = new Date().getFullYear();
                         {new Date(source.modificationDate).toLocaleDateString()}
                       </td>
                       <td>{source.status}</td>
-                       <td>{source.version}</td>
+                      <td>{source.version}</td>
                       <td>
                         <button className="botton-crud">
                           <FaFolder

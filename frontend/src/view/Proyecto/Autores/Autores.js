@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
@@ -8,43 +8,83 @@ import '../../../styles/styles.css';
 
 const Autores = () => {
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
-    // Organizacion 
+    const { orgcod, projcod, autcod } = useParams();
+    // Estado de proyectos y errores
     const [authors, setAuthors] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     // Estado para los parámetros de búsqueda
-    const [searchNombre, setSearchNombre] = useState();
+    const [searchNombre, setSearchNombre] = useState("");
+    const [searchYear, setSearchYear] = useState("");
+    const [searchMonth, setSearchMonth] = useState("");
 
-    // Obtención de la lista de Autores
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const fetchAuthors = useCallback(async () => {
+        //Obtener o listar expertos de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors`);
+            //const response = await axios.get(`${API_BASE_URL}/authors`);
+            setAuthors(response.data || []);
+        } catch (err) {
+            setError(
+                err.response
+                    ? err.response.data.error
+                    : "Error al obtener los autores"
+            );
+        }
+    }, [projcod, orgcod, API_BASE_URL]);
+
     useEffect(() => {
-        const fetchOrganizations = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/authors');
-                setAuthors(response.data); // Establecer los datos de los autores en el estado
-            } catch (err) {
-                setError(err.response ? err.response.data.error : 'Error al obtener los autores');
-            }
-        };
-        fetchOrganizations();
-    }, []);
 
+        fetchAuthors();
+
+    }, [fetchAuthors]);
     // Función para buscar autores
     const handleSearch = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/authors/search', {
-                params: { nombre: searchNombre },
-            });
-            setAuthors(response.data); // actualizar los datos de búsqueda 
+            setLoading(true);
+            let endpoint;
+            let params = {};
+
+            // Determinar qué tipo de búsqueda realizar
+            if (searchNombre) {
+                // Búsqueda por nombre
+                endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search`;
+                params.name = searchNombre;
+            } else if (searchYear || searchMonth) {
+                // Búsqueda por fecha
+                endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search/date`;
+                if (searchYear) params.year = searchYear;
+                if (searchMonth) params.month = searchMonth;
+            } else {
+                // Si no hay criterios de búsqueda, cargar todos los proyectos
+                await fetchAuthors();
+                return;
+            }
+
+            const response = await axios.get(endpoint, { params });
+            setAuthors(response.data);
+            setError(null);
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al buscar autores');
+            console.error("Error en la búsqueda:", err);
+            setError(err.response?.data?.error || "Error al buscar fuentes");
+            setAuthors([]);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Función de Eliminar Autor
-    const handleDelete = async (autCod) => {
-        setAutorAEliminar(autCod);  // Establecer el autor a eliminar
-        abrirPopup(); // Abrir el popup
+    // Eliminar una fuente 
+    const deleteAuthor = async (codigo) => {
+        try {
+            // /organizations/:orgcod/projects/:projcod/sources/:srccod'
+            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${codigo}`);
+            fetchAuthors(); // Refrescar la lista de fuentes después de eliminar uno
+        } catch (err) {
+            console.error("Error al eliminar la fuente:", err);
+            setError(err.response?.data?.error || "Error al eliminar la fuente");
+        }
     };
 
     const [autorAEliminar, setAutorAEliminar] = useState(null); // Estado para el autor a eliminar
@@ -71,39 +111,37 @@ const Autores = () => {
         cerrarPopup(); // Cerrar el popup después de eliminar
     };
 
-    // Función para exportar a Excel
+    // Exportar a Excel
     const exportToExcel = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/authors/export/excel', {
-                responseType: 'blob', // Importante para manejar archivos
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
+                responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'authors.xlsx');
+            link.setAttribute('download', 'fuentes.xlsx');
             document.body.appendChild(link);
             link.click();
-            link.remove();
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al exportar a Excel');
+            setError(err.response?.data?.error || "Error al exportar a Excel");
         }
     };
 
-    // Función para exportar a PDF
+    // Exportar a PDF
     const exportToPDF = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/authors/export/pdf', {
-                responseType: 'blob', // Importante para manejar archivos
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/pdf`, {
+                responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'authors.pdf');
+            link.setAttribute('download', 'organizaciones.pdf');
             document.body.appendChild(link);
             link.click();
-            link.remove();
         } catch (err) {
-            setError(err.response ? err.response.data.error : 'Error al exportar a PDF');
+            setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
 
@@ -111,13 +149,13 @@ const Autores = () => {
         navigate("/organizations");
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irANuevoAutor = () => {
-        navigate("/nuevoAutor");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/authors/new`);
     };
     const irAEditarAutor = () => {
-        navigate("/editarAutor");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/authors/${autcod}`);
     };
     const irALogin = () => {
         navigate("/");
@@ -159,12 +197,12 @@ const Autores = () => {
                             <button onClick={irANuevoAutor} className="autor-register-button">Nuevo Autor</button>
                             <div className="autor-sectionTextBuscar">
                                 <span class="message">
-                                <input
-                                    className="autor-textBuscar"
-                                    type="text"
-                                    placeholder="Buscar"
-                                    value={searchNombre}
-                                    onChange={(e) => setSearchNombre(e.target.value)}
+                                    <input
+                                        className="autor-textBuscar"
+                                        type="text"
+                                        placeholder="Buscar"
+                                        value={searchNombre}
+                                        onChange={(e) => setSearchNombre(e.target.value)}
                                     />
                                     <span class="tooltip-text">Filtrar información por código y/o nombre de autor</span>
                                 </span>
@@ -188,31 +226,43 @@ const Autores = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {authors.map((aut) => (
-                                        <tr key={aut.autCod}>
-                                            <td>{aut.autCod}</td>
-                                            <td>{aut.autNom}</td>
-                                            <td>{aut.autFecMod}</td>
-                                            <td>{aut.autVer}</td>
-                                            <td>{aut.autRol}</td>
+                                    {authors.map((author) => (
+                                        <tr key={author.code} onClick={() => irAEditarAutor(author.code)}>
+                                            <td>{author.code}</td>
+                                            <td>{author.firstName}</td>
+                                            <td>{new Date(author.creationDate).toLocaleDateString()}</td>
                                             <td>
-                                                {/*<button className="botton-crud">
-                                                    <FaFolder style={{ color: "orange", cursor: "pointer" }} />
-                                                </button>*/}
+                                                {new Date(author.modificationDate).toLocaleDateString()}
+                                            </td>
+                                            <td>{author.status}</td>
+                                            <td>{author.version}</td>
+                                            <td>
+                                                <button className="botton-crud">
+                                                    <FaFolder
+                                                        style={{ color: "orange", cursor: "pointer" }}
+                                                    />
+                                                </button>
                                                 <button
                                                     className="botton-crud"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                        irAEditarAutor(); // Llama a la función para editar
+                                                        irAEditarAutor(author.code); // Llama a la función para editar
                                                     }}
                                                 >
-                                                    <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
+                                                    <FaPencilAlt
+                                                        style={{ color: "blue", cursor: "pointer" }}
+                                                    />
                                                 </button>
                                                 <button
                                                     className="botton-crud"
-                                                    onClick={() => handleDelete(aut.autCod)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                        deleteAuthor(author.code);//deleteProject(source.code); // Llama a la función de eliminación
+                                                    }}
                                                 >
-                                                    <FaTrash style={{ color: "red", cursor: "pointer" }} />
+                                                    <FaTrash
+                                                        style={{ color: "red", cursor: "pointer" }}
+                                                    />
                                                 </button>
                                             </td>
                                         </tr>

@@ -47,7 +47,7 @@ const MenuProyecto = () => {
     };
 
     const irAAutores = () => {
-        navigate(`/projects/${projcod}/autores`, { state: { proid } });
+        navigate(`/organizations/${orgcod}/projects/${projcod}/authors`);
     };
 
     const irAEntrevistas = () => {

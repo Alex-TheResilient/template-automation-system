@@ -101,7 +101,7 @@ const NuevoAutor = () => {
     };
 
     const irAAutores = () => {
-        navigate("/autores");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/authors`);
     };
 
     const irALogin = () => {
@@ -109,7 +109,7 @@ const NuevoAutor = () => {
     };
 
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);

@@ -5,24 +5,14 @@ import '../../../styles/styles.css';
 import axios from "axios";
 import Roles from "../../Proyecto/Roles/Roles";
 
-const NuevoActor = () => {
+const EditarActor = () => {
     const navigate = useNavigate();
-    const hasFetched = useRef(false);
-    const location = useLocation();
-
+    const hasRun = useRef(false);
     // Obtener datos del proyecto del URL
-    const { projcod, orgcod } = useParams();
-
+    const { projcod, orgcod, actcod } = useParams();
     const [code, setCodigoActor] = useState("");
     const [version, setVersionActor] = useState("00.01");
-    const [creationDate, setFechaCreacion] = useState(
-        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
-    );
-    const [modificationDate, setFechaModificacion] = useState(
-        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
-    );
-
-
+    const [creationDate, setFechaCreacion] = useState("");
     // Datos controlados por el usuario
     const [name, setNombre] = useState("");
     const [status, setEstado] = useState("");
@@ -44,55 +34,50 @@ const NuevoActor = () => {
 
         fetchRoles();
     }, []);
-    //Obtener Role con el RoleId
-    //const selectedRole = roles.find((r) => r.id === roleId);
-    // Obtener el siguiente código de fuente
-    useEffect(() => {
-        if (hasFetched.current) return; // Previene segunda ejecución
-        hasFetched.current = true;
-        const fetchNextCodigoActor = async () => {
-            try {
-
-                // Llamar al endpoint usando parámetros de consulta
-                const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/actors/next-code`);
-
-                // Asignar el valor recibido al estado
-                setCodigoActor(response.data.nextCode || "FUE-001");
-            } catch (err) {
-                console.error("Error al obtener el siguiente código de actor:", err);
-                setError("No se pudo cargar el siguiente código del actor.");
-            }
-        };
-
-        fetchNextCodigoActor();
-    }, [API_BASE_URL, orgcod, projcod]);
-    //Extarer los roles 
-    const DataRoles = () => {
-
-    }
-    //Registrar Nuevo Actor
-    const registrarActor = async (e) => {
-        e.preventDefault();
+    
+     // GET: traer los datos de la fuente
+    const fetchActorData = async () => {
         try {
-            // Realiza la solicitud POST con los datos correctos
-            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/actors`, {
-                name,
-                comments, // Asumiendo que 'comentario' es un campo adicional
-                status, // Asumiendo que 'estado' es otro campo
-                roleId,
-                // roleId,
-                type,
-            });
-
-            // Redirigir a la página de expertos o realizar otra acción
-            irAActores();
-
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/actors/${actcod}`);
+            const data = response.data;
+            setEstado(data.status);
+            setVersionActor(data.version);
+            setSelectedRole(data.roles);
+            setType(data.type);
+            setRoleId(data.roleId);
+            setEstado(data.status);
+            setComentario(data.comments);
+            setFechaCreacion(data.creationDate);
         } catch (err) {
-            console.error("Error al registrar el actor:", err);
-            setError("No se pudo registrar al actor. Inténtalo de nuevo.");
+            setError("Error al obtener los datos de la fuente: " + err.message);
         }
     };
+    useEffect(() => {
+            if (hasRun.current) return; // 🚫 Evita ejecutar nuevamente
+            hasRun.current = true;
+            console.log("Cargando fuente con código:", actcod);
+            fetchActorData();
+        }, [actcod]);
 
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        console.log("Guardando fuente con código:", actcod);
+        try {
+            const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/actors/${actcod}`, {
+                name,
+                status,
+                comments,
+                creationDate
+            });
+    
+            if (response.status === 200) {
+                alert("Fuente actualizada correctamente");
+                irAActores();
+            }
+        } catch (err) {
+            setError("Error al actualizar la fuente: " + err.message);
+        }
+    };
 
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
@@ -123,7 +108,7 @@ const NuevoActor = () => {
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
                     <span onClick={irAActores}>Actores /</span>
-                    <span>Nuevo Actor</span>
+                    <span>Editar Actor</span>
                 </div>
             </header>
 
@@ -140,7 +125,7 @@ const NuevoActor = () => {
                 </aside>
 
                 <main className="ro-content">
-                    <h2>NUEVO ACTOR</h2>
+                    <h2>EDITAR ACTOR</h2>
                     <section className="ro-organization">
                         <h3>
                             <label className="ro-codigo">Código </label>
@@ -149,7 +134,7 @@ const NuevoActor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={actcod} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-vers">
                                 <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
@@ -177,12 +162,6 @@ const NuevoActor = () => {
                                             <option key={r.id} value={r.id}>{r.name}</option>
                                         ))}
                                     </select>
-                                    {/* <select id="estado" name="estado" value={roleId} onChange={(e) => setRoleId(e.target.value)} required>
-                                        <option value="">Seleccione un rol</option>
-                                        {roles.map((r) => (
-                                            <option key={r.id} value={r.id}>{r.name}</option>
-                                        ))}
-                                    </select> */}
                                 </div>
                                 <div className="ro-fiel-vers">
                                     <h4>Tipo*</h4>
@@ -240,7 +219,7 @@ const NuevoActor = () => {
 
                         <div className="ro-buttons">
                             <button onClick={irAActores} className="ro-button">Cancelar</button>
-                            <button onClick={registrarActor} className="ro-button">Crear Actor</button>
+                            <button onClick={handleEdit} className="ro-button">Crear Actor</button>
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>
@@ -250,4 +229,4 @@ const NuevoActor = () => {
     );
 };
 
-export default NuevoActor;
+export default EditarActor;

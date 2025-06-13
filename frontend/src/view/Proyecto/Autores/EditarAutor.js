@@ -51,7 +51,7 @@ const EditarAutor = () => {
     };
 
     const irAAutores = () => {
-        navigate("/autores");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/authors`);
     };
 
     const irALogin = () => {
@@ -59,7 +59,7 @@ const EditarAutor = () => {
     };
 
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);

@@ -37,7 +37,7 @@ const Plantillas = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts`);
     };
     const irAActores = () => {
-        navigate("/actores");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actors`);
     };
 
     const irARequerimientosNoFuncionales = () => {
