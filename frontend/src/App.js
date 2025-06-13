@@ -70,9 +70,9 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/menuProyecto" element={<MenuProyecto />} />
 
           {/* Entrevistas */}
-          <Route path="/projects/:projcod/entrevistas" element={<Entrevistas />} />
-          <Route path="/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
-          <Route path="/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/entrevistas" element={<Entrevistas />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
 
           {/* Educciones }
           //<Route path="/projects/:projcod/educciones" element={<Educcion />} />
