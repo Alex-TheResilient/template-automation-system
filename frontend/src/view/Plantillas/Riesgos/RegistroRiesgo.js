@@ -1,12 +1,75 @@
-import React from "react";
-import { useNavigate ,useParams } from "react-router-dom";
+import React,{ useState, useEffect } from "react";
+import { useNavigate ,useParams, useLocation } from "react-router-dom";
 import '../../../styles/stylesRiesgo.css';
 import '../../../styles/styles.css';
+import axios from "axios";
 
 const RegistroRiesgo = () => {
 
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
+    const location = useLocation();
+    const { proid } = location.state || {};
+
+    const [entityType, setEntityType] = useState("");
+    const [version, setVersion] = useState("01.00");
+    const [registryCode, setRegistryCode] = useState("");
+    const [description, setDescription] = useState("");
+    const [impact, setImpact] = useState("");
+    const [probability, setProbability] = useState("");
+    const [status, setStatus] = useState("");
+    const [creationDate, setCreationDate] = useState(
+            new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [comments, setComments] = useState("");
+    const [sourceRiskCode, setSourceRiskCode] = useState("");
+    const [code, setCode] = useState("");
+
+    const [error, setError]=useState(null);
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";   
+    
+    useEffect(() => {
+    
+        const fetchNextCodigoRiesgo = async () => {
+            try {
+                
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/next-code`);
+
+                // Asignar el valor recibido al estado
+                setCode(response.data.nextCode || "Ed-001");
+            } catch (err) {
+                console.error("Error al obtener el siguiente código de experto:", err);
+                setError("No se pudo cargar el siguiente código del experto.");
+            }
+        };
+
+        fetchNextCodigoRiesgo();
+    }, [API_BASE_URL,orgcod, projcod]);
+
+    const registrarRiesgo = async (e) => {
+        e.preventDefault();
+        try {
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/projects/${proid}/risks`, {
+                entityType,
+                registryCode,
+                description,
+                impact,
+                probability,
+                comments, // Asumiendo que 'comentario' es un campo adicional
+                status, // Asumiendo que 'estado' es otro campo
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAEduccion();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
+        }
+    };    
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -23,7 +86,11 @@ const RegistroRiesgo = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
     const irAEduccion = () => {
-        navigate("/educcion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     return (
@@ -62,13 +129,27 @@ const RegistroRiesgo = () => {
                     <h2>REGISTRO RIESGO</h2>
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
-                            <label className="ne-label">Código de Registro*</label>
-                            <label className="ne-label">Version*</label>
+                            <label className="ne-label">Selecciona Entidad*</label>
+                            <label className="ne-label">Codigo de Registro*</label>
                             <label className="ne-label">Responsble*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="EDU-0001" readOnly />
-                            <input disabled type="text" className="ne-input" value="00.01" readOnly />
+                            <select
+                                className="ne-input estado-input"
+                                value={entityType}
+                                onChange={(e) => setEntityType(e.target.value)}
+                                required
+                            >
+                                {entityType === "" && <option value="">Seleccione una</option>}
+                                <option value="Educción">Educcion</option>
+                                <option value="Ilación">Ilación</option>
+                                <option value="Especificación">Especificación</option>
+                                <option value="Req. No Funcional">Req. No Funcional</option>
+                            </select>
+                            <span className="message">
+                            <input type="text" className="input-text" value={registryCode}
+                                onChange={(e) => setRegistryCode(e.target.value)} size="80"/>
+                                </span>
                             <input disabled type="text" className="ne-input" value="AUT-0000" readOnly />
                         </div>
 
@@ -77,7 +158,8 @@ const RegistroRiesgo = () => {
                                 <h4>RIESGO IDENTIFICADO*</h4>
                             </div>
                             <div className="fiel-vers">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Descripción del riesgo identificado."></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={description}
+                                onChange={(e) => setDescription(e.target.value)}placeholder="Descripción del riesgo identificado."></textarea>
                             </div>
                         </div>
                     </section>
@@ -91,12 +173,10 @@ const RegistroRiesgo = () => {
                         <div className="ne-input-container">
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedProbabilidadCualitativa = e.target.value;
-                                    console.log("Probabilidad cualitativa:", selectedProbabilidadCualitativa);
-                                }}
+                                value={probability}
+                                onChange={(e) => setProbability(e.target.value)}
                             >
-                                <option value="">Seleccione una opción</option>
+                                <option value="" disabled>Seleccione una opción</option>
                                 <option value="leve">Leve</option>
                                 <option value="moderada">Moderada</option>
                                 <option value="alta">Alta</option>
@@ -108,7 +188,7 @@ const RegistroRiesgo = () => {
                                     console.log("Probabilidad:", selectedProbabilidad);
                                 }}
                             >
-                                <option value="">Seleccione una opción</option>
+                                <option value="" disabled>Seleccione una opción</option>
                                 <option value="10">10%</option>
                                 <option value="15">15%</option>
                                 <option value="20">20%</option>
@@ -116,12 +196,11 @@ const RegistroRiesgo = () => {
                             </select>
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedImpacto = e.target.value;
-                                    console.log("Impacto:", selectedImpacto);
-                                }}
+                                value={impact}
+                                onChange={(e) => setImpact(e.target.value)}
+                                required
                             >
-                                <option value="">Seleccione una opción</option>
+                                <option value="" disabled>Seleccione una opción</option>
                                 <option value="10">1 dia</option>
                                 <option value="15">7 dias</option>
                                 <option value="20">15 dias</option>
@@ -154,10 +233,9 @@ const RegistroRiesgo = () => {
                         <div className="ne-input-container">
                             <select
                                 className="ne-input estado-input"
-                                onChange={(e) => {
-                                    const selectedEstado = e.target.value;
-                                    console.log("Estado:", selectedEstado);
-                                }}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                required
                             >
                                 <option value="">Seleccione una opción</option>
                                 <option value="identificado">Identificado</option>
@@ -186,13 +264,14 @@ const RegistroRiesgo = () => {
                                     <h4>PLAN MITIGACIÓN*</h4>
                                 </div>
                                 <div className="fiel-vers">
-                                <textarea className="input-fieldtext" rows="3" placeholder="Plan de actividades para resolver el asunto o problema pendiente."></textarea>
+                                <textarea className="input-fieldtext"  value={comments}
+                                onChange={(e) => setComments(e.target.value)}rows="3" placeholder="Plan de actividades para resolver el asunto o problema pendiente."></textarea>
                                 </div>
                             </div>
 
                             <div className="ne-buttons">
                             <button onClick={irAEduccion} className="ne-button" size="50">Cancelar</button>
-                            <button onClick={irAEduccion} className="ne-button" size="50">Guardar Riesgo</button>
+                            <button onClick={registrarRiesgo} className="ne-button" size="50">Guardar Riesgo</button>
                         </div>
                     </section>
 

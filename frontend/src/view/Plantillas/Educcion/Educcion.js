@@ -15,6 +15,8 @@ const Educcion = () => {
 
     // Estado de proyectos y errores
     const [educciones, setEducciones] = useState([]);
+    const [riesgos, setRiesgos] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
         
@@ -26,7 +28,7 @@ const Educcion = () => {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const fetchEducciones = useCallback(async () => {
-    //Obtener o listar expertos de un proyecto
+    //Obtener o listar educciones de un proyecto
         try {
             const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`);
             setEducciones(response.data||[]);
@@ -44,6 +46,28 @@ const Educcion = () => {
         fetchEducciones();
     
     }, [fetchEducciones]);
+
+    const fetchRiesgos = useCallback(async () => {
+    //Obtener o listar educciones de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks`);
+            setRiesgos(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [proid,API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchRiesgos();
+    
+    }, [fetchRiesgos]);
+
+
 
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -135,6 +159,38 @@ const Educcion = () => {
             setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
+        const exportToExcelRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDFRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
     const irALogin = () => {
         navigate("/");
@@ -168,7 +224,11 @@ const Educcion = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registroRiesgo");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");
@@ -456,25 +516,27 @@ const Educcion = () => {
                                 <thead>
                                     <tr>
                                         <th>Código del Requisito</th>
-                                        <th>Versión</th>
+                                        <th>Código de Riesgo</th>
                                         <th>Responsable</th>
                                         <th>Riesgo Identificado</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
-                                <tbody onClick={irAVerRiesgo}>
-                                    <tr>
-                                        <td>EDU-0001</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0002</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
+                                <tbody>
+                                    {riesgos
+                                        .filter((riesgo) => riesgo.entityType === "Educción")
+                                        .map((riesgo, index) => (
+                                        <tr key={index}>
+                                            <td>{riesgo.registryCode}</td>
+                                            <td>{riesgo.code}</td>
+                                            <td>AUT-001</td>
+                                            <td>{riesgo.description}</td>
+                                            <td>
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
+                                                e.stopPropagation();
+                                                irAEditarRiesgo(riesgo.id); // puedes pasar el id
                                                 }}
                                             >
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -482,42 +544,16 @@ const Educcion = () => {
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
+                                                e.stopPropagation();
+                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                             </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>EDU-0002</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0003</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                            </td>
+                                        </tr>
+                                        ))}
+                                    </tbody>
 
                             </table>
 
@@ -539,11 +575,11 @@ const Educcion = () => {
                         <h4>Total de registros 2</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onClick={exportToExcelRisk}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                <button className="export-button"onClick={exportToPDFRisk}>PDF</button>
                                     <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
                                 </span>
                             </div>

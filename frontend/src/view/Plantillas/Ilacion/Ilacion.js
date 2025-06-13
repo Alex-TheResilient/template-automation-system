@@ -13,6 +13,7 @@ const Ilacion = () => {
     const { orgcod, projcod,educod } = useParams();
 
     const [ilaciones, setIlaciones] = useState([]);
+    const [riesgos, setRiesgos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchNombre, setSearchNombre] = useState("");
 
@@ -116,6 +117,27 @@ const Ilacion = () => {
     };
 
 
+    const fetchRiesgos = useCallback(async () => {
+    //Obtener o listar educciones de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks`);
+            setRiesgos(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [proid,API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchRiesgos();
+    
+    }, [fetchRiesgos]);
+
+
 
     const irALogin = () => {
         navigate("/");
@@ -145,7 +167,11 @@ const Ilacion = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registroRiesgo");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");
@@ -442,19 +468,21 @@ const Ilacion = () => {
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
-                                <tbody onClick={irAVerRiesgo}>
-                                    <tr>
-                                        <td>ILA-0001</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0002</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
+                                <tbody>
+                                    {riesgos
+                                        .filter((riesgo) => riesgo.entityType === "Ilación")
+                                        .map((riesgo, index) => (
+                                        <tr key={index}>
+                                            <td>{riesgo.registryCode}</td>
+                                            <td>{riesgo.code}</td>
+                                            <td>AUT-001</td>
+                                            <td>{riesgo.description}</td>
+                                            <td>
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
+                                                e.stopPropagation();
+                                                irAEditarRiesgo(riesgo.id); // puedes pasar el id
                                                 }}
                                             >
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -462,42 +490,16 @@ const Ilacion = () => {
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
+                                                e.stopPropagation();
+                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                             </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>ILA-0002</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0003</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                            </td>
+                                        </tr>
+                                        ))}
+                                    </tbody>
 
                             </table>
 
