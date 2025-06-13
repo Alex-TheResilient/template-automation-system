@@ -1,69 +1,88 @@
 import React, { useState } from "react"; 
 import axios from "axios"; 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import '../../../styles/stylesNuevaEntrevista.css';
 import '../../../styles/styles.css';
 
 const NuevaEntrevista = () => {
     const navigate = useNavigate();
-    const { proyectoId } = useParams();
+    const location = useLocation();
     const {orgcod, projcod } = useParams();
+    const { proid } = location.state || {};
 
-    const [entrevista, setEntrevista] = useState({
-        version: "00.01",
-        fechaEntrevista: "",
-        autorId: "AUT-0000",
-        nombreEntrevistado: "",
-        cargoEntrevistado: "",
-        horaInicio: "",
-        horaFin: "",
-        observaciones: "",
-        agendas: [{ descripcion: "" }],
-        conclusiones: [{ descripcion: "" }]
-    });
+    const [version, setVersion] = useState("01.00");
+    const [interviewName, setInterviewName] = useState("");
+    const [interviewDate, setInterviewDate] = useState("")
+    const [intervieweeName, setIntervieweeName] = useState("");
+    const [intervieweeRole, setIntervieweeRol] = useState("");
+    const [startTime, setStartTime] = useState("")
+    const [endTime, setEndTime] = useState("")
+    const [observations, setObservations] = useState("");
+    const [authorId, setAuthorId] = useState("6a813a0f-2086-42fc-a373-5c86f05bfa08");
     
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setEntrevista({ ...entrevista, [name]: value });
-    };
-
-    const handleAgendaChange = (index, e) => {
-        const { name, value } = e.target;
-        const agendas = [...entrevista.agendas];
-        agendas[index][name] = value;
-        setEntrevista({ ...entrevista, agendas });
-    };
-
-    const handleConclusionChange = (index, e) => {
-        const { name, value } = e.target;
-        const conclusiones = [...entrevista.conclusiones];
-        conclusiones[index][name] = value;
-        setEntrevista({ ...entrevista, conclusiones });
-    };
-
-    const addAgenda = () => {
-        setEntrevista({ ...entrevista, agendas: [...entrevista.agendas, { descripcion: "" }] });
-    };
-
-    const addConclusion = () => {
-        setEntrevista({ ...entrevista, conclusiones: [...entrevista.conclusiones, { descripcion: "" }] });
-    };
-
-    const handleSubmit = async (e) => {
+    const [agendaItems, setAgendaItems] = useState([""]);
+    const [conclusions, setConclusions] = useState([""]);
+    
+    const [status, setStatus] = useState("");
+    const [error, setError]=useState(null);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    const registrarEntrevista = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`/api/projects/${proyectoId}/entrevistas`, entrevista);
-            navigate(`/projects/${proyectoId}/entrevistas`);
-        } catch (error) {
-            console.error("Error al crear la entrevista:", error);
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews`, {
+                version,
+                interviewName,
+                interviewDate,
+                intervieweeName,
+                intervieweeRole,
+                startTime,
+                endTime,
+                observations,
+                authorId,
+                agendaItems: agendaItems.map(item => ({ description: item })),
+                conclusions: conclusions.map(item => ({ description: item }))
+            });
+            
+            // Redirigir a la página de expertos o realizar otra acción
+            irAEntrevistas();
+    
+        } catch (err) {
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
         }
     };
+
+    const handleAgendaChange = (index, value) => {
+    const updated = [...agendaItems];
+    updated[index] = value;
+    setAgendaItems(updated);
+  };
+
+  const handleConclusionChange = (index, value) => {
+    const updated = [...conclusions];
+    updated[index] = value;
+    setConclusions(updated);
+  };
+
+  const addAgendaItem = () => {
+    setAgendaItems([...agendaItems, ""]);
+  };
+
+  const addConclusion = () => {
+    setConclusions([...conclusions, ""]);
+  };
+    
 
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
     const irAEntrevistas = () => {
-        navigate("/projects/" + proyectoId + "/entrevistas");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/entrevistas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irALogin = () => {
         navigate("/");
@@ -116,17 +135,17 @@ const NuevaEntrevista = () => {
                                 <h4>Versión</h4>
                             </div>
                             <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field" value="00.01" readOnly size="100" />
+                                <input disabled type="text" className="inputBloq-field" value={version} readOnly size="100" />
                             </div>
                         </div>
 
                         <div className="rp-cod-vers">
                             <div className="fiel-cod">
-                                <h4>Fecha de entrevista *</h4>
+                                <h4>Nombre de la entrevista *</h4>
                             </div>
                             <div className="fiel-vers">
                                 <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
+                                    <input className="input-text" value={interviewName} onChange={(e) => setInterviewName(e.target.value)} type="text"placeholder=""  size="100" />
                                     <span class="tooltip-text">Fecha de la entrevista con el cliente</span>
                                 </span>
                             </div>
@@ -160,7 +179,7 @@ const NuevaEntrevista = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span class="message">
-                                <input className="input-text" type="text"placeholder=""  size="100" />
+                                <input className="input-text" value={intervieweeName} onChange={(e) => setIntervieweeName(e.target.value)} type="text"placeholder=""  size="100" />
                                     <span class="tooltip-text">Nombre del cliente o persona a la que se entrevistará</span>
                                 </span>
                             </div>
@@ -172,7 +191,7 @@ const NuevaEntrevista = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" /> 
+                                    <input className="input-text" value={intervieweeRole} onChange={(e) => setIntervieweeRol(e.target.value)} type="text"placeholder=""  size="100" /> 
                                     <span class="tooltip-text">Cargo que tiene en el proyecto la persona entrevistada. Ej. Cliente, Líder del proyecto, etc.</span>
                                 </span>
                             </div>
@@ -185,7 +204,13 @@ const NuevaEntrevista = () => {
                             <div className="fiel-cod-e">
                                 <h4>Fecha *</h4>
                                     <span class="message">
-                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <input
+                                            className="input-text"
+                                            type="date"
+                                            value={interviewDate}
+                                            onChange={(e) => setInterviewDate(e.target.value)}
+                                            size="50"
+                                        />
                                         <span class="tooltip-text">Fecha en la que se llevará a cabo la entrevista</span>
                                     </span>
                             </div>
@@ -193,7 +218,13 @@ const NuevaEntrevista = () => {
                                 <div className="fiel-cod-e">
                                     <h4>Hora de inicio *</h4>
                                     <span class="message">
-                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        <input
+                                            className="input-text"
+                                            type="time"
+                                            value={startTime}
+                                            onChange={(e) => setStartTime(e.target.value)}
+                                            size="50"
+                                        />
                                         <span class="tooltip-text">Hora de inicio de la entrevista</span>
                                     </span>
                                 </div>
@@ -202,23 +233,15 @@ const NuevaEntrevista = () => {
                                 <div className="fiel-cod-e">
                                     <h4>Hora de fin *</h4>
                                     <span class="message">
-                                        <input className="input-text" type="text"placeholder=""  size="50" />
+                                        
+                                        <input
+                                            className="input-text"
+                                            type="time"
+                                            value={endTime}
+                                            onChange={(e) => setEndTime(e.target.value)}
+                                            size="50"
+                                        />
                                         <span class="tooltip-text">Hora de fin de la entrevista</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="rp-cod-vers">
-                                <div className="fiel-cod-e">
-                                    <h4>Duración</h4>
-                                    <input disabled type="text" className="inputBloq-field" value="47 min" readOnly size="50" />
-                                </div>
-                            </div>
-                            <div className="rp-cod-vers">
-                                <div className="fiel-cod-e">
-                                    <h4>Observaciones *</h4>
-                                    <span class="message">
-                                        <input className="input-text" type="text"placeholder=""  size="50" />
-                                        <span class="tooltip-text">Agregar observaciones respecto a la duración de la reunión</span>
                                     </span>
                                 </div>
                             </div>
@@ -228,94 +251,86 @@ const NuevaEntrevista = () => {
 
                     <section className="rp-organization-section">
                         <h3>Agenda</h3>
-                        <div className="rp-cod-vers">
+                        {agendaItems.map((item, index) => (
+                        <div className="rp-cod-vers" key={`agenda-${index}`}>
                             <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="1" readOnly size="50" />
+                            <input
+                                disabled
+                                type="text"
+                                className="inputBloq-field2"
+                                value={index + 1}
+                                readOnly
+                                size="50"
+                            />
                             </div>
                             <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
+                            <span className="message">
+                                <input
+                                className="input-text"
+                                type="text"
+                                value={item}
+                                onChange={(e) => handleAgendaChange(index, e.target.value)}
+                                placeholder="Ingrese punto de agenda"
+                                size="100"
+                                />
+                                <span className="tooltip-text">
+                                Agregar agenda o puntos a tratar durante la reunión
                                 </span>
+                            </span>
                             </div>
                         </div>
-
-                        <div className="rp-cod-vers">
-                            <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="2" readOnly size="50" />
-                            </div>
-                            <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="rp-cod-vers">
-                            <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="3" readOnly size="50" />
-                            </div>
-                            <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar agenda o puntos a tratar durante la reunión</span>
-                                </span>
-                            </div>
-                        </div>
-                        
+                        ))}
+                        <button type="button" className="rp-button" onClick={addAgendaItem}>
+                        + Agregar ítem de agenda
+                        </button>
                     </section>
 
                     <section className="rp-organization-section">
                         <h3>Conclusiones</h3>
-                        <div className="rp-cod-vers">
+                        {conclusions.map((item, index) => (
+                        <div className="rp-cod-vers" key={`conclusion-${index}`}>
                             <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="1" readOnly size="50" />
+                            <input
+                                disabled
+                                type="text"
+                                className="inputBloq-field2"
+                                value={index + 1}
+                                readOnly
+                                size="50"
+                            />
                             </div>
                             <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
+                            <span className="message">
+                                <input
+                                className="input-text"
+                                type="text"
+                                value={item}
+                                onChange={(e) => handleConclusionChange(index, e.target.value)}
+                                placeholder="Ingrese conclusión"
+                                size="100"
+                                />
+                                <span className="tooltip-text">
+                                Agregar conclusiones llegadas en la reunión
                                 </span>
+                            </span>
                             </div>
                         </div>
-
-                        <div className="rp-cod-vers">
-                            <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="2" readOnly size="50" />
-                            </div>
-                            <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="rp-cod-vers">
-                            <div className="fiel-vers">
-                                <input disabled type="text" className="inputBloq-field2" value="3" readOnly size="50" />
-                            </div>
-                            <div className="fiel-vers">
-                                <span class="message">
-                                    <input className="input-text" type="text"placeholder=""  size="100" />
-                                    <span class="tooltip-text">Agregar conclusiones llegadas en la reunión</span>
-                                </span>
-                            </div>
-                        </div>
-                        
+                        ))}
+                        <button type="button" className="rp-button" onClick={addConclusion}>
+                        + Agregar conclusión
+                        </button>
                     </section>
 
                     <section className="rp-organizations-section">
                         <h3>Observaciones</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" placeholder="Añadir observaciones encontradas"></textarea>
+                            <textarea className="input-fieldtext" rows="3"value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Añadir observaciones encontradas"></textarea>
                         </div>
 
                         <div className="rp-buttons">
                             <button onClick={irAEntrevistas} className="rp-button" size="50">Cancelar</button>
-                            <button onClick={irAEntrevistas} className="rp-button" size="50">Crear</button>
+                            <button onClick={registrarEntrevista} className="rp-button" size="50">Crear</button>
                         </div>
                     </section>
                 </main>
