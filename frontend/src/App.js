@@ -33,6 +33,7 @@ import RegistroRiesgo from './view/Plantillas/Riesgos/RegistroRiesgo.js';
 import EditarRiesgo from './view/Plantillas/Riesgos/EditarRiesgo.js';
 import Actores from './view/Plantillas/Actores/Actores.js';
 import NuevoActor from './view/Plantillas/Actores/NuevoActor.js';
+import EditarActor from './view/Plantillas/Actores/EditarActor.js';
 import Expertos from './view/Plantillas/Expertos/Expertos.js';
 import NuevoExperto from './view/Plantillas/Expertos/NuevoExperto.js';
 import EditarExperto from './view/Plantillas/Expertos/EditarExperto.js';
@@ -84,16 +85,8 @@ function App() {
           {/*<Route path="/educciones/:educod/ilaciones" element={<Ilacion />} />
           <Route path="/educciones/:educod/ilaciones/new" element={<NuevaIlacion />} />
           <Route path="/educciones/:educod/ilaciones/:ilacod" element={<EditarIlacion />} />*/}
-
-          {/* Especificaciones */}
-          {/* <Route path="/ilaciones/:ilacod/especificaciones" element={<ListaEspecificaciones />} />
-          <Route path="/ilaciones/:ilacod/especificaciones/new" element={<NuevaEspecificacion />} />
-          <Route path="/ilaciones/:ilacod/especificaciones/:especod" element={<EditarEspecificacion />} /> */}
-
           <Route path="/organizations/:orgcod/projects/:projcod/actaAceptacion" element={<ActaAceptacion />} />
-          <Route path="/projects/:projcod/autores" element={<Autores />} />
-          <Route path="/nuevoAutor" element={<NuevoAutor />} />
-          <Route path="/editarAutor" element={<EditarAutor />} />
+          
           <Route path="/roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol/:rolCod" element={<EditarRol />} />
@@ -108,17 +101,26 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/artifacts" element={<Artefactos />} />
           <Route path="/registroRiesgo" element={<RegistroRiesgo />} />
           <Route path="/editarRiesgo" element={<EditarRiesgo />} />
-          <Route path="/actores" element={<Actores />} />
-          <Route path="/nuevoActor" element={<NuevoActor />} />
+        
           <Route path="/organizations/:orgcod/projects/:projcod/experts" element={<Expertos />} />   
           {/*Fuentes*/} 
           <Route path="/organizations/:orgcod/projects/:projcod/sources" element={<Fuentes />} />   
           <Route path="/organizations/:orgcod/projects/:projcod/sources/new" element={<NuevaFuente />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/sources/:fuecod" element={<EditarFuente />} />
-        {/*Especificaciones*/} 
+          {/*Especificaciones*/} 
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications" element={<Especificacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/new" element={<NuevaEspecificacion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/:specod" element={<EditarEspecificacion />} />
+          {/*Autores
+          organizations/ORG-001/projects/PROJ-001/autores/AUT-001        
+          */} 
+          <Route path="/organizations/:orgcod/projects/:projcod/authors" element={<Autores />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/authors/new" element={<NuevoAutor />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/authors/:autcod" element={<EditarAutor />} />
+           
+          <Route path="/organizations/:orgcod/projects/:projcod/actors" element={<Actores />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/actors/new" element={<NuevoActor />} />  
+          <Route path="/organizations/:orgcod/projects/:projcod/actors/:actcod" element={<EditarActor />} /> 
 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/new" element={<NuevoExperto />} /> 
           <Route path="/organizations/:orgcod/projects/:projcod/experts/:expcod" element={<EditarExperto />} /> 

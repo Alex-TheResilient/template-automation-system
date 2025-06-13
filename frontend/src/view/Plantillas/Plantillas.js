@@ -43,7 +43,7 @@ const Plantillas = () => {
     });
     };
     const irAActores = () => {
-        navigate("/actores");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actors`);
     };
 
     const irARequerimientosNoFuncionales = () => {
