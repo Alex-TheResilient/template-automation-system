@@ -1,5 +1,5 @@
 import React, { useState,useCallback, useEffect } from 'react';
-import { useNavigate,useParams } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -9,7 +9,9 @@ import axios from 'axios';
 
 const Educcion = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { orgcod, projcod } = useParams();
+    const { proid } = location.state || {};
 
     // Estado de proyectos y errores
     const [educciones, setEducciones] = useState([]);
@@ -141,13 +143,25 @@ const Educcion = () => {
         navigate("/organizations");
     };
     const irAVerEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irANuevaEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarEduccion = (code) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -163,14 +177,26 @@ const Educcion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAIlaciones = (code) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}/ilaciones`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${code}/ilaciones`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
 

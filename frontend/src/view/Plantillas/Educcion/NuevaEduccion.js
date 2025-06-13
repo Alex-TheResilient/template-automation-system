@@ -1,5 +1,5 @@
 import React,{ useState, useEffect,useRef } from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesNuevaEduccion.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,7 +7,10 @@ import axios from "axios";
 const NuevaEduccion = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { orgcod, projcod } = useParams();
+
+    const { proid } = location.state || {};
 
     const [code, setCode] = useState("");
     const [comment, setComment] = useState("");
@@ -75,13 +78,25 @@ const NuevaEduccion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [dropdownOpen, setDropdownOpen] = React.useState({
@@ -289,36 +304,10 @@ const NuevaEduccion = () => {
 
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
-                            <label className="ne-label">Código de ilación*</label>
                             <label className="ne-label">Importancia*</label>
                             <label className="ne-label">Estado*</label>
                         </h3>
                         <div className="ne-input-container">
-                            <div className="custom-select-dropdown">
-                                <div className="dropdown-toggle" onClick={() => toggleDropdown("ilaciones")}>
-                                    <span>
-                                        {selectedItems.length > 0
-                                            ? selectedItems.join(", ")
-                                            : "Seleccione una o más opciones"}
-                                    </span>
-                                    <span className="dropdown-arrow">▼</span>
-                                </div>
-                                {dropdownOpen.ilaciones && (
-                                    <div className="dropdown-menu">
-                                        {ilaciones.map((option, index) => (
-                                            <label key={index} className="dropdown-item">
-                                                <input
-                                                    type="checkbox"
-                                                    value={option}
-                                                    checked={selectedItems.includes(option)}
-                                                    onChange={(e) => handleCheckboxChange(e.target.value)}
-                                                />
-                                                {option}
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
                             <select
                                 className="ne-input estado-input"
                                 value={importance}

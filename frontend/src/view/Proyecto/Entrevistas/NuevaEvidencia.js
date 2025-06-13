@@ -7,6 +7,8 @@ const NuevaEvidencia = () => {
 
     const navigate = useNavigate();
     const {orgcod, projcod } = useParams();
+    const interid = "267e4534-a9bf-47e3-a869-6f000b486fdd";
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };

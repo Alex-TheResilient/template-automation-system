@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesEntrevistas.css'
@@ -9,9 +9,12 @@ import '../../../styles/styles.css';
 
 const Entrevistas = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const {orgcod, projcod } = useParams();
     const [entrevistas, setEntrevistas] = useState([]);
+    const [evidencias, setEvidencias] = useState([]);
     const [mostrarPopup, setMostrarPopup] = useState(false);
+    const { proid } = location.state || {};
 
     useEffect(() => {
         const fetchEntrevistas = async () => {
@@ -33,26 +36,50 @@ const Entrevistas = () => {
         navigate("/organizations");
     };
     const irAVerEntrevista = () => {
-        navigate("/verEntrevista");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/verEntrevista`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irANuevaEntrevista = () => {
-        navigate(`/projects/${projcod}/entrevistas/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/entrevistas/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAEditarEntrevista = (entrecod) => {
-        navigate(`/projects/${projcod}/entrevistas/${entrecod}`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/entrevistas/${entrecod}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAVerEvidencia = () => {
-        navigate("/verEvidencia");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/evidencia`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     
     const irASubirEvidencia = () => {
-        navigate("/nuevaEvidencia");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/evidencia/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);
@@ -226,6 +253,7 @@ const Entrevistas = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {evidencias.map((evi) => (
                                     <tr>
                                         <td>FOT-0001</td>
                                         <td>Foto01.jpg</td>
@@ -236,6 +264,7 @@ const Entrevistas = () => {
                                             <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
                                         </td>
                                     </tr>
+                                    ))}
                                     <tr>
                                         <td>AUD-0001</td>
                                         <td>Audio01.jpg</td>

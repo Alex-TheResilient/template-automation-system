@@ -58,8 +58,11 @@ const ActaAceptacion = () => {
 
     const irAMenuProyecto = () => {
 
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
-
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid: proid
+        }
+    });
     };
 
 
@@ -73,11 +76,7 @@ const ActaAceptacion = () => {
     const irAListaProyecto = () => {
 
         navigate(`/organizations/${orgcod}/projects`);
-
     };
-
-
-    // Obtener el código del acta desde los query params de la URL
 
     const queryParams = new URLSearchParams(location.search);
 
@@ -100,21 +99,14 @@ const ActaAceptacion = () => {
 
             try {
 
-                // Asumiendo que tienes una ruta para obtener un acta por projectId
-
                 const response = await axios.get(`${API_BASE_URL}/projects/${proid}/acceptance-records`);
 
                 if (response.data && response.data.length > 0) {
-
-                    // Si hay actas, tomamos la primera (o la más reciente, según tu lógica de negocio)
-
                     const acta = response.data[0];
 
                     setExistingActa(acta);
 
-                    // Si el acta tiene una URL para previsualizar, la usamos
-
-                    if (acta.fileUrl) { // Asume que la API devuelve una 'fileUrl'
+                    if (acta.fileUrl) { 
 
                         setFilePreview(acta.fileUrl);
 
@@ -145,7 +137,7 @@ const ActaAceptacion = () => {
 
         fetchExistingActa();
 
-    }, [proid, API_BASE_URL]); // Se ejecutará cuando proid o API_BASE_URL cambien
+    }, [proid, API_BASE_URL]); 
 
 
     // --- Manejadores de eventos ---
@@ -207,7 +199,7 @@ const ActaAceptacion = () => {
 
         formData.append("file", selectedFile);
 
-        formData.append("projectId", proid); // debe coincidir exactamente con req.body.projectId
+        formData.append("projectId", proid); 
 
 
         try {
@@ -270,14 +262,6 @@ const ActaAceptacion = () => {
 
 
                 <aside className="sidebar">
-
-                    {/*<div className="nav-button">
-
-                            <button className="atras-button">Atras</button>
-
-                            <button className="adelante-button">Adelante</button>
-
-                        </div>*/}
 
                     <div className="bar-rp">
 

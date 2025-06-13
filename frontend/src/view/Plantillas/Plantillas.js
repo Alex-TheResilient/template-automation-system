@@ -22,19 +22,25 @@ const Plantillas = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate("/menuProyecto", { state: { proid } });
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
-    };
-    const irAIlacion = () => {
-        navigate("/ilacion");
-    };
-    const irAEspecificacion = () => {
-        navigate("/especificacion");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`, {
+            state: {
+            proid:proid
+        }
+    });
     };
     const irAArtefactos = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts`, {
+            state: {
+            proid:proid
+        }
+    });
     };
     const irAActores = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/actors`);
@@ -43,17 +49,25 @@ const Plantillas = () => {
     const irARequerimientosNoFuncionales = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/rnf`,{
         state: {
-            proid
+            proid:proid
         }
     });
     };
 
     const irAExpertos = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/experts`); 
+        navigate(`/organizations/${orgcod}/projects/${projcod}/experts`, {
+            state: {
+            proid:proid
+        }
+    });
     };
 
     const irAFuentes = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/sources`); // ✅ Con ID
+        navigate(`/organizations/${orgcod}/projects/${projcod}/sources`, {
+            state: {
+            proid:proid
+        }
+    });
     };
 
     const irAMetricas = () => {
@@ -101,15 +115,7 @@ const Plantillas = () => {
                         <h3>Plantillas Principales</h3>
                         <div className="button-container-plantillas">
                             <div>
-                                <button onClick={irAEduccion} className="educcion-button">EDUCCIÓN</button>
-                                <p className="boton-text">    Gestión de riesgos    </p>
-                            </div>
-                            <div>
-                                <button onClick={irAIlacion} className="ilacion-button">ILACIÓN</button>
-                                <p className="boton-text">    Gestión de riesgos    </p>
-                            </div>
-                            <div>
-                                <button onClick={irAEspecificacion} className="especificacion-button">ESPECIFICACIÓN</button>
+                                <button onClick={irAEduccion} className="educcion-button">EDUCCIÓN, ILACIÓN Y ESPECIFICACIÓN</button>
                                 <p className="boton-text">    Gestión de riesgos    </p>
                             </div>
                             <div>

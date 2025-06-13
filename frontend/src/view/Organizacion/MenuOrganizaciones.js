@@ -40,7 +40,11 @@ const MenuOrganizaciones = () => {
 
                 // Obtener todas las organizaciones excluyendo la principal
                 const orgsResponse = await axios.get(`${API_BASE_URL}/organizations`);
-                setOrganizations(orgsResponse.data.filter(org => org.code !== "ORG-MAIN"));
+                const filteredAndSortedOrgs = orgsResponse.data
+                    .filter(org => org.code !== "ORG-MAIN")
+                    .sort((a, b) => a.code.localeCompare(b.code)); // ¡Esta es la línea clave!
+
+                setOrganizations(filteredAndSortedOrgs);
                 setNoResult(false);
             } catch (err) {
                 setError(err.response?.data?.error || "Error al cargar datos");

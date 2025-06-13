@@ -9,7 +9,11 @@ import '../../../styles/styles.css';
 
 const Especificacion = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { orgcod, projcod,educod,ilacod,specod } = useParams();
+
+    const { proid } = location.state || {};
+
 // Estado de proyectos y errores
     const [espec, setSpecification] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -46,13 +50,25 @@ const Especificacion = () => {
         navigate("/organizations");
     };
     const irAVerEspecificacion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irANuevaEspecificacion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarEspecificacion = (specod) => {
-       navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
+       navigate(`/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAVerRiesgo = () => {
         navigate("/verRiesgo");
@@ -68,16 +84,32 @@ const Especificacion = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEducciones = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAIlaciones = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion/${educod}/ilaciones`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -481,7 +513,7 @@ const Especificacion = () => {
                             </div>
 
                         <div className="search-section-bar">
-                            <button onClick={irAPlantillas} className="atras-button">Regresar</button>
+                            <button onClick={irAIlaciones} className="atras-button">Regresar</button>
                         </div>
                     </section>
                 </main>
