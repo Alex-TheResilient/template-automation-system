@@ -67,7 +67,9 @@ export class InterviewController {
    */
   async getInterviewById(req: Request, res: Response) {
     try {
-      const { orgcod, projcod, id } = req.params;
+      const { orgcod, projcod, interviewId } = req.params;
+      const id = interviewId;
+
 
       // Verificar que el proyecto pertenece a esta organización
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
@@ -173,7 +175,7 @@ export class InterviewController {
   async searchByName(req: Request, res: Response) {
     try {
       const { orgcod, projcod } = req.params;
-      const { name } = req.query;
+      const { interviewName } = req.query;
 
       // Verificar que el proyecto pertenece a esta organización
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
@@ -182,7 +184,7 @@ export class InterviewController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const interviews = await interviewService.searchByName(name as string, project.id);
+      const interviews = await interviewService.searchByName(project.id,interviewName as string);
       res.status(200).json(interviews);
     } catch (error) {
       console.error('Error searching interviews:', error);

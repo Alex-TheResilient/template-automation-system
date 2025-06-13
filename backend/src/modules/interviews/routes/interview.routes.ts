@@ -3,15 +3,17 @@ import { interviewController } from '../controllers/interview.controller';
 
 const router = Router();
 
-// Core CRUD operations
+// Core CRUD 
 router.post('/organizations/:orgcod/projects/:projcod/interviews', interviewController.createInterview.bind(interviewController));
 router.get('/organizations/:orgcod/projects/:projcod/interviews', interviewController.getInterviewByProject.bind(interviewController));
-router.get('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.getInterviewById.bind(interviewController));
-router.put('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.updateInterview.bind(interviewController));
-router.delete('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.deleteInterview.bind(interviewController));
 
 // Search by name
 router.get('/organizations/:orgcod/projects/:projcod/interviews/search', interviewController.searchByName.bind(interviewController));
+
+// Core CRUD operations
+router.get('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.getInterviewById.bind(interviewController));
+router.put('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.updateInterview.bind(interviewController));
+router.delete('/organizations/:orgcod/projects/:projcod/interviews/:interviewId', interviewController.deleteInterview.bind(interviewController));
 
 
 router.post('/interviews/:id/agenda-items', interviewController.addAgendaItem.bind(interviewController));

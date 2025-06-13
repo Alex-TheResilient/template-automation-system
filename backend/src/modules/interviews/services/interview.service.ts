@@ -74,8 +74,8 @@ export class InterviewService {
   /**
    * Searches for interviews by name
    */
-  async searchByName(name: string, projectId: string) {
-    return this.repository.searchByName(name, projectId);
+  async searchByName(projectId: string,name: string,) {
+    return this.repository.searchByName(projectId, name);
   }
 
   /**
