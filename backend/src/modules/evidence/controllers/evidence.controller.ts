@@ -206,6 +206,22 @@ export class EvidenceController {
       return res.status(500).json({ error: `Error getting evidence file: ${err.message}` });
     }
   }
+
+  async getEvidencesByProject(req: Request, res: Response) {
+  try {
+    const { orgcod, projcod } = req.params;
+    // Verifica que el proyecto pertenece a la organización
+    const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found in this organization.' });
+    }
+    const evidences = await evidenceService.getEvidencesByProject(project.id);
+    res.status(200).json(evidences);
+  } catch (error) {
+    console.error('Error fetching evidences by project:', error);
+    res.status(500).json({ error: 'Error fetching evidences by project.' });
+  }
+}
 }
 
 export const evidenceController = new EvidenceController();

@@ -5,6 +5,9 @@ import { evidenceController } from '../controllers/evidence.controller';
 const router = Router();
 const upload = multer({ dest: 'uploads/evidence/' });
 
+// Additional functionality 
+router.get('/organizations/:orgcod/projects/:projcod/evidences', evidenceController.getEvidencesByProject.bind(evidenceController));
+
 // Core CRUD operations (collection routes - no :code parameter)
 router.get('/organizations/:orgcod/projects/:projcod/interviews/:interviewid/evidences', evidenceController.getEvidencesByInterview.bind(evidenceController));
 router.post('/organizations/:orgcod/projects/:projcod/interviews/:interviewid/evidences', upload.single('file'), evidenceController.createEvidence.bind(evidenceController));

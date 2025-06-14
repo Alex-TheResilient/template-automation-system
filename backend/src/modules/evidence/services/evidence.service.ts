@@ -48,6 +48,10 @@ export class EvidenceService {
   async getEvidenceFilePath(code: string, interviewId: string) {
     return this.repository.getFilePathByCodeAndInterview(code, interviewId);
   }
+
+  async getEvidencesByProject(projectId: string) {
+  return this.repository.findAllByProject(projectId);
+}
 }
 
 export const evidenceService = new EvidenceService();

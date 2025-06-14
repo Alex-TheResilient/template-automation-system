@@ -127,6 +127,22 @@ export class EvidenceRepository {
     const evidence = await this.findByCodeAndInterview(code, interviewId);
     return evidence ? evidence.file : null;
   }
+
+  async findAllByProject(projectId: string) {
+  return prisma.evidence.findMany({
+    where: {
+      interview: {
+        projectId: projectId,
+      },
+    },
+    include: {
+      interview: true,
+    },
+    orderBy: {
+      evidenceDate: 'desc',
+    },
+  });
+}
 }
 
 export const evidenceRepository = new EvidenceRepository();
