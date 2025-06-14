@@ -195,7 +195,7 @@ const Ilacion = () => {
     };
 
     const irAEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educciones`,{
+        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
         state: {
             proid:proid
         }

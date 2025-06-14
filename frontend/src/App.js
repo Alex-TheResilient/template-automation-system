@@ -73,6 +73,7 @@ function App() {
           <Route path="/organizations/:orgcod/projects/:projcod/entrevistas" element={<Entrevistas />} />
           <Route path="/organizations/:orgcod/projects/:projcod/entrevistas/new" element={<NuevaEntrevista />} />
           <Route path="/organizations/:orgcod/projects/:projcod/entrevistas/:entrecod" element={<EditarEntrevista />} />
+          <Route path="/organizations/:orgcod/projects/:projcod/evidencias/new" element={<NuevaEvidencia />} />
 
           {/* Educciones }
           //<Route path="/projects/:projcod/educciones" element={<Educcion />} />
@@ -90,7 +91,6 @@ function App() {
           <Route path="/roles" element={< Roles/>} />
           <Route path="/nuevoRol" element={<NuevoRol />} />
           <Route path="/editarRol/:rolCod" element={<EditarRol />} />
-          <Route path="/nuevaEvidencia" element={<NuevaEvidencia />} />
           <Route path="/organizations/:orgcod/projects/:projcod/plantillas" element={<Plantillas />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion" element={<Educcion />} />
           <Route path="/organizations/:orgcod/projects/:projcod/educcion/new" element={<NuevaEduccion />} />

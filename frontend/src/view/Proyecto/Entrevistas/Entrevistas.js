@@ -19,7 +19,9 @@ const Entrevistas = () => {
     const { proid } = location.state || {};
 
     const [searchNombre, setSearchNombre] = useState("");
+    const [searchEvidence, setSearchEvidence] = useState('');
     const [loading, setLoading] = useState(true);
+
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -38,11 +40,34 @@ const Entrevistas = () => {
         }
     }, [projcod,orgcod,API_BASE_URL]);
 
+    const fetchAllEvidencias = useCallback(async () => {
+    try {
+        const evid = [];
+        for (let ent of entrevistas) {
+        const resp = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/${ent.id}/evidences`);
+        evid.push(...resp.data);
+        }
+        setEvidencias(evid);
+    } catch (err) {
+        setError(err.response?.data?.error || "Error al obtener las evidencias");
+    }
+    }, [entrevistas, projcod, orgcod, API_BASE_URL]);
+
+
     useEffect(() => {
-    
-        fetchEentrevistas();
-    
+        const cargarDatos = async () => {
+            await fetchEentrevistas(); // Primero se cargan las entrevistas
+        };
+
+        cargarDatos();
     }, [fetchEentrevistas]);
+
+    useEffect(() => {
+        if (entrevistas.length > 0) {
+            fetchAllEvidencias(); 
+        }
+    }, [entrevistas, fetchAllEvidencias]);
+
 
     const handleSearch = async () => {
         setLoading(true);
@@ -67,6 +92,18 @@ const Entrevistas = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSearchEvidence = () => {
+        if (!searchEvidence) {
+            fetchAllEvidencias(); // recarga todas 
+            return;
+        }
+
+        const filtered = evidencias.filter(evi => 
+            evi.name.toLowerCase().includes(searchEvidence.toLowerCase())
+        );
+        setEvidencias(filtered);
     };
 
     const exportToExcel = async () => {
@@ -142,9 +179,10 @@ const Entrevistas = () => {
     };
     
     const irASubirEvidencia = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/evidencia/new`,{
+        navigate(`/organizations/${orgcod}/projects/${projcod}/evidencias/new`,{
         state: {
-            proid:proid
+            proid:proid,
+            entrevistas:entrevistas
         }
     });
     };
@@ -254,9 +292,6 @@ const Entrevistas = () => {
                                             </td>
                                         </tr>
                                     ))}
-                                    <tr>
-
-                                    </tr>
                                 </tbody>
                             </table>
 
@@ -302,11 +337,13 @@ const Entrevistas = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchEvidence}
+                                    onChange={(e) => setSearchEvidence(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre de evidencia</span>
                                 </span>
-                                <button className="search-button">Buscar</button>
+                                <button className="search-button" onClick={handleSearchEvidence}>Buscar</button>
                             </div>
                         </div>
 
@@ -323,37 +360,17 @@ const Entrevistas = () => {
                                 </thead>
                                 <tbody>
                                     {evidencias.map((evi) => (
-                                    <tr>
-                                        <td>FOT-0001</td>
-                                        <td>Foto01.jpg</td>
-                                        <td>Entrevista 1</td>
-                                        <td>23/10/2023</td>
+                                    <tr key={evi.id}>
+                                        <td>{evi.code}</td>
+                                        <td>{evi.name}</td>
+                                        <td>{evi.interview?.interviewName || 'Sin nombre'}</td>
+                                        <td>{new Date(evi.evidenceDate).toLocaleDateString()}</td>
                                         <td>
                                             <button className="botton-crud" onClick={irAVerEvidencia}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                             <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
                                         </td>
                                     </tr>
                                     ))}
-                                    <tr>
-                                        <td>AUD-0001</td>
-                                        <td>Audio01.jpg</td>
-                                        <td>Entrevista 1</td>
-                                        <td>23/10/2023</td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEvidencia}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>VID-0001</td>
-                                        <td>Video01.jpg</td>
-                                        <td>Entrevista 1</td>
-                                        <td>23/10/2023</td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEvidencia}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
 
