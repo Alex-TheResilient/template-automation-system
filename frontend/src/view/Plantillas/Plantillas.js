@@ -3,7 +3,6 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import '../../styles/stylesPlantillas.css';
-import '../../styles/stylesTrazabilidad.css';
 import '../../styles/styles.css';
 
 const Plantillas = () => {
