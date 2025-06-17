@@ -1,7 +1,9 @@
-// controllers/author.controller.ts - Versión final con organizaciones
+// controllers/author.controller.ts - Versión final con exportaciones Excel y PDF
 import { Request, Response } from 'express';
 import { authorService } from '../services/author.service';
 import { AuthorDTO } from '../models/author.model';
+import ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 export class AuthorController {
   /**
@@ -234,7 +236,6 @@ export class AuthorController {
     }
   }
 
-  // ... métodos existentes del controller anterior
   async getAuthors(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -372,9 +373,6 @@ export class AuthorController {
     }
   }
 
-  /**
-   * Gets an author by code
-   */
   async getAuthorByCode(req: Request, res: Response) {
     try {
       const { code } = req.params;
@@ -393,9 +391,6 @@ export class AuthorController {
     }
   }
 
-  /**
-   * Gets authors by role
-   */
   async getAuthorsByRole(req: Request, res: Response) {
     try {
       const { roleId } = req.params;
@@ -409,9 +404,6 @@ export class AuthorController {
     }
   }
 
-  /**
-   * Gets authors with interview count
-   */
   async getAuthorsWithInterviewCount(req: Request, res: Response) {
     try {
       const authors = await authorService.getAuthorsWithInterviewCount();
@@ -424,9 +416,6 @@ export class AuthorController {
     }
   }
 
-  /**
-   * Bulk update authors status
-   */
   async bulkUpdateAuthorStatus(req: Request, res: Response) {
     try {
       const { authorIds, status } = req.body;
@@ -457,18 +446,106 @@ export class AuthorController {
    */
   async exportToExcel(req: Request, res: Response) {
     try {
-      const authors = await authorService.getAuthorsWithInterviewCount();
+      const allAuthors = await authorService.getAuthorsWithInterviewCount();
+      
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Authors');
 
-      // Simple response for now - implement Excel export if needed
-      res.status(200).json({
-        message: 'Excel export would be generated here',
-        count: authors.length,
-        authors: authors.slice(0, 5) // Preview
+      // Title and metadata
+      worksheet.mergeCells('A1:M1');
+      worksheet.getCell('A1').value = 'Author Report';
+      worksheet.getCell('A1').font = { size: 16, bold: true };
+      worksheet.getCell('A1').alignment = { horizontal: 'center' };
+
+      worksheet.mergeCells('A2:M2');
+      worksheet.getCell('A2').value = `Generated on: ${new Date().toLocaleString()}`;
+      worksheet.getCell('A2').font = { size: 10, italic: true };
+      worksheet.getCell('A2').alignment = { horizontal: 'center' };
+
+      // Headers
+      const headerRow = 4;
+      worksheet.getRow(headerRow).values = [
+        'Code', 'First Name', 'Paternal Surname', 'Maternal Surname', 
+        'Status', 'DNI', 'Phone', 'Organization', 'Role', 
+        'Interview Count', 'Version', 'Creation Date', 'Permissions Count'
+      ];
+
+      worksheet.getRow(headerRow).font = { bold: true };
+      worksheet.getRow(headerRow).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE6E6FA' }
+      };
+
+      // Data rows
+      allAuthors.forEach((author, index) => {
+        const rowIndex = headerRow + 1 + index;
+        const permissionCount = Object.values(author.permissions).reduce((count: number, group) => 
+          count + Object.values(group as Record<string, unknown>).filter(Boolean).length, 0
+        );
+        
+        worksheet.getRow(rowIndex).values = [
+          author.code,
+          author.firstName,
+          author.paternalSurname ?? 'N/A',
+          author.maternalSurname ?? 'N/A',
+          author.status,
+          author.dni ?? 'N/A',
+          author.phone ?? 'N/A',
+          author.organization?.name ?? 'N/A',
+          author.role?.name ?? 'N/A',
+          author.interviewCount ?? 0,
+          author.version,
+          author.creationDate instanceof Date 
+            ? author.creationDate.toLocaleDateString() 
+            : new Date(author.creationDate).toLocaleDateString(),
+          permissionCount
+        ];
+
+        if (index % 2 === 1) {
+          worksheet.getRow(rowIndex).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF8F8FF' }
+          };
+        }
       });
+
+      // Auto-fit columns
+      worksheet.columns.forEach(column => {
+        column.width = 15;
+      });
+
+      // Borders
+      const totalRows = headerRow + allAuthors.length;
+      for (let row = headerRow; row <= totalRows; row++) {
+        for (let col = 1; col <= 13; col++) {
+          worksheet.getCell(row, col).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        }
+      }
+
+      // Summary
+      const summaryRow = totalRows + 2;
+      worksheet.getCell(summaryRow, 1).value = 'Summary:';
+      worksheet.getCell(summaryRow, 1).font = { bold: true };
+      
+      const stats = await authorService.getAuthorStats();
+      worksheet.getCell(summaryRow + 1, 1).value = `Total Authors: ${stats.total}`;
+      worksheet.getCell(summaryRow + 2, 1).value = `Active: ${stats.byStatus.active}`;
+      worksheet.getCell(summaryRow + 3, 1).value = `Inactive: ${stats.byStatus.inactive}`;
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=authors-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      await workbook.xlsx.write(res);
     } catch (error) {
-      const err = error as Error;
-      console.error('Error exporting to Excel:', err.message);
-      res.status(500).json({ error: 'Error exporting to Excel.' });
+      console.error('Error exporting authors to Excel:', error);
+      res.status(500).json({ error: 'Error exporting authors to Excel' });
     }
   }
 
@@ -477,18 +554,141 @@ export class AuthorController {
    */
   async exportToPDF(req: Request, res: Response) {
     try {
-      const authors = await authorService.getAuthorsWithInterviewCount();
-
-      // Simple response for now - implement PDF export if needed
-      res.status(200).json({
-        message: 'PDF export would be generated here',
-        count: authors.length,
-        authors: authors.slice(0, 5) // Preview
+      const allAuthors = await authorService.getAuthorsWithInterviewCount();
+      const stats = await authorService.getAuthorStats();
+      
+      const doc = new PDFDocument({ 
+        size: 'A4', 
+        margin: 40,
+        layout: 'landscape'
       });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=authors-report-${new Date().toISOString().split('T')[0]}.pdf`);
+
+      doc.pipe(res);
+
+      // Header
+      doc.fontSize(20).text('Author Report', { align: 'center' });
+      doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
+      doc.moveDown();
+
+      // Summary
+      doc.fontSize(14).text('Summary', { underline: true });
+      doc.fontSize(10);
+      doc.text(`Total Authors: ${stats.total}`);
+      doc.text(`Active: ${stats.byStatus.active} | Inactive: ${stats.byStatus.inactive}`);
+      doc.text(`Total Interviews: ${stats.totalInterviews}`);
+      doc.text(`Average Permissions per Author: ${stats.averagePermissionsPerAuthor.toFixed(1)}`);
+      doc.moveDown();
+
+      // Table
+      let y = 200;
+      const rowHeight = 25;
+      const tableLeft = 40;
+      
+      const colWidths = {
+        code: 60,
+        name: 100,
+        surname: 80,
+        status: 50,
+        org: 100,
+        role: 80,
+        interviews: 50,
+        permissions: 60
+      };
+
+      let x = tableLeft;
+      const colX = {
+        code: x,
+        name: x + colWidths.code,
+        surname: x + colWidths.code + colWidths.name,
+        status: x + colWidths.code + colWidths.name + colWidths.surname,
+        org: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status,
+        role: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org,
+        interviews: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org + colWidths.role,
+        permissions: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org + colWidths.role + colWidths.interviews
+      };
+
+      // Headers
+      doc.fontSize(10).fillColor('black');
+      doc.text('Code', colX.code, y);
+      doc.text('Name', colX.name, y);
+      doc.text('Surname', colX.surname, y);
+      doc.text('Status', colX.status, y);
+      doc.text('Organization', colX.org, y);
+      doc.text('Role', colX.role, y);
+      doc.text('Interviews', colX.interviews, y);
+      doc.text('Permissions', colX.permissions, y);
+
+      y += 15;
+      doc.moveTo(tableLeft, y).lineTo(tableLeft + 630, y).stroke();
+      y += 10;
+
+      // Rows
+      doc.fontSize(8);
+      allAuthors.forEach((author, index) => {
+        if (y > 500) {
+          doc.addPage();
+          y = 50;
+          
+          // Redraw headers
+          doc.fontSize(10).fillColor('black');
+          doc.text('Code', colX.code, y);
+          doc.text('Name', colX.name, y);
+          doc.text('Surname', colX.surname, y);
+          doc.text('Status', colX.status, y);
+          doc.text('Organization', colX.org, y);
+          doc.text('Role', colX.role, y);
+          doc.text('Interviews', colX.interviews, y);
+          doc.text('Permissions', colX.permissions, y);
+          
+          y += 15;
+          doc.moveTo(tableLeft, y).lineTo(tableLeft + 630, y).stroke();
+          y += 10;
+          doc.fontSize(8);
+        }
+
+        if (index % 2 === 1) {
+          doc.rect(tableLeft, y - 5, 630, rowHeight).fillColor('#f8f8ff').fill();
+          doc.fillColor('black');
+        }
+
+        const permissionCount = Object.values(author.permissions).reduce(
+          (count: number, group) =>
+            count + Object.values(group as Record<string, unknown>).filter(Boolean).length,
+          0
+        );
+
+        doc.text(author.code, colX.code, y, { width: colWidths.code - 5 });
+        doc.text(author.firstName, colX.name, y, { width: colWidths.name - 5 });
+        doc.text(author.paternalSurname ?? 'N/A', colX.surname, y, { width: colWidths.surname - 5 });
+        doc.text(author.status, colX.status, y, { width: colWidths.status - 5 });
+        
+        const orgName = author.organization?.name ?? 'N/A';
+        const truncatedOrg = orgName.length > 15 ? orgName.substring(0, 15) + '...' : orgName;
+        doc.text(truncatedOrg, colX.org, y, { width: colWidths.org - 5 });
+        
+        doc.text(author.role?.name ?? 'N/A', colX.role, y, { width: colWidths.role - 5 });
+        doc.text((author.interviewCount ?? 0).toString(), colX.interviews, y, { width: colWidths.interviews - 5 });
+        doc.text(permissionCount.toString(), colX.permissions, y, { width: colWidths.permissions - 5 });
+
+        y += rowHeight;
+      });
+
+      // Footer
+      doc.fontSize(8).fillColor('gray');
+      doc.text(
+        `Report generated by Author Management System - ${new Date().toLocaleString()}`,
+        tableLeft,
+        y + 20,
+        { align: 'center' }
+      );
+
+      doc.end();
     } catch (error) {
-      const err = error as Error;
-      console.error('Error exporting to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting to PDF.' });
+      console.error('Error exporting authors to PDF:', error);
+      res.status(500).json({ error: 'Error exporting authors to PDF' });
     }
   }
 }

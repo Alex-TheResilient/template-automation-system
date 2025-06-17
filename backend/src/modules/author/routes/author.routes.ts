@@ -1,4 +1,4 @@
-// routes/author.routes.ts - Versión final con endpoints de organizaciones
+// routes/author.routes.ts - Versión final con endpoints de exportación
 import { Router } from 'express';
 import { authorController } from '../controllers/author.controller';
 
@@ -13,12 +13,16 @@ router.get('/authors/next-code', authorController.getNextCode.bind(authorControl
 router.get('/authors/search', authorController.searchAuthors.bind(authorController));
 router.get('/authors/stats', authorController.getAuthorStats.bind(authorController));
 
-// NEW: Organization and template author endpoints
+// Export endpoints (NEW)
+router.get('/authors/exports/excel', authorController.exportToExcel.bind(authorController));
+router.get('/authors/exports/pdf', authorController.exportToPDF.bind(authorController));
+
+// Organization and template author endpoints
 router.get('/authors/organizations', authorController.getOrganizationOptions.bind(authorController));
 router.get('/authors/template-authors', authorController.getTemplateAuthorOptions.bind(authorController));
 router.get('/authors/copy-permissions/:templateAuthorId', authorController.copyPermissionsFromTemplate.bind(authorController));
 
-// NEW: Permission-based endpoints
+// Permission-based endpoints
 router.get('/authors/by-permission/:permission', authorController.getAuthorsByPermission.bind(authorController));
 router.post('/authors/bulk-update-permissions', authorController.bulkUpdatePermissions.bind(authorController));
 
@@ -28,12 +32,18 @@ router.get('/authors/status/:status', authorController.getAuthorsByStatus.bind(a
 // Role specific routes
 router.get('/authors/role/:roleId', authorController.getAuthorsByRole.bind(authorController));
 
+// Bulk operations
+router.post('/authors/bulk-update-status', authorController.bulkUpdateAuthorStatus.bind(authorController));
+
+// Authors with interview count
+router.get('/authors/with-interview-count', authorController.getAuthorsWithInterviewCount.bind(authorController));
+
 // Routes with variable parameters after specific routes
 router.get('/authors/:id', authorController.getAuthorById.bind(authorController));
 router.put('/authors/:id', authorController.updateAuthor.bind(authorController));
 router.delete('/authors/:id', authorController.deleteAuthor.bind(authorController));
 
-// NEW: Version history
+// Version history
 router.get('/authors/:id/version-history', authorController.getVersionHistory.bind(authorController));
 
 // Action routes with ID
