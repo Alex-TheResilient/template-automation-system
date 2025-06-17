@@ -143,6 +143,26 @@ export class EvidenceRepository {
     },
   });
 }
+async searchByNameInProject(projectId: string, name: string) {
+  return prisma.evidence.findMany({
+    where: {
+      name: {
+        contains: name,
+        mode: 'insensitive',
+      },
+      interview: {
+        projectId: projectId,
+      },
+    },
+    include: {
+      interview: true,
+    },
+    orderBy: {
+      evidenceDate: 'desc',
+    },
+  });
+}
+
 }
 
 export const evidenceRepository = new EvidenceRepository();

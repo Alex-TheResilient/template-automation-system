@@ -52,6 +52,10 @@ export class EvidenceService {
   async getEvidencesByProject(projectId: string) {
   return this.repository.findAllByProject(projectId);
 }
+async searchEvidencesByNameInProject(projectId: string, name: string) {
+  return this.repository.searchByNameInProject(projectId, name);
+}
+
 }
 
 export const evidenceService = new EvidenceService();

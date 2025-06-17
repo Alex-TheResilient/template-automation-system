@@ -7,6 +7,7 @@ const upload = multer({ dest: 'uploads/evidence/' });
 
 // Additional functionality 
 router.get('/organizations/:orgcod/projects/:projcod/evidences', evidenceController.getEvidencesByProject.bind(evidenceController));
+router.get('/organizations/:orgcod/projects/:projcod/evidences/search', evidenceController.searchEvidencesByNameInProject.bind(evidenceController));
 
 // Core CRUD operations (collection routes - no :code parameter)
 router.get('/organizations/:orgcod/projects/:projcod/interviews/:interviewid/evidences', evidenceController.getEvidencesByInterview.bind(evidenceController));

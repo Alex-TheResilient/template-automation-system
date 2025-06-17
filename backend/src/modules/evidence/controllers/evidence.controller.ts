@@ -222,6 +222,26 @@ export class EvidenceController {
     res.status(500).json({ error: 'Error fetching evidences by project.' });
   }
 }
+async searchEvidencesByNameInProject(req: Request, res: Response) {
+  try {
+    const { orgcod, projcod } = req.params;
+    const { name } = req.query;
+    if (!name || (name as string).trim() === '') {
+      return res.status(400).json({ error: 'Name parameter is required for search.' });
+    }
+    const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found in this organization.' });
+    }
+    const evidences = await evidenceService.searchEvidencesByNameInProject(project.id, name as string);
+    res.status(200).json(evidences);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Error searching evidences by name in project:', err.message);
+    res.status(500).json({ error: 'Error searching evidences by name in project.' });
+  }
+}
+
 }
 
 export const evidenceController = new EvidenceController();
