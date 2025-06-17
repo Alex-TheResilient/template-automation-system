@@ -25,4 +25,9 @@ router.put('/organizations/:orgcod/projects/:projcod/educciones/:educod/ilacione
 router.delete('/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/:speccod',
   specificationController.deleteSpecification.bind(specificationController));
 
+// Export routes
+router.get('/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/exports/excel',
+  specificationController.exportToExcel.bind(specificationController));
+router.get('/organizations/:orgcod/projects/:projcod/educciones/:educod/ilaciones/:ilacod/specifications/exports/pdf',
+  specificationController.exportToPDF.bind(specificationController));
 export default router;
