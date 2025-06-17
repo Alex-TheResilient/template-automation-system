@@ -265,7 +265,7 @@ const Roles = () => {
                                 </div>
                         )}
                                                
-                        <h4 className="rol-h4">Total de registros 3</h4>
+                        <h4  className="rol-h4">Total de registros {roles.length}</h4>
                         <div className="rol-export-buttons">
                             <span class="message">
                                 <button className="rol-export-button">Excel</button>

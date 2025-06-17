@@ -9,6 +9,8 @@ import axios from "axios";
 const Actores = () => {
     const { orgcod, projcod, actcod } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { proid } = location.state || {};
     // Estado de proyectos y errores
     const [actors, setActors] = useState([]);
     const [roles, setRoles] = useState([]);
@@ -50,21 +52,37 @@ const Actores = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irANuevoActor = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/actors/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actors/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAVerActor = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/actors`);
     };
     const irAEditarActor = (actcod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/actors/${actcod}`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actors/${actcod}`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     // Obtener los parámetros de consulta

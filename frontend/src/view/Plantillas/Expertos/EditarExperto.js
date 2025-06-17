@@ -1,6 +1,6 @@
 // frontend/src/view/RegistroOrganizacion.js
 import React, { useState, useEffect,useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoExperto.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -9,6 +9,9 @@ const EditarExperto = () => {
 
     const navigate = useNavigate();
     const {orgcod, projcod, expcod} = useParams(); // Asegúrate de tener expertId en la ruta
+
+    const location = useLocation();
+    const { proid } = location.state || {};
 
     const [paternalSurname, setApellidoPaterno] = useState("");
     const [maternalSurname, setApellidoMaterno] = useState("");
@@ -73,18 +76,26 @@ const EditarExperto = () => {
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects` );
     };
-    const irAFuentes = () => {
-    navigate("/fuentes");
-    };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAExpertos = () => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAMenuProyecto = (code) => {
-    navigate(`/projects/${projcod}/menuProyecto`);
-    //navigate(`/menuProyecto?procod=${code}`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     return (

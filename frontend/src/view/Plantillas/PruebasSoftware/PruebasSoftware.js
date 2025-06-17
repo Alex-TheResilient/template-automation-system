@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -8,6 +8,9 @@ import '../../../styles/styles.css';
 
 const PruebasSoftware = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const {orgcod, projcod, expcod} = useParams(); // Asegúrate de tener expertId en la ruta
+    const { proid } = location.state || {};
 
     const irALogin = () => {
         navigate("/");
@@ -26,13 +29,21 @@ const PruebasSoftware = () => {
     };
     
     const irAListaProyecto = () => {
-        navigate("/listaProyectos");
+        navigate(`/organizations/${orgcod}/projects` );
     };
-    const irAMenuProyecto = () => {
-        navigate("/menuProyectos");
+    const irAMenuProyecto = (code) => {
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate("/plantillas");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);

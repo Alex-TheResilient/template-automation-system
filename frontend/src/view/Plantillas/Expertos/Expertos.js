@@ -7,7 +7,9 @@ import "../../../styles/styles.css";
 
 const Expertos = () => {
 
+  const location = useLocation();
   const {projcod,orgcod} = useParams();
+  const { proid} = location.state || {};
 
   // Estado de proyectos y errores
   const [expertos, setExpertos] = useState([]);
@@ -33,28 +35,39 @@ const Expertos = () => {
   };
   const irAMenuProyecto = (code) => {
     //navigate(`/menuProyecto?procod=${code}`);
-    navigate(`/projects/${projcod}/menuProyecto`);
-  };
-  //Modificar
-  const irAEditarProyecto = (projectId) => {
-    console.log("ID del proyecto desde listaProyecto:", projectId);
-    navigate(`/editarProyecto/${projectId}`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
   };
 
   const irANuevoExperto = () => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/new`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/new`,{
+        state: {
+            proid:proid
+        }
+    });
   };
 
  
   const irAEditarExperto = (expcod) => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`,{
+        state: {
+            proid:proid
+        }
+    });
   };
 
   const irALogin = () => {
     navigate("/");
   };
   const irAPlantillas = () => {
-    navigate(`/projects/${projcod}/plantillas`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
   };
 
   

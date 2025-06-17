@@ -12,6 +12,7 @@ const NuevoExperto = () => {
 
     // Obtener datos del proyecto del URL
     const { projcod,orgcod } = useParams();
+    const { proid } = location.state || {};
 
     const [code, setCodigoExperto] = useState("");
     const [version, setVersionExperto] = useState("00.01");
@@ -84,18 +85,28 @@ const NuevoExperto = () => {
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
-    const irAFuentes = () => {
-    navigate("/fuentes");
-    };
     const irAExpertos = () => {
-    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/experts`,{
+        state: {
+            proid:proid
+        }
+    });
     };
+    
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
-      };
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
+    };
+
     const irAMenuProyecto = (code) => {
-    //navigate(`/menuProyecto?procod=${code}`);
-    navigate(`/projects/${projcod}/menuProyecto`);
+    navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     // Función para registrar la organización

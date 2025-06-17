@@ -140,13 +140,13 @@ const RegistroOrganizacion = () => {
 
                     <section className="ro-organization-section">
                         {/* Formulario editable */}
-                        <h3>Información del Proyecto</h3>
+                        <h3>Información de la Organización</h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <h4>Nombre</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={name} onChange={(e) => setNombre(e.target.value)} size="30" />
-                                    <span class="tooltip-text">Ingresar el nombre del proyecto</span>
+                                    <span class="tooltip-text">Ingresar el nombre de la organización</span>
                                 </span>
                                 
                             </div>
@@ -154,7 +154,7 @@ const RegistroOrganizacion = () => {
                                 <h4>Dirección</h4>
                                 <span class="message">
                                     <input className="inputnombre-field" type="text" value={address} onChange={(e) => setDireccion(e.target.value)} size="30" />
-                                    <span class="tooltip-text">Ingresar la direccion del proyecto </span>
+                                    <span class="tooltip-text">Ingresar la direccion de la organización </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
@@ -238,7 +238,7 @@ const RegistroOrganizacion = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios y/o dato importante de la organización"></textarea>
                         </div>
 
                         <div className="ro-buttons">

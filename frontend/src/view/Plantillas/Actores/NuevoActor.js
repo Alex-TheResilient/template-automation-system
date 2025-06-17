@@ -12,6 +12,7 @@ const NuevoActor = () => {
 
     // Obtener datos del proyecto del URL
     const { projcod, orgcod } = useParams();
+    const { proid } = location.state || {};
 
     const [code, setCodigoActor] = useState("");
     const [version, setVersionActor] = useState("00.01");
@@ -101,13 +102,25 @@ const NuevoActor = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAActores = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/actors`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/actors`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAMenuProyecto = (projcod) => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     // Función para registrar la organización

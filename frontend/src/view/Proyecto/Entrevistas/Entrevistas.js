@@ -40,33 +40,27 @@ const Entrevistas = () => {
         }
     }, [projcod,orgcod,API_BASE_URL]);
 
-    const fetchAllEvidencias = useCallback(async () => {
+    const fetchEvidencias = useCallback(async () => {
     try {
-        const evid = [];
-        for (let ent of entrevistas) {
-        const resp = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/${ent.id}/evidences`);
-        evid.push(...resp.data);
-        }
-        setEvidencias(evid);
+        const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/evidences`);
+        setEvidencias(response.data || []);
     } catch (err) {
-        setError(err.response?.data?.error || "Error al obtener las evidencias");
-    }
-    }, [entrevistas, projcod, orgcod, API_BASE_URL]);
-
-
-    useEffect(() => {
-        const cargarDatos = async () => {
-            await fetchEentrevistas(); // Primero se cargan las entrevistas
-        };
-
-        cargarDatos();
-    }, [fetchEentrevistas]);
-
-    useEffect(() => {
-        if (entrevistas.length > 0) {
-            fetchAllEvidencias(); 
+        setError(
+            err.response
+                ? err.response.data.error
+                : "Error al obtener las evidencias"
+            );
         }
-    }, [entrevistas, fetchAllEvidencias]);
+    }, [projcod, orgcod, API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchEentrevistas();
+        fetchEvidencias();
+    
+    }, [fetchEentrevistas, fetchEvidencias]);
+
+    
 
 
     const handleSearch = async () => {
@@ -96,7 +90,7 @@ const Entrevistas = () => {
 
     const handleSearchEvidence = () => {
         if (!searchEvidence) {
-            fetchAllEvidencias(); // recarga todas 
+            fetchEvidencias(); // recarga todas 
             return;
         }
 
@@ -312,7 +306,7 @@ const Entrevistas = () => {
                         </div>
 
                         <div className="search-section-bar">
-                            <h4>Total de registros 2</h4>
+                            <h4>Total de registros {entrevistas.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button" onClick={exportToExcel}>Excel</button>
