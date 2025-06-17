@@ -30,6 +30,31 @@ const MenuProyecto = () => {
         obtenerProyecto();
     }, [ projcod]);
 
+    const descargarCatalogo = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/requirements-catalog`, {
+            method: 'GET',
+            });
+
+            if (!response.ok) {
+            throw new Error('No se pudo descargar el catálogo');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'catalogo_requisitos.pdf');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error al descargar el catálogo:', error);
+        }
+    };
+
+
     const irALogin = () => {
         navigate("/");
     };
@@ -124,7 +149,7 @@ const MenuProyecto = () => {
                     <section className="avance-section">
                         <h3>Avance del Proyecto</h3>
                         <div class="boton-container">
-                            <button className="catalogo-button">DESCARGAR CATÁLOGO DE REQUISITOS</button>
+                            <button className="catalogo-button"  onClick={descargarCatalogo}>DESCARGAR CATÁLOGO DE REQUISITOS</button>
                         </div>
                     </section>
                     

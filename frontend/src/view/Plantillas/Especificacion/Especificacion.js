@@ -16,6 +16,7 @@ const Especificacion = () => {
 
 // Estado de proyectos y errores
     const [espec, setSpecification] = useState([]);
+    const [riesgos, setRiesgos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
       
@@ -24,6 +25,9 @@ const Especificacion = () => {
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Especificación");
+
     const fetchSpecification = useCallback(async () => {
     //Obtener o listar expertos de 
     try {
@@ -75,7 +79,11 @@ const Especificacion = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registroRiesgo");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");
@@ -382,36 +390,7 @@ const Especificacion = () => {
                                     />
                                     <span class="tooltip-text">Filtrar información por código del requisito, responsbale o versión dle riesgo</span>
                                 </span>
-                                <button className="search-button">Buscar</button>
-                            </div>
-                        </div>
-
-                        <div className="pp-search-section-text">
-                            <div className="pp-searchbar">
-                                <select className="pp-month-input">
-                                <option value="">ESTADO</option>
-                                    {[
-                                        "Alta", 
-                                        "Media", 
-                                        "Baja"
-                                    ].map((PROBABILITY, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {PROBABILITY}
-                                        </option>
-                                    ))}
-                                </select>
-                                <select className="pp-month-input">
-                                    <option value="">ESTADO</option>
-                                    {[
-                                        "Activo", 
-                                        "Cerrado", 
-                                        "Mitigado"
-                                    ].map((STATE, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {STATE}
-                                        </option>
-                                    ))}
-                                </select>
+                                <button className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -426,19 +405,21 @@ const Especificacion = () => {
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
-                                <tbody onClick={irAVerRiesgo}>
-                                    <tr>
-                                        <td>ESP-0001</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0002</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
+                                <tbody>
+                                    {riesgos
+                                        .filter((riesgo) => riesgo.entityType === "Especificación")
+                                        .map((riesgo, index) => (
+                                        <tr key={index}>
+                                            <td>{riesgo.registryCode}</td>
+                                            <td>{riesgo.code}</td>
+                                            <td>AUT-001</td>
+                                            <td>{riesgo.description}</td>
+                                            <td>
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
+                                                e.stopPropagation();
+                                                irAEditarRiesgo(riesgo.id); // puedes pasar el id
                                                 }}
                                             >
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -446,41 +427,15 @@ const Especificacion = () => {
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
+                                                e.stopPropagation();
+                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                             </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>ESP-0002</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0003</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
 
                             </table>
@@ -500,7 +455,7 @@ const Especificacion = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button" onclick = {exportToExcel}>Excel</button>

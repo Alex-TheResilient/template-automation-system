@@ -1,11 +1,14 @@
 import React from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import { useLocation, useNavigate,useParams } from "react-router-dom";
 import '../../../styles/stylesRiesgo.css';
 import '../../../styles/styles.css';
 
 const SubirInterfaz = () => {
     const { orgcod, projcod } = useParams();
     const navigate = useNavigate();
+
+    const location = useLocation();
+    const { proid } = location.state || {};
 
     const irALogin = () => {
         navigate("/");
@@ -27,13 +30,25 @@ const SubirInterfaz = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAArtefactos = () => {
-        navigate("/artefactos");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     return (

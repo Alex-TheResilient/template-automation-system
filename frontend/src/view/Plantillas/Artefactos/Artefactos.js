@@ -1,5 +1,5 @@
 import React, { useState,useCallback, useEffect } from 'react';
-import { useNavigate,useParams } from "react-router-dom"
+import { useLocation, useNavigate,useParams } from "react-router-dom"
 import { FaFolder, FaPencilAlt, FaTrash} from "react-icons/fa";
 import '../../../styles/stylesPlantillasPrincipales.css'
 import '../../../styles/stylesEliminar.css'
@@ -11,12 +11,16 @@ const Artefactos = () => {
     const { orgcod, projcod } = useParams();
     // Estado de proyectos y errores
     const [mnemonic, setMnemonic] = useState([]);
+    const [interfaces, setInterfaces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [noResult, setNoResult] = useState(false);
+    const location = useLocation();
+     const { proid } = location.state || {};
 
     // Estados para búsqueda
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchInterfaz, setSearchInterfaz] = useState('');
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -34,11 +38,25 @@ const Artefactos = () => {
         }
     }, [API_BASE_URL]);
 
+    const fetchInterfaces = useCallback(async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interfaces`);
+        setInterfaces(response.data || []);
+    } catch (err) {
+        setError(
+            err.response
+                ? err.response.data.error
+                : "Error al obtener las interfaces"
+            );
+        }
+    }, [projcod, orgcod, API_BASE_URL]);
+
     useEffect(() => {
     
         fetchMnemonic();
+        fetchInterfaces();
     
-    }, [fetchMnemonic]);
+    }, [fetchMnemonic, fetchInterfaces]);
 
     const handleSearch = async (searchType) => { 
     setLoading(true);
@@ -68,6 +86,20 @@ const Artefactos = () => {
         }
     };
 
+    const handleSearchInterfaz = async (campo) => {
+        if (!searchInterfaz.trim()) {
+            fetchInterfaces(); 
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/interfaces/project/${projcod}?${campo}=${searchInterfaz}`);
+            const data = await response.json();
+            setInterfaces(data); 
+        } catch (error) {
+            console.error('Error al buscar interfaz:', error);
+        }
+    };
 
     const irALogin = () => {
         navigate("/");
@@ -80,7 +112,11 @@ const Artefactos = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registroRiesgo");
+        navigate("/registroRiesgo",{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");
@@ -89,17 +125,33 @@ const Artefactos = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const irANuevoNemonico = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/new`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/new`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irASubirInterfaz = () => {
-        navigate("/subirInterfaz");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/subir interfaz`,{
+        state: {
+            proid:proid
+        }
+    });
     };
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -205,46 +257,14 @@ const Artefactos = () => {
                                     className="textBuscar" 
                                     type="text" 
                                     placeholder="Buscar" 
+                                    value={searchInterfaz}
+                                    onChange={(e) => setSearchInterfaz(e.target.value)}
                                     style={{ width: "500px" }} 
                                     />
                                     <span class="tooltip-text">Filtrar información por nombre o código de interfaz</span>
                                 </span>
-                                <button className="search-button">Busqueda por Nombre</button>
+                                <button className="search-button" onClick={() => handleSearchInterfaz('name')}>Busqueda por Nombre</button>
                                 <button className="search-button">Busqueda por Codigo</button>
-                            </div>
-                        </div>
-
-                        <div className="pp-search-section-text">
-                            <div className="pp-searchbar">
-                                <select className="pp-year-input">
-                                    <option value="">AÑO</option>
-                                    {[2024, 2023, 2022, 2021, 2020].map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    ))}
-                                </select>
-                                <select className="pp-month-input">
-                                    <option value="">MES</option>
-                                    {[
-                                        "Enero", 
-                                        "Febrero", 
-                                        "Marzo", 
-                                        "Abril", 
-                                        "Mayo", 
-                                        "Junio", 
-                                        "Julio", 
-                                        "Agosto", 
-                                        "Septiembre", 
-                                        "Octubre", 
-                                        "Noviembre", 
-                                        "Diciembre"
-                                    ].map((month, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {month}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
                         </div>
 
@@ -259,61 +279,19 @@ const Artefactos = () => {
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
-                                <tbody onClick={irAVerRiesgo}>
-                                    <tr>
-                                        <td>INT-001</td>
-                                        <td>Iniciar Sesion</td>
-                                        <td>00.01</td>
-                                        <td>26/10/2023</td>
+                                <tbody>
+                                    {interfaces.map((inter) => (
+                                    <tr key={inter.id}>
+                                        <td>{inter.code}</td>
+                                        <td>{inter.name}</td>
+                                        <td>{inter.version}</td>
+                                        <td>{new Date(inter.date).toLocaleDateString()}</td>
                                         <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
+                                            <button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
+                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>INT-002</td>
-                                        <td>Menu principal-Emepresas</td>
-                                        <td>00.01</td>
-                                        <td>26/10/2023</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    ))}
                                 </tbody>
 
                             </table>
@@ -333,12 +311,12 @@ const Artefactos = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {interfaces.length}</h4>
                             <div className="export-buttons">
                                 
                                 <span class="message">
                                 <button className="export-button">PDF</button>
-                                    <span class="tooltip-text">Generar reporte de las entrevistas en Pdf</span>
+                                    <span class="tooltip-text">Generar reporte de las interfaces en Pdf</span>
                                 </span>
                             </div>
 

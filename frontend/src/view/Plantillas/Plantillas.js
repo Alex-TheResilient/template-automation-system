@@ -1,16 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../../styles/stylesPlantillas.css';
+import '../../styles/stylesTrazabilidad.css';
 import '../../styles/styles.css';
 
 const Plantillas = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { projcod,orgcod } = useParams();
-    const { proid } = location.state || {}; // ✅ Recibe projectId
+    const { proid } = location.state || {}; 
+    const [educciones, setEducciones] = useState([]);
 
-    const queryParams = new URLSearchParams(location.search);
-    const codigo = queryParams.get('projcod');
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const resEducciones = await fetch(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones`);
+                const educcionesData = await resEducciones.json();
+
+                const educcionesConIlacionesYEspecificaciones = await Promise.all(
+                    educcionesData.map(async (educcion) => {
+                        const resIlaciones = await fetch(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educcion.code}/ilaciones`);
+                        const { ilaciones } = await resIlaciones.json();
+
+                        const ilacionesConEspecificaciones = await Promise.all(
+                            ilaciones.map(async (ilacion) => {
+                                const resSpecs = await fetch(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educcion.code}/ilaciones/${ilacion.code}/specifications`);
+                                const result = await resSpecs.json();
+                                const specifications = result;
+                                return { ...ilacion, specifications };
+                            })
+                        );
+
+                        return { ...educcion, ilaciones: ilacionesConEspecificaciones };
+                    })
+                );
+
+                setEducciones(educcionesConIlacionesYEspecificaciones);
+            } catch (error) {
+                console.error('Error al cargar trazabilidad:', error);
+            }
+        }
+
+        fetchData();
+    }, [orgcod, projcod]);
+
+    const exportarPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Trazabilidad de Requisitos", 14, 10);
+
+        const rows = [];
+
+        educciones.forEach((educcion) => {
+            if (educcion.ilaciones.length > 0) {
+            educcion.ilaciones.forEach((ilacion) => {
+                if (ilacion.specifications?.length > 0) {
+                ilacion.specifications.forEach((spec) => {
+                    rows.push([educcion.code, ilacion.code, spec.code]);
+                });
+                } else {
+                rows.push([educcion.code, ilacion.code, "Sin especificaciones"]);
+                }
+            });
+            } else {
+            rows.push([educcion.code, "Sin ilaciones", "-"]);
+            }
+        });
+
+        autoTable(doc, {
+            head: [['EDUCCIÓN', 'ILACIÓN', 'ESPECIFICACIÓN']],
+            body: rows,
+        });
+
+        doc.save('trazabilidad.pdf');
+    };
+
 
     const irALogin = () => {
         navigate("/");
@@ -126,8 +193,66 @@ const Plantillas = () => {
                     </section>
                     <section className="trazabilidad-section">
                         <h3>Trazabilidad</h3>
-                        <div style={{ height: '80px' }}></div>
+                        <div className="menu-tabla-center">
+                            <button className="logout-button" onClick={exportarPDF}>Exportar PDF</button>
+
+
+                            <table className="menu-centertabla">
+                                <thead>
+                                    <tr>
+                                        <th>EDUCCIÓN</th>
+                                        <th>ILACIÓN</th>
+                                        <th>ESPECIFICACIÓN</th>
+                                        {/* <th>OTROS ARTEFACTOS</th> */}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {educciones.map((educcion) => {
+                                        const totalIlaciones = educcion.ilaciones.length;
+
+                                        return totalIlaciones > 0 ? (
+                                        educcion.ilaciones.map((ilacion, i) => {
+                                            const totalSpecs = ilacion.specifications?.length || 0;
+
+                                            return totalSpecs > 0 ? (
+                                            ilacion.specifications.map((spec, j) => (
+                                                <tr key={`${educcion.code}-${ilacion.code}-${spec.code}`}>
+                                                {i === 0 && j === 0 && (
+                                                    <td rowSpan={educcion.ilaciones.reduce((acc, il) => acc + (il.specifications?.length || 1), 0)}>
+                                                    {educcion.code}
+                                                    </td>
+                                                )}
+                                                {j === 0 && (
+                                                    <td rowSpan={totalSpecs}>{ilacion.code}</td>
+                                                )}
+                                                <td>{spec.code}</td>
+                                                {/*<td>-</td>*/}
+                                                </tr>
+                                            ))
+                                            ) : (
+                                            <tr key={`${educcion.code}-${ilacion.code}`}>
+                                                {i === 0 && (
+                                                <td rowSpan={totalIlaciones}>{educcion.code}</td>
+                                                )}
+                                                <td>{ilacion.code}</td>
+                                                <td colSpan={2}>Sin especificaciones</td>
+                                            </tr>
+                                            );
+                                        })
+                                        ) : (
+                                        <tr key={educcion.code}>
+                                            <td>{educcion.code}</td>
+                                            <td colSpan={3}>Sin ilaciones</td>
+                                        </tr>
+                                        );
+                                    })}
+                                    </tbody>
+
+                            </table>
+
+                        </div>
                     </section>
+
                     <section className="plantillas-section">
                         <h3>Plantillas Secuandarias</h3>
 

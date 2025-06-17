@@ -22,6 +22,8 @@ const Ilacion = () => {
 
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Ilación");
     
     const fetchIlaciones = useCallback(async () => {
     //Obtener o listar expertos de un proyecto
@@ -518,7 +520,7 @@ const Ilacion = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>

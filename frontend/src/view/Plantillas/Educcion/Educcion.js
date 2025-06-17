@@ -27,6 +27,9 @@ const Educcion = () => {
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+    const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Educción");
+
+
     const fetchEducciones = useCallback(async () => {
     //Obtener o listar educciones de un proyecto
         try {
@@ -572,7 +575,7 @@ const Educcion = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button" onClick={exportToExcelRisk}>Excel</button>

@@ -349,7 +349,7 @@ const RNF = () => {
                             
                         </div>
 
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {rnfs.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button"onClick={exportToExcel}>Excel</button>
@@ -499,7 +499,7 @@ const RNF = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros </h4>
                             <div className="export-buttons">
                                 <span class="message">
                                     <button className="export-button">Excel</button>
