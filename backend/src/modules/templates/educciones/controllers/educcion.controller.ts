@@ -322,53 +322,136 @@ export class EduccionController {
   }
 
   /**
-   * Exports to PDF
-   */
+ * Exporta a PDF
+ */
   async exportToPDF(req: Request, res: Response) {
     try {
       const { orgcod, projcod } = req.params;
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
 
       if (!project) {
-        return res.status(404).json({ error: 'Project not found in this organization.' });
+        return res.status(404).json({ error: 'Proyecto no encontrado en esta organización.' });
       }
 
-      const educciones = await educcionService.getEduccionesByProject(project.id, 1, 1000);
-      // Configure HTTP response
+      // Obtener todas las educciones y ordenarlas por fecha de creación (más antiguas primero)
+      const allEducciones = await educcionService.getEduccionesByProject(project.id, 1, 1000);
+      const educciones = allEducciones.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
+      });
+
+      // Crear documento PDF con la opción bufferPages para permitir numeración de páginas
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true
+      });
+
+      // Configurar cabeceras de respuesta
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=educciones.pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=educciones-${projcod}.pdf`);
 
-      // Create PDF document
-      const doc = new PDFDocument({ margin: 30 });
+      // Enviar el PDF a la respuesta
+      doc.pipe(res);
 
-      // Title
-      doc.fontSize(16).font('Helvetica-Bold').text('Educciones Report', { align: 'center' });
-      doc.moveDown();
-
-      // Generation info
-      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+      // Título y fecha de generación
+      doc.fontSize(18).text(`Reporte de Educciones - ${project.name}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
-      // Educciones table
-      const headers = ['Code', 'Name', 'Status', 'Importance', 'Version'];
-      const rows = educciones.map(edu => [
-        edu.code,
-        edu.name,
-        edu.status,
-        edu.importance,
-        edu.version
-      ]);
+      // Si no hay educciones, mostrar mensaje
+      if (educciones.length === 0) {
+        doc.fontSize(12).text('No hay educciones registradas para este proyecto.', { align: 'center' });
+      } else {
+        // Procesar cada educción en páginas separadas
+        educciones.forEach((educcion, index) => {
+          // Nueva página para cada educción excepto la primera
+          if (index > 0) {
+            doc.addPage();
+          }
 
-      // Draw table
-      this.drawTable(doc, headers, rows);
+          // Título de la educción
+          doc.fontSize(14).font('Helvetica-Bold').text(`Educción: ${educcion.code}`, { underline: true });
+          doc.moveDown(1);
+          doc.font('Helvetica');
 
-      // Finalize document
+          // Configuración de tabla de dos columnas
+          const pageWidth = doc.page.width - 100; // Ancho de página menos márgenes
+          const colWidth1 = 150; // Ancho de la primera columna (atributos)
+          const colWidth2 = pageWidth - colWidth1; // Ancho de la segunda columna (descripciones)
+
+          // Dibujar tabla con los datos de la educción
+          let y = doc.y;
+
+          // Función para agregar una fila a la tabla
+          const addTableRow = (attribute: string, value: string): number => {
+            // Calcular la altura requerida para el contenido de cada celda
+            const textOptions = { width: colWidth2 - 10 };
+            const valueHeight = doc.heightOfString(value || 'N/A', textOptions);
+            const attributeHeight = doc.heightOfString(attribute, { width: colWidth1 - 10 });
+
+            // Usar la altura mayor entre las dos celdas (mínimo 25px)
+            const rowHeight = Math.max(25, valueHeight + 14, attributeHeight + 14);
+
+            // Dibujar bordes de celda con la altura calculada
+            doc.rect(50, y, colWidth1, rowHeight).stroke();
+            doc.rect(50 + colWidth1, y, colWidth2, rowHeight).stroke();
+
+            // Agregar texto con posicionamiento vertical apropiado
+            doc.fontSize(10);
+            doc.text(attribute, 55, y + 7, { width: colWidth1 - 10 });
+            doc.text(value || 'N/A', 55 + colWidth1, y + 7, textOptions);
+
+            // Devolver la nueva posición Y
+            return y + rowHeight;
+          };
+
+          // Dibujar encabezados
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.rect(50, y, colWidth1, 25).stroke();
+          doc.rect(50 + colWidth1, y, colWidth2, 25).stroke();
+          doc.text('Atributo', 55, y + 7, { width: colWidth1 - 10 });
+          doc.text('Descripción', 55 + colWidth1, y + 7, { width: colWidth2 - 10 });
+          y += 25;
+
+          // Datos de la educción
+          doc.font('Helvetica');
+          y = addTableRow('Código', educcion.code);
+          y = addTableRow('Nombre', educcion.name);
+          y = addTableRow('Descripción', educcion.description || 'N/A');
+          y = addTableRow('Estado', educcion.status);
+          y = addTableRow('Importancia', educcion.importance);
+          y = addTableRow('Versión', educcion.version.toString());
+          y = addTableRow('Fecha Creación', new Date(educcion.creationDate).toLocaleDateString('es-ES'));
+          if (educcion.comment) {
+            y = addTableRow('Comentarios', educcion.comment);
+          }
+        });
+      }
+
+      // Obtener todas las páginas del documento
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+
+      // Añadir número de página en la esquina superior derecha de cada página
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50, // X: cerca del borde derecho
+          30, // Y: cerca del borde superior
+          { align: 'right' }
+        );
+      }
+
+      // Finalizar el PDF y terminar la respuesta
       doc.end();
-      doc.pipe(res);
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting to PDF.' });
+      console.error('Error al exportar a PDF:', err.message);
+      res.status(500).json({ error: 'Error al exportar a PDF.' });
     }
   }
 
