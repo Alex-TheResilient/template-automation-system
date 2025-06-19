@@ -165,44 +165,100 @@ export class ProjectController {
   }
 
   /**
-   * Exports projects to Excel
-   */
+ * Exporta proyectos a Excel
+ */
   async exportToExcel(req: Request, res: Response) {
     const { orgcod } = req.params;
     try {
-      const projects = await projectService.getProjectsByOrganization(orgcod);
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Projects');
+      // Obtener todos los proyectos de la organización
+      const allProjects = await projectService.getProjectsByOrganization(orgcod);
 
-      // Add headers
-      worksheet.columns = [
-        { header: 'Code', key: 'code', width: 15 },
-        { header: 'Name', key: 'name', width: 30 },
-        { header: 'Creation Date', key: 'creationDate', width: 20 },
-        { header: 'Modification Date', key: 'modificationDate', width: 20 },
-        { header: 'Status', key: 'status', width: 30 },
-      ];
-
-      // Add data
-      projects.forEach(project => {
-        worksheet.addRow({
-          code: project.code,
-          name: project.name,
-          creationDate: project.creationDate,
-          modificationDate: project.modificationDate,
-          status: project.status
-        });
+      // Ordenar los proyectos por fecha de creación (más antiguos primero)
+      const projects = allProjects.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
       });
 
-      // Set response headers
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=projects-${orgcod}.xlsx`);
+      // Crear un nuevo libro de trabajo
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Proyectos'); // Cambiado a español
 
-      // Write to response
+      // Añadir encabezados en español
+      worksheet.columns = [
+        { header: 'Código', key: 'code', width: 15 },
+        { header: 'Nombre', key: 'name', width: 30 },
+        { header: 'Fecha Creación', key: 'creationDate', width: 20 },
+        { header: 'Fecha Modificación', key: 'modificationDate', width: 20 },
+        { header: 'Estado', key: 'status', width: 15 },
+      ];
+
+      // Estilizar los encabezados
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // Añadir bordes a los encabezados
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFCCCCCC' }
+        };
+      });
+
+      // Añadir datos
+      projects.forEach((project, index) => {
+        const row = worksheet.addRow({
+          code: project.code,
+          name: project.name,
+          creationDate: project.creationDate
+            ? new Date(project.creationDate).toLocaleDateString('es-ES')
+            : 'N/A',
+          modificationDate: project.modificationDate
+            ? new Date(project.modificationDate).toLocaleDateString('es-ES')
+            : 'N/A',
+          status: project.status || 'N/A'
+        });
+
+        // Agregar bordes a las celdas
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+
+        // Alternar colores de fondo para mejor legibilidad
+        if (index % 2 === 1) {
+          row.eachCell((cell) => {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFEEEEEE' }
+            };
+          });
+        }
+      });
+
+      // Configurar cabeceras de respuesta
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=proyectos-${orgcod}.xlsx`);
+
+      // Enviar el libro de trabajo
       await workbook.xlsx.write(res);
+      res.end();
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
-      res.status(500).json({ error: 'Error exporting to Excel' });
+      const err = error as Error;
+      console.error('Error al exportar a Excel:', err.message);
+      res.status(500).json({ error: 'Error al exportar a Excel' });
     }
   }
 
