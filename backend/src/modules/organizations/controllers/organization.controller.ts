@@ -190,32 +190,45 @@ export class OrganizationController {
   /**
    * Exports to Excel
    */
+  /**
+ * Exports to Excel (Exporta a Excel)
+ */
   async exportToExcel(req: Request, res: Response) {
     try {
-      // Get all organizations
-      const organizations = await organizationService.getOrganizations(1, 1000);
+      // Obtener todas las organizaciones (excluyendo ORG-MAIN para consistencia con PDF)
+      const allOrganizations = await organizationService.getOrganizations(1, 1000);
 
-      // Create a new workbook
+      // Filtrar para excluir la organización ORG-MAIN y ordenar por fecha de creación
+      const organizations = allOrganizations
+        .filter((org: OrganizationResponse) => org.code !== 'ORG-MAIN')
+        .sort((a: OrganizationResponse, b: OrganizationResponse) => {
+          // Ordenar por fecha igual que en el PDF
+          const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+          const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+          return dateA - dateB;
+        });
+
+      // Crear un nuevo libro de trabajo
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Organizations');
+      const worksheet = workbook.addWorksheet('Organizaciones');
 
-      // Add headers
+      // Añadir encabezados en español
       worksheet.columns = [
-        { header: 'Code', key: 'code', width: 15 },
-        { header: 'Name', key: 'name', width: 30 },
-        { header: 'Version', key: 'version', width: 10 },
-        { header: 'Status', key: 'status', width: 15 },
-        { header: 'Phone', key: 'phone', width: 15 },
-        { header: 'Address', key: 'address', width: 30 },
-        { header: 'Created', key: 'creationDate', width: 20 },
-        { header: 'Modified', key: 'modificationDate', width: 20 }
+        { header: 'Código', key: 'code', width: 15 },
+        { header: 'Nombre', key: 'name', width: 30 },
+        { header: 'Versión', key: 'version', width: 10 },
+        { header: 'Estado', key: 'status', width: 15 },
+        { header: 'Teléfono', key: 'phone', width: 15 },
+        { header: 'Dirección', key: 'address', width: 30 },
+        { header: 'Fecha Creación', key: 'creationDate', width: 20 },
+        { header: 'Fecha Modificación', key: 'modificationDate', width: 20 }
       ];
 
-      // Style the headers
+      // Estilizar los encabezados
       worksheet.getRow(1).font = { bold: true };
       worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-      // Add rows
+      // Añadir filas
       organizations.forEach((org: OrganizationResponse) => {
         worksheet.addRow({
           code: org.code,
@@ -225,58 +238,67 @@ export class OrganizationController {
           phone: org.phone || 'N/A',
           address: org.address || 'N/A',
           creationDate: org.creationDate
-            ? new Date(org.creationDate).toLocaleDateString()
+            ? new Date(org.creationDate).toLocaleDateString('es-ES')
             : 'N/A',
           modificationDate: org.modificationDate
-            ? new Date(org.modificationDate).toLocaleDateString()
+            ? new Date(org.modificationDate).toLocaleDateString('es-ES')
             : 'N/A'
         });
       });
 
-      // Set content type and disposition
+      // Establecer el tipo de contenido y disposición
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename=organizations.xlsx');
+      res.setHeader('Content-Disposition', 'attachment; filename=organizaciones.xlsx');
 
-      // Send the workbook
+      // Enviar el libro de trabajo
       await workbook.xlsx.write(res);
       res.end();
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to Excel:', err.message);
-      res.status(500).json({ error: 'Error exporting to Excel.' });
+      console.error('Error al exportar a Excel:', err.message);
+      res.status(500).json({ error: 'Error al exportar a Excel.' });
     }
   }
 
   /**
-   * Exports to PDF
+   * Exporta a PDF
    */
   async exportToPDF(req: Request, res: Response) {
     try {
-      // Get all organizations
-      const organizations = await organizationService.getOrganizations(1, 1000);
+      // Obtener todas las organizaciones
+      const allOrganizations = await organizationService.getOrganizations(1, 1000);
 
-      // Create a new PDF document
+      // Filtrar para excluir la organización ORG-MAIN y ordenar por fecha de creación (más antiguas primero)
+      const organizations = allOrganizations
+        .filter((org: OrganizationResponse) => org.code !== 'ORG-MAIN')
+        .sort((a: OrganizationResponse, b: OrganizationResponse) => {
+          // Convertir fechas a objetos Date para comparación
+          const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+          const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+          // Ordenar ascendente (de más antiguo a más reciente)
+          return dateA - dateB;
+        });
+
+      // Crear un nuevo documento PDF con la opción bufferPages para permitir modificaciones posteriores
       const doc = new PDFDocument({
         margin: 30,
         size: 'A4',
         layout: 'landscape',
-        autoFirstPage: true
+        autoFirstPage: true,
+        bufferPages: true  // Importante: permite modificar páginas después de crearlas
       });
 
-      // Set response headers
+      // Configurar cabeceras de respuesta
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=organizations.pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=organizaciones.pdf');
 
-      // Pipe the PDF to the response
+      // Enviar el PDF a la respuesta
       doc.pipe(res);
 
-      // Add title and date
-      doc.fontSize(18).text('Organizations Report', { align: 'center' });
-      doc.fontSize(10).text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
-      doc.moveDown(2);
+      // Traducir encabezados de tabla
+      const headers = ['Código', 'Nombre', 'Versión', 'Estado', 'Teléfono', 'Dirección', 'Fecha Creación'];
 
-      // Create table headers and rows
-      const headers = ['Code', 'Name', 'Version', 'Status', 'Phone', 'Address', 'Creation Date'];
+      // Mapear datos de organizaciones (excluyendo ORG-MAIN)
       const rows = organizations.map((org: OrganizationResponse) => [
         org.code || 'N/A',
         org.name || 'N/A',
@@ -284,35 +306,45 @@ export class OrganizationController {
         org.status || 'N/A',
         org.phone || 'N/A',
         org.address || 'N/A',
-        org.creationDate ? new Date(org.creationDate).toLocaleDateString() : 'N/A'
+        org.creationDate ? new Date(org.creationDate).toLocaleDateString('es-ES') : 'N/A'
       ]);
 
-      // Draw the table with improved handling of text overflow
+      // Añadir título y fecha
+      doc.fontSize(18).text('Reporte de Organizaciones', { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
+      doc.moveDown(2);
+
+      // Dibujar la tabla con manejo mejorado de desbordamiento de texto
       this.drawTableImproved(doc, headers, rows);
 
-      // Add page numbers
-      const totalPages = doc.bufferedPageRange().count;
+      // Obtener todas las páginas del documento
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+
+      // Añadir número de página en la esquina superior derecha de cada página
       for (let i = 0; i < totalPages; i++) {
         doc.switchToPage(i);
-        doc.fontSize(8).text(
-          `Page ${i + 1} of ${totalPages}`,
-          30,
-          doc.page.height - 20,
-          { align: 'center' }
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50, // X: cerca del borde derecho
+          30, // Y: cerca del borde superior
+          { align: 'right' }
         );
       }
 
-      // Finalize the PDF and end the response
+      // Finalizar el PDF y terminar la respuesta
       doc.end();
+
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting to PDF.' });
+      console.error('Error al exportar a PDF:', err.message);
+      res.status(500).json({ error: 'Error al exportar a PDF.' });
     }
   }
 
   /**
-   * Improved table drawing function with text wrapping and dynamic row heights
+   * Improved table drawing function with text wrapping, dynamic row heights and complete grid
    */
   private drawTableImproved(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
     const pageWidth = doc.page.width - 60; // Account for margins
@@ -320,12 +352,15 @@ export class OrganizationController {
     const margin = 30;
     let y = doc.y;
 
+    // Draw top border of the table
+    doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
     // Draw headers
     doc.font('Helvetica-Bold').fontSize(10);
     let x = margin;
 
     headers.forEach((header, i) => {
-      doc.text(header, x, y, {
+      doc.text(header, x, y + 5, {
         width: columnWidths[i],
         align: 'center'
       });
@@ -335,10 +370,23 @@ export class OrganizationController {
     // Draw header line
     y += 20;
     doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+    // Save the starting y position for vertical lines
+    const tableStartY = y - 20;
+    let tableEndY = y;
+
     y += 5;
 
     // Draw rows with dynamic heights
     doc.font('Helvetica').fontSize(9);
+
+    // Keep track of column positions for vertical lines
+    const columnPositions = [margin];
+    let accumulatedWidth = margin;
+    for (const width of columnWidths) {
+      accumulatedWidth += width;
+      columnPositions.push(accumulatedWidth);
+    }
 
     rows.forEach((row) => {
       // Calculate row height based on content
@@ -346,13 +394,25 @@ export class OrganizationController {
 
       // Check if we need a new page
       if (y + rowHeight > doc.page.height - 50) {
+        // Draw vertical lines for the current page before adding a new page
+        for (let i = 0; i < columnPositions.length; i++) {
+          doc.moveTo(columnPositions[i], tableStartY)
+            .lineTo(columnPositions[i], tableEndY)
+            .stroke();
+        }
+
         doc.addPage();
         y = 50;
+
+        // Draw top border for the continuing table
+        doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+        // Reset table measurements for the new page
+        tableEndY = y;
       }
 
       // Draw cells with wrapped text
       x = margin;
-      let maxCellHeight = 0;
 
       row.forEach((cell, i) => {
         const cellText = cell ? String(cell) : 'N/A';
@@ -363,7 +423,7 @@ export class OrganizationController {
         };
 
         // Draw cell text
-        doc.text(cellText, x, y, cellOptions);
+        doc.text(cellText, x + 3, y + 3, cellOptions); // Add small padding
 
         // Move to next column
         x += columnWidths[i];
@@ -371,30 +431,40 @@ export class OrganizationController {
 
       // Move to next row and draw divider
       y += rowHeight + 5;
-      doc.moveTo(margin, y - 2).lineTo(margin + pageWidth, y - 2).stroke();
+      doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+      // Update the end position of the table
+      tableEndY = y;
     });
+
+    // Draw all vertical lines after all rows are drawn
+    for (let i = 0; i < columnPositions.length; i++) {
+      doc.moveTo(columnPositions[i], tableStartY)
+        .lineTo(columnPositions[i], tableEndY)
+        .stroke();
+    }
   }
 
   /**
    * Calculate dynamic row height based on content
    */
   private calculateRowHeight(doc: PDFKit.PDFDocument, row: any[], columnWidths: number[]): number {
-    let maxHeight = 15; // Minimum row height
+    let maxHeight = 20; // Aumentar altura mínima
 
     row.forEach((cell, i) => {
       if (!cell) return;
 
       const cellText = String(cell);
-      const wrappedText = doc.widthOfString(cellText, {
-        width: columnWidths[i],
+      // Usar heightOfString en lugar de la estimación manual
+      const cellHeight = doc.heightOfString(cellText, {
+        width: columnWidths[i] - 6, // Restar padding horizontal
         lineBreak: true
       });
 
-      // Estimate the height based on text length and column width
-      const textLines = Math.ceil(wrappedText / columnWidths[i]);
-      const estimatedHeight = textLines * 12; // 12 points per line
+      // Añadir padding vertical explícito (6 puntos arriba y abajo)
+      const totalHeight = cellHeight + 12;
 
-      maxHeight = Math.max(maxHeight, estimatedHeight);
+      maxHeight = Math.max(maxHeight, totalHeight);
     });
 
     return maxHeight;
