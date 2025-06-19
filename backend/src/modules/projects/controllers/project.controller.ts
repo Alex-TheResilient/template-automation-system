@@ -490,11 +490,15 @@ export class ProjectController {
       const { project, educciones } = await projectService.getProjectRequirementsCatalog(orgcod, projcod);
 
       // Create PDF document
-      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true // Añadir esta opción para permitir numeración de páginas
+      });
 
       // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=requirements-catalog-${project.code}.pdf`);
+      res.setHeader('Content-Disposition', `attachment; filename=catalogo-requisitos-${project.code}.pdf`);
 
       // Pipe PDF to response
       doc.pipe(res);
@@ -538,6 +542,7 @@ export class ProjectController {
 
       // Cabecera del documento
       doc.fontSize(24).text(`Catálogo de Requisitos - ${project.name}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
       let y = 150;
@@ -547,8 +552,6 @@ export class ProjectController {
       y = addTableRow('Código', project.code, 50, y);
       y = addTableRow('Nombre', project.name, 50, y);
       y = addTableRow('Organización', project.organization?.name || orgcod, 50, y);
-      y = addTableRow('Fecha de Generación', new Date().toLocaleString(), 50, y);
-
       y += 30;
 
       // Sección de Educciones
@@ -634,6 +637,22 @@ export class ProjectController {
             doc.text('No hay ilaciones registradas para esta educción.', 50, y);
           }
         });
+      }
+
+      // Obtener todas las páginas del documento
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+
+      // Añadir número de página en la esquina superior derecha de cada página
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50, // X: cerca del borde derecho
+          30, // Y: cerca del borde superior
+          { align: 'right' }
+        );
       }
 
       // Finish PDF
