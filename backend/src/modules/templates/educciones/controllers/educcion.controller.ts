@@ -356,7 +356,8 @@ export class EduccionController {
       doc.pipe(res);
 
       // Título y fecha de generación
-      doc.fontSize(18).text(`Reporte de Educciones - ${project.name}`, { align: 'center' });
+      doc.fontSize(18).text(`Reporte de Educciones`, { align: 'center' });
+      doc.fontSize(16).text(`${project.name}`, { align: 'center' });
       doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
@@ -453,36 +454,6 @@ export class EduccionController {
       console.error('Error al exportar a PDF:', err.message);
       res.status(500).json({ error: 'Error al exportar a PDF.' });
     }
-  }
-
-  /**
-   * Helper function to draw tables in PDF
-   */
-  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const columnWidths = [80, 150, 80, 80, 60]; // Adjust column widths
-    const tableMargin = 30; // Left margin
-    const rowHeight = 20;
-
-    let y = doc.y; // Initial Y position
-
-    // Draw headers
-    doc.fontSize(10).font('Helvetica-Bold');
-    headers.forEach((header, index) => {
-      const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-      doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
-    });
-
-    y += rowHeight;
-
-    // Draw data rows
-    doc.font('Helvetica');
-    rows.forEach(row => {
-      row.forEach((cell, index) => {
-        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-        doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
-      });
-      y += rowHeight;
-    });
   }
 }
 
