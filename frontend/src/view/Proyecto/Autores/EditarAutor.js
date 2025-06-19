@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import '../../../styles/stylesNuevoAutor.css';
 import '../../../styles/styles.css';
 import axios from "axios";
@@ -7,45 +7,80 @@ import axios from "axios";
 const EditarAutor = () => {
 
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    const location = useLocation();
+    const {orgcod, projcod,autid,autcod } = location.state || {};
 
     // Datos controlados por el usuario
-    const [apellidoPaternoAutor, setApellidoPaternoAutor] = useState("Perez");
-    const [apellidoMaternoAutor, setApellidoMaternoAutor] = useState("Casimiro");
-    const [nombreAutor, setNombreAutor] = useState("Felix");
-    const [aliasAutor, setAliasAutor] = useState("Fepe");
-    const [rolAutor, setRolAutor] = useState("Diseñador de software");
-    const [passwordAutor, setPasswordAutor] = useState('123456');
-    const [telefonoAutor, setTelefonoAutor] = useState("123456789");
-    const [dniAutor, setDniAutor] = useState("87654321");
-    const [estado, setEstado] = useState("En progreso");
-    const [comentario, setComentario] = useState("Trabaja con el cliente");
+    const [apellidoPaterno, setApellidoPaternoAutor] = useState("");
+    const [apellidoMaterno, setApellidoMaternoAutor] = useState("");
+    const [nombre, setNombreAutor] = useState("");
+    const [alias, setAliasAutor] = useState("");
+    const [rol, setRolAutor] = useState("");
+    const [password, setPasswordAutor] = useState("");
+    const [telefono, setTelefonoAutor] = useState("");
+    const [dni, setDniAutor] = useState("");
+    const [estado, setEstado] = useState("");
+    const [comentario, setComentario] = useState("");
+    const [error, setError] = useState(null);
     //const [permisoPantilla, setPermisoPantilla] = useState([]);
 
     // Datos automáticos
-    const [codigoAutor, setCodigoAutor] = useState("AUT-0002");
-    const [versionAutor, setVersionAutor] = useState("00.01");
-    const [fechaCreacionAutor, setFechaCreacionAutor] = useState("23/10/2023"); 
-    const [codigoOrganizacion, setCodigoOrganizacion] = useState("ORG-001");
-    const [autorPantilla, setAutorPantilla] = useState("AUT-000");
+    const [codigo, setCodigoAutor] = useState("");
+    const [version, setVersionAutor] = useState("");
+    const [fechaCreacion, setFechaCreacionAutor] = useState(""); 
+    const [codigoOrganizacion, setCodigoOrganizacion] = useState("");
+    const [autorPantilla, setAutorPantilla] = useState("");
 
-    // Función para manejar cambios en el input
-    const handleChange = (event) => {
-        setApellidoPaternoAutor(event.target.value);
-        setApellidoMaternoAutor(event.target.value);
-        setNombreAutor(event.target.value);
-        setAliasAutor(event.target.value);
-        setRolAutor(event.target.value);
-        setPasswordAutor(event.target.value);
-        setDniAutor(event.target.value);
-        setEstado(event.target.value);
-        setComentario(event.target.value);
-        setCodigoAutor(event.target.value);
-        setVersionAutor(event.target.value);
-        setFechaCreacionAutor(event.target.value);
-        setCodigoOrganizacion(event.target.value);
-        setAutorPantilla(event.target.value);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+    // Extraer Datos
+    const fetchAuthorData = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/authors/${autid}`);
+            const data = response.data;
+            const rawDate = new Date(data.creationDate);
+            const formattedDate = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
+            setCodigoAutor(data.code);
+            setFechaCreacionAutor(formattedDate);
+            setComentario(data.comments);
+            setVersionAutor(data.version);
+            setNombreAutor(data.firstName);
+            setApellidoPaternoAutor(data.paternalSurname);
+            setApellidoMaternoAutor(data.maternalSurname);
+            setAliasAutor(data.alias);
+            setEstado(data.status);
+            setDniAutor(data.dni);
+            setTelefonoAutor(data.phone);
+            setRolAutor(data.role);
+            setPasswordAutor(data.password);
+            setEstado(data.status);
+            setAutorPantilla(data.templateAuthor?.name);
+            setComentario(data.comments);
+        } catch (err) {
+            setError("Error al obtener los datos del autor: " + err.message);
+        }
     };
+    //Guardar Datos Editados
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.put(`${API_BASE_URL}/authors/${autid}`, {
+                nombre,
+                comentario, 
+            });
+    
+            if (response.status === 200) {
+                alert("Experto actualizado correctamente");
+                irAAutores();
+            }
+        } catch (err) {
+            setError("Error al actualizar el experto: " + err.message);
+        }
+    };
+    useEffect(() => {
+            fetchAuthorData();
+    }, [autid]);
+
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -107,8 +142,8 @@ const EditarAutor = () => {
                                 disabled 
                                 type="text" 
                                 className="inputBloq-field" 
-                                value={codigoAutor} 
-                                onChange={handleChange} 
+                                value={codigo} 
+                                OnChange={(e) => setCodigoAutor(e.target.value)} 
                                 readOnly 
                                 size="30" />
                             </div>
@@ -117,8 +152,8 @@ const EditarAutor = () => {
                                 disabled 
                                 type="text" 
                                 className="inputBloq-field" 
-                                value={versionAutor}
-                                onChange={handleChange}  
+                                value={version}
+                                OnChange={(e) => setVersionAutor(e.target.value)}
                                 readOnly 
                                 size="30" />
                             </div>
@@ -127,8 +162,8 @@ const EditarAutor = () => {
                                 disabled 
                                 type="text" 
                                 className="inputBloq-field" 
-                                value={fechaCreacionAutor} 
-                                onChange={handleChange}  
+                                value={fechaCreacion} 
+                                OnChange={(e) => setFechaCreacionAutor(e.target.value)}
                                 readOnly 
                                 size="30" />
                             </div>
@@ -145,8 +180,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={apellidoPaternoAutor} 
-                                    onChange={handleChange}  
+                                    value={apellidoPaterno} 
+                                    OnChange={(e) => setApellidoPaternoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Apellido paterno del autor</span>
                                 </span>
@@ -157,8 +192,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={apellidoMaternoAutor} 
-                                    onChange={handleChange}  
+                                    value={apellidoMaterno} 
+                                    OnChange={(e) => setApellidoMaternoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Apellido materno del autor</span>
                                 </span>
@@ -169,8 +204,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={nombreAutor} 
-                                    onChange={handleChange}  
+                                    value={nombre} 
+                                    OnChange={(e) => setNombreAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Nombres del autor</span>
                                 </span>
@@ -184,8 +219,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={aliasAutor} 
-                                    onChange={handleChange}  
+                                    value={alias} 
+                                    OnChange={(e) => setAliasAutor(e.target.value)}
                                     size="30" />
                                     <span class="tooltip-text">Alias del autor</span>
                                 </span>
@@ -196,8 +231,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={rolAutor} 
-                                    onChange={handleChange}  
+                                    value={rol?.name} 
+                                    OnChange={(e) => setRolAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Rol del autor en el proyecto</span>
                                 </span>
@@ -208,8 +243,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={passwordAutor} 
-                                    onChange={handleChange}  
+                                    value={password} 
+                                    OnChange={(e) => setPasswordAutor(e.target.value)}
                                     size="30" />
                                     <span class="tooltip-text">Contraseña del autor, este debe tener al menos 6 caracteres</span>
                                 </span>
@@ -223,8 +258,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={telefonoAutor} 
-                                    onChange={handleChange}  
+                                    value={telefono} 
+                                    OnChange={(e) => setTelefonoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Teléfono del autor, este debe contener 9 dígitos</span>
                                 </span>
@@ -235,8 +270,8 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={dniAutor} 
-                                    onChange={handleChange}  
+                                    value={dni} 
+                                    OnChange={(e) => setDniAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">DNI del autor, este debe contener 8 dígitos</span>
                                 </span>
@@ -256,8 +291,7 @@ const EditarAutor = () => {
                                 disabled 
                                 type="text" 
                                 className="inputBloq-field" 
-                                value={codigoOrganizacion}
-                                onChange={handleChange}   
+                                value={orgcod}   
                                 readOnly 
                                 size="30" />
                             </div>
@@ -267,7 +301,7 @@ const EditarAutor = () => {
                                 type="text" 
                                 className="inputBloq-field" 
                                 value={autorPantilla} 
-                                onChange={handleChange}  
+                                OnChange={(e) => setAutorPantilla(e.target.value)}  
                                 readOnly 
                                 size="30" />
                             </div>

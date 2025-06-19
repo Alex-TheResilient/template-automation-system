@@ -116,7 +116,7 @@ function App() {
           */} 
           <Route path="/organizations/:orgcod/projects/:projcod/authors" element={<Autores />} />
           <Route path="/organizations/:orgcod/projects/:projcod/authors/new" element={<NuevoAutor />} />
-          <Route path="/organizations/:orgcod/projects/:projcod/authors/:autcod" element={<EditarAutor />} />
+          <Route path="/authors/:autcod" element={<EditarAutor />} />
            
           <Route path="/organizations/:orgcod/projects/:projcod/actors" element={<Actores />} />
           <Route path="/organizations/:orgcod/projects/:projcod/actors/new" element={<NuevoActor />} />  

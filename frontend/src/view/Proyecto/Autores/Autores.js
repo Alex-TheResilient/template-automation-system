@@ -23,9 +23,9 @@ const Autores = () => {
     const fetchAuthors = useCallback(async () => {
         //Obtener o listar expertos de un proyecto
         try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors`);
-            //const response = await axios.get(`${API_BASE_URL}/authors`);
-            setAuthors(response.data || []);
+            //const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors`);
+            const response = await axios.get(`${API_BASE_URL}/authors`);
+            setAuthors(response.data.data || []);
         } catch (err) {
             setError(
                 err.response
@@ -50,36 +50,35 @@ const Autores = () => {
             // Determinar qué tipo de búsqueda realizar
             if (searchNombre) {
                 // Búsqueda por nombre
-                endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search`;
+                //endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search`;
+                endpoint = `${API_BASE_URL}/authors/search`;
                 params.name = searchNombre;
-            } else if (searchYear || searchMonth) {
-                // Búsqueda por fecha
-                endpoint = `${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/search/date`;
-                if (searchYear) params.year = searchYear;
-                if (searchMonth) params.month = searchMonth;
-            } else {
+            }
+             else {
                 // Si no hay criterios de búsqueda, cargar todos los proyectos
                 await fetchAuthors();
                 return;
             }
 
             const response = await axios.get(endpoint, { params });
-            setAuthors(response.data);
+
+            setAuthors(response.data || []);
             setError(null);
         } catch (err) {
             console.error("Error en la búsqueda:", err);
-            setError(err.response?.data?.error || "Error al buscar fuentes");
+            setError(err.response?.data?.error || "Error al buscar autores");
             setAuthors([]);
         } finally {
             setLoading(false);
         }
     };
 
-    // Eliminar una fuente 
+    // Eliminar una fuente
     const deleteAuthor = async (codigo) => {
         try {
             // /organizations/:orgcod/projects/:projcod/sources/:srccod'
-            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${codigo}`);
+            //await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors/${codigo}`);
+            await axios.delete(`${API_BASE_URL}/authors/${codigo}`);
             fetchAuthors(); // Refrescar la lista de fuentes después de eliminar uno
         } catch (err) {
             console.error("Error al eliminar la fuente:", err);
@@ -98,20 +97,20 @@ const Autores = () => {
         setMostrarPopup(false);
     };
 
-    const eliminarAutor = async () => {
-        if (autorAEliminar) {
-            try {
-                await axios.delete(`http://localhost:5000/api/authors/${autorAEliminar}`);
-                setAuthors(authors.filter((aut) => aut.autCod !== autorAEliminar)); // Filtrar el autor eliminado
-                alert("Autor eliminado correctamente");
-            } catch (err) {
-                setError(err.response ? err.response.data.error : "Error al eliminar el autor");
-            }
-        }
-        cerrarPopup(); // Cerrar el popup después de eliminar
-    };
+    // const eliminarAutor = async () => {
+    //     if (autorAEliminar) {
+    //         try {
+    //             await axios.delete(`http://localhost:5000/api/authors/${autorAEliminar}`);
+    //             setAuthors(authors.filter((aut) => aut.autCod !== autorAEliminar)); // Filtrar el autor eliminado
+    //             alert("Autor eliminado correctamente");
+    //         } catch (err) {
+    //             setError(err.response ? err.response.data.error : "Error al eliminar el autor");
+    //         }
+    //     }
+    //     cerrarPopup(); // Cerrar el popup después de eliminar
+    // };
 
-    // Exportar a Excel
+    // Exportar a Excel ref source
     const exportToExcel = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
@@ -120,7 +119,7 @@ const Autores = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'fuentes.xlsx');
+            link.setAttribute('download', 'Autores.xlsx');
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -128,7 +127,7 @@ const Autores = () => {
         }
     };
 
-    // Exportar a PDF
+    // Exportar a PDF ref source
     const exportToPDF = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/pdf`, {
@@ -137,7 +136,7 @@ const Autores = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'organizaciones.pdf');
+            link.setAttribute('download', 'Autores.pdf');
             document.body.appendChild(link);
             link.click();
         } catch (err) {
@@ -154,9 +153,20 @@ const Autores = () => {
     const irANuevoAutor = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/authors/new`);
     };
-    const irAEditarAutor = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/authors/${autcod}`);
+    const irAEditarAutor = (autid,autcod) => {
+        navigate(`/authors/${autcod}`,{
+        state: {
+            orgcod: orgcod,
+            projcod: projcod,
+            autid,
+            autcod,
+        }
+    });
     };
+    // const irAEditarAutor = (autid,autcod) => {
+    //     //navigate(`/organizations/${orgcod}/projects/${projcod}/authors/${autcod}`);
+    //     navigate(`/organizations/authors/${autcod}`);
+    // };
     const irALogin = () => {
         navigate("/");
     };
@@ -227,15 +237,12 @@ const Autores = () => {
                                 </thead>
                                 <tbody>
                                     {authors.map((author) => (
-                                        <tr key={author.code} onClick={() => irAEditarAutor(author.code)}>
+                                        <tr key={author.code} onClick={() => irAEditarAutor(author.id,author.code)}>
                                             <td>{author.code}</td>
                                             <td>{author.firstName}</td>
                                             <td>{new Date(author.creationDate).toLocaleDateString()}</td>
-                                            <td>
-                                                {new Date(author.modificationDate).toLocaleDateString()}
-                                            </td>
-                                            <td>{author.status}</td>
                                             <td>{author.version}</td>
+                                            <td>{author.rol}</td>
                                             <td>
                                                 <button className="botton-crud">
                                                     <FaFolder
@@ -246,7 +253,7 @@ const Autores = () => {
                                                     className="botton-crud"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                        irAEditarAutor(author.code); // Llama a la función para editar
+                                                        irAEditarAutor(author.id,author.code); // Llama a la función para editar
                                                     }}
                                                 >
                                                     <FaPencilAlt
@@ -257,7 +264,7 @@ const Autores = () => {
                                                     className="botton-crud"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                        deleteAuthor(author.code);//deleteProject(source.code); // Llama a la función de eliminación
+                                                        deleteAuthor(author.id);//deleteProject(source.code); // Llama a la función de eliminación
                                                     }}
                                                 >
                                                     <FaTrash
@@ -276,7 +283,7 @@ const Autores = () => {
                             <div className="popup-overlay">
                                 <div className="popup-content">
                                     <p>¿Está seguro de eliminar este autor?</p>
-                                    <button onClick={eliminarAutor} className="si-button">Sí</button>
+                                    <button onClick={deleteAuthor} className="si-button">Sí</button>
                                     <button onClick={cerrarPopup} className="no-button">No</button>
                                 </div>
                             </div>

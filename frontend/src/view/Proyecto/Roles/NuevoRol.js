@@ -55,7 +55,7 @@ const NuevoRol = () => {
         navigate("/");
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`);
     };
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);

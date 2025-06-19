@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import '../../../styles/stylesNuevoAutor.css';
 import '../../../styles/styles.css';
@@ -7,73 +7,92 @@ import axios from "axios";
 const NuevoAutor = () => {
 
     const navigate = useNavigate();
-    const {orgcod, projcod } = useParams();
+    const hasFetched = useRef(false);
+    const { orgcod, projcod } = useParams();
     // Datos controlados por el usuario
-    const [apellidoPaterno, setApellidoPaterno] = useState("");
-    const [apellidoMaterno, setApellidoMaterno] = useState("");
-    const [nombre, setNombre] = useState("");
+
+    const [paternalSurname, setApellidoPaterno] = useState("");
+    const [maternalSurname, setApellidoMaterno] = useState("");
+    const [firstName, setNombre] = useState("");
     const [alias, setAlias] = useState("");
-    const [rol, setRol] = useState("");
+    //const [role, setRol] = useState("");
     const [password, setPassword] = useState('');
-    const [telefonoAutor, setTelefonoAutor] = useState("");
-    const [dniAutor, setDniAutor] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [phone, setTelefono] = useState("");
+    const [dni, setDni] = useState("");
+    const [status, setEstado] = useState("");
+    const [comments, setComentario] = useState("");
     //const [permisoPantilla, setPermisoPantilla] = useState([]);
 
     // Datos automáticos
     const [codigo, setCodigo] = useState("");//Generacion Automatizada
     const [version, setVersion] = useState("0.01");
-    const [fecha, setFecha] = useState(""); //Generacion Automatizada
+    const [creationDate, setFechaCreacion] = useState(
+        new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    );
     const [codigoOrganizacion, setcodigoOrganizacion] = useState("ORG-001"); //Cambiar a Generacion Automatizada
     const [autorPantilla, setAutorPantilla] = useState("AUT-000");//Cambiar a Generacion Automatizada
     const [error, setError] = useState(null);
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
+    //Siguente codigo de autor
     useEffect(() => {
-        // Simular la obtención de datos automáticos desde el servidor
-        const fetchAutomaticData = async () => {
+        if (hasFetched.current) return; // Previene segunda ejecución
+        hasFetched.current = true;
+        console.log("Ejecutando useEffect...");
+        const fetchNextCodigoAutor = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/authors/last");//Cambiar router
-                const nextCode = response.data.nextCode || "AUT-001";
-                setCodigo(nextCode);
-                setFecha(new Date().toLocaleDateString());
+
+                // Llamar al endpoint usando parámetros de consulta
+                const response = await axios.get(`${API_BASE_URL}/authors/next-code`);
+                console.log("Respuesta del backend:", response.data);
+                // Asignar el valor recibido al estado
+                setCodigo(response.data.nextCode || "AUT-001");
             } catch (err) {
-                console.error("Error al obtener datos automáticos:", err);
-                setError("No se pudieron cargar los datos automáticos.");
+                console.error("Error al obtener el siguiente código de actor:", err);
+                setError("No se pudo cargar el siguiente código del actor.");
             }
         };
-        fetchAutomaticData();
+
+        fetchNextCodigoAutor();
+    }, []);
+    //Roles
+    const [roleId, setRoleId] = useState("");
+    const [roles, setRoles] = useState([]);
+    const [selectedRole, setSelectedRole] = useState(null);
+    useEffect(() => {
+        const fetchRoles = async () => {
+            const res = await axios.get(`${API_BASE_URL}/roles`);
+            setRoles(res.data.data || []); // Asegúrate de ajustar según cómo devuelves los datos
+        };
+
+        fetchRoles();
     }, []);
 
-    // Función para registrar la organización
-    const handleRegister = async (e) => {
+    // Función para registrar el autor
+    const registrarAutor = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/authors", { //Cambiar router
-
-                autCod: codigo,
-                autVer: version,
-                autFecCrea: fecha,
-                autApePat: apellidoPaterno,
-                autApeMat: apellidoMaterno,
-                autNom: nombre,
-                autAli: alias,
-                autRol: rol,
-                password: password,
-                autTef: telefonoAutor,
-                autDNI: dniAutor,
-                autCodOrg: codigoOrganizacion,
-                autPan: autorPantilla,
-                autEst: estado,
-                autCom: comentario,
-                //permissions: permisoPantilla,
+            // Realiza la solicitud POST con los datos correctos
+            await axios.post(`${API_BASE_URL}/authors`, {
+                firstName,
+                paternalSurname,
+                maternalSurname,
+                version,
+                status,
+                alias,
+                password,
+                phone,
+                roleId,
+                dni,
+                comentario: comments,
             });
-            if (response.status === 201) {
-                alert("Autor registrado correctamente");
-                irAAutores();
-            }
+
+            // Redirigir a la página de expertos o realizar otra acción
+            irAAutores();
+
         } catch (err) {
-            setError("Error al registrar al autor: " + err.message);
+            console.error("Error al registrar el experto:", err);
+            setError("No se pudo registrar al experto. Inténtalo de nuevo.");
         }
     };
 
@@ -163,7 +182,7 @@ const NuevoAutor = () => {
                                 <input disabled type="text" className="inputBloq-field" value={version} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input disabled type="text" className="inputBloq-field" value={fecha} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
                             </div>
                         </div>
                     </section>
@@ -175,21 +194,21 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Apellido Paterno</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoPaterno} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={paternalSurname} onChange={(e) => setApellidoPaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Apellido paterno del autor</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>Apellido Materno</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={apellidoMaterno} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={maternalSurname} onChange={(e) => setApellidoMaterno(e.target.value)} size="30" />
                                     <span class="tooltip-text">Apellido materno del autor</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Nombres</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={firstName} onChange={(e) => setNombre(e.target.value)} size="30" />
                                     <span class="tooltip-text">Nombres del autor</span>
                                 </span>
                             </div>
@@ -206,7 +225,17 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Rol</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={rol} onChange={(e) => setRol(e.target.value)} size="30" />
+                                    <select id="estado" name="estado" value={roleId} onChange={(e) => {
+                                        const selectedId = e.target.value;
+                                        setRoleId(selectedId);
+
+                                        const fullRole = roles.find((r) => r.id === selectedId);
+                                        setSelectedRole(fullRole); // Aquí sí: guardas el objeto seleccionado
+                                    }} required>
+                                        <option value="">Seleccione un rol</option>
+                                        {roles.map((r) => (
+                                            <option key={r.id} value={r.id}>{r.name}</option>
+                                        ))}</select>
                                     <span class="tooltip-text">Rol del autor en el proyecto</span>
                                 </span>
                             </div>
@@ -223,14 +252,14 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Teléfono</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={telefonoAutor} onChange={(e) => setTelefonoAutor(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={phone} onChange={(e) => setTelefono(e.target.value)} size="30" />
                                     <span class="tooltip-text">Teléfono del autor, este debe contener 9 dígitos</span>
                                 </span>
                             </div>
                             <div className="ro-fiel-vers">
                                 <h4>DNI</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={dniAutor} onChange={(e) => setDniAutor(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={dni} onChange={(e) => setDni(e.target.value)} size="30" />
                                     <span class="tooltip-text">DNI del autor, este debe contener 8 dígitos</span>
                                 </span>
                             </div>
@@ -251,9 +280,9 @@ const NuevoAutor = () => {
                                 <input disabled type="text" className="inputBloq-field" value={autorPantilla} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <select 
-                                    className="estado-input" 
-                                    value={estado} 
+                                <select
+                                    className="estado-input"
+                                    value={status}
                                     onChange={(e) => setEstado(e.target.value)}
                                 >
                                     <option value="">[Seleccionar]</option>
@@ -270,7 +299,7 @@ const NuevoAutor = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
                     </section>
 
@@ -382,7 +411,7 @@ const NuevoAutor = () => {
                         */}
                         <div className="ro-buttons">
                             <button onClick={irAAutores} className="ro-button" size="60">Cancelar</button>
-                            <button onClick={handleRegister} className="ro-button" size="60">Crear Autor</button>
+                            <button onClick={registrarAutor} className="ro-button" size="60">Crear Autor</button>
                         </div>
                     </section>
                 </main>

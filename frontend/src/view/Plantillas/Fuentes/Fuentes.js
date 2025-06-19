@@ -24,7 +24,7 @@ const Fuentes = () => {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const fetchSources = useCallback(async () => {
-    //Obtener o listar expertos de un proyecto
+    //Obtener o listar fuentes de un proyecto
     try {
       const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources`);
       setSources(response.data||[]);
