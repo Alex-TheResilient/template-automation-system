@@ -399,7 +399,8 @@ export class IlacionController {
       doc.pipe(res);
 
       // Título y fecha de generación
-      doc.fontSize(18).text(`Reporte de Ilaciones - ${educcion.name}`, { align: 'center' });
+      doc.fontSize(18).text(`Reporte de Ilaciones`, { align: 'center' });
+      doc.fontSize(16).text(`${educcion.name}`, { align: 'center' });
       doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
@@ -498,32 +499,6 @@ export class IlacionController {
       console.error('Error al exportar a PDF:', err.message);
       res.status(500).json({ error: 'Error al exportar a PDF.' });
     }
-  }
-
-  /**
-   * Helper function to draw tables in PDF
-   */
-  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const tableTop = 150;
-    const rowHeight = 20;
-    const tableWidth = 500;
-    const colWidth = tableWidth / headers.length;
-
-    // Draw headers
-    doc.font('Helvetica-Bold');
-    headers.forEach((header, i) => {
-      doc.text(header, 30 + (i * colWidth), tableTop);
-    });
-
-    // Draw rows
-    doc.font('Helvetica');
-    rows.forEach((row, rowIndex) => {
-      const y = tableTop + ((rowIndex + 1) * rowHeight);
-
-      row.forEach((cell, colIndex) => {
-        doc.text(String(cell), 30 + (colIndex * colWidth), y);
-      });
-    });
   }
 }
 
