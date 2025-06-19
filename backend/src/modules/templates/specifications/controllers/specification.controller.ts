@@ -423,244 +423,160 @@ export class SpecificationController {
   }
 
   /**
-   * Exports specifications to PDF
-   */
+ * Exporta especificaciones a PDF
+ */
   async exportToPDF(req: Request, res: Response) {
     try {
       const { orgcod, projcod, educod, ilacod } = req.params;
 
-      // Verify the project belongs to this organization
+      // Verificar que el proyecto pertenece a esta organización
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
       if (!project) {
-        return res.status(404).json({ error: 'Project not found in this organization.' });
+        return res.status(404).json({ error: 'Proyecto no encontrado en esta organización.' });
       }
 
-      // Verify the educcion belongs to this project
+      // Verificar que la educción pertenece a este proyecto
       const educcion = await educcionService.getEduccionByCode(educod, project.id);
       if (!educcion) {
-        return res.status(404).json({ error: 'Educcion not found in this project.' });
+        return res.status(404).json({ error: 'Educción no encontrada en este proyecto.' });
       }
 
-      // Verify the ilacion belongs to this educcion
+      // Verificar que la ilación pertenece a esta educción
       const ilacion = await ilacionService.getIlacionByCode(ilacod, educcion.id);
       if (!ilacion) {
-        return res.status(404).json({ error: 'Ilacion not found in this educcion.' });
+        return res.status(404).json({ error: 'Ilación no encontrada en esta educción.' });
       }
 
-      // Get all specifications for this ilacion
-      const specifications = await specificationService.getSpecificationsByIlacion(ilacion.id, 1, 1000);
+      // Obtener todas las especificaciones y ordenarlas por fecha de creación (más antiguas primero)
+      const allSpecifications = await specificationService.getSpecificationsByIlacion(ilacion.id, 1, 1000);
+      const specifications = allSpecifications.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
+      });
 
-      // Create a new PDF document
+      // Crear documento PDF con la opción bufferPages para permitir numeración de páginas
       const doc = new PDFDocument({
-        margin: 30,
+        margin: 50,
         size: 'A4',
         bufferPages: true
       });
 
-      // Set response headers
+      // Configurar cabeceras de respuesta
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=specifications.pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=especificaciones-${ilacod}.pdf`);
 
-      // Pipe the PDF to the response
+      // Enviar el PDF a la respuesta
       doc.pipe(res);
 
-      // Add title and metadata
-      doc.fontSize(18).text(`Specifications for ${ilacion.name}`, { align: 'center' });
-      doc.fontSize(10).text(`Project: ${projcod} - Educcion: ${educod} - Ilacion: ${ilacod}`, { align: 'center' });
-      doc.fontSize(10).text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
+      // Título y fecha de generación
+      doc.fontSize(18).text(`Reporte de Especificaciones`, { align: 'center' });
+      doc.fontSize(16).text(`${ilacion.name}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
-      // Draw specifications one per page
-      for (let i = 0; i < specifications.length; i++) {
-        const spec = specifications[i];
-        if (i > 0) {
-          doc.addPage();
-        }
+      // Si no hay especificaciones, mostrar mensaje
+      if (specifications.length === 0) {
+        doc.fontSize(12).text('No hay especificaciones registradas para esta ilación.', { align: 'center' });
+      } else {
+        // Procesar cada especificación en páginas separadas
+        specifications.forEach((spec, index) => {
+          // Nueva página para cada especificación excepto la primera
+          if (index > 0) {
+            doc.addPage();
+          }
 
-        // Add specification header
-        doc.fontSize(14).text(`Specification: ${spec.code}`, { underline: true });
-        doc.moveDown(1);
+          // Título de la especificación
+          doc.fontSize(14).font('Helvetica-Bold').text(`Especificación: ${spec.code}`, { underline: true });
+          doc.moveDown(1);
+          doc.font('Helvetica');
 
-        // Create attributes table with the requested structure
-        // Adding Precondition, Procedure, and Postcondition to the attributes table
-        const attributeRows = [
-          ['Code', spec.code || 'N/A'],
-          ['Name', spec.name || 'N/A'],
-          ['Version', spec.version || 'N/A'],
-          ['Status', spec.status || 'N/A'],
-          ['Importance', spec.importance || 'N/A'],
-          ['Creation Date', spec.creationDate ? new Date(spec.creationDate).toLocaleDateString() : 'N/A'],
-          ['Modification Date', spec.modificationDate ? new Date(spec.modificationDate).toLocaleDateString() : 'N/A'],
-          ['Precondition', spec.precondition || 'N/A'],
-          ['Procedure', spec.procedure || 'N/A'],
-          ['Postcondition', spec.postcondition || 'N/A']
-        ];
+          // Configuración de tabla de dos columnas
+          const pageWidth = doc.page.width - 100; // Ancho de página menos márgenes
+          const colWidth1 = 150; // Ancho de la primera columna (atributos)
+          const colWidth2 = pageWidth - colWidth1; // Ancho de la segunda columna (descripciones)
 
-        // If there's a comment, add it to the attributes
-        if (spec.comment) {
-          attributeRows.push(['Comments', spec.comment]);
-        }
+          // Dibujar tabla con los datos de la especificación
+          let y = doc.y;
 
-        // Draw the attributes table with the "Atributos | Descripción" structure
-        this.drawAttributesTable(doc, ['Atributos', 'Descripción'], attributeRows);
-        doc.moveDown(1.5);
+          // Función para agregar una fila a la tabla
+          const addTableRow = (attribute: string, value: string): number => {
+            // Calcular la altura requerida para el contenido de cada celda
+            const textOptions = { width: colWidth2 - 10 };
+            const valueHeight = doc.heightOfString(value || 'N/A', textOptions);
+            const attributeHeight = doc.heightOfString(attribute, { width: colWidth1 - 10 });
 
-        // Add page number
-        doc.fontSize(8).text(
-          `Page ${i + 1} of ${specifications.length}`,
-          doc.page.width - 100,
-          doc.page.height - 20,
+            // Usar la altura mayor entre las dos celdas (mínimo 25px)
+            const rowHeight = Math.max(25, valueHeight + 14, attributeHeight + 14);
+
+            // Dibujar bordes de celda con la altura calculada
+            doc.rect(50, y, colWidth1, rowHeight).stroke();
+            doc.rect(50 + colWidth1, y, colWidth2, rowHeight).stroke();
+
+            // Agregar texto con posicionamiento vertical apropiado
+            doc.fontSize(10);
+            doc.text(attribute, 55, y + 7, { width: colWidth1 - 10 });
+            doc.text(value || 'N/A', 55 + colWidth1, y + 7, textOptions);
+
+            // Devolver la nueva posición Y
+            return y + rowHeight;
+          };
+
+          // Dibujar encabezados
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.rect(50, y, colWidth1, 25).stroke();
+          doc.rect(50 + colWidth1, y, colWidth2, 25).stroke();
+          doc.text('Atributo', 55, y + 7, { width: colWidth1 - 10 });
+          doc.text('Descripción', 55 + colWidth1, y + 7, { width: colWidth2 - 10 });
+          y += 25;
+
+          // Datos de la especificación
+          doc.font('Helvetica');
+          y = addTableRow('Código', spec.code);
+          y = addTableRow('Nombre', spec.name);
+          y = addTableRow('Versión', spec.version.toString());
+          y = addTableRow('Estado', spec.status);
+          y = addTableRow('Importancia', spec.importance);
+          y = addTableRow('Fecha Creación', spec.creationDate
+            ? new Date(spec.creationDate).toLocaleDateString('es-ES')
+            : 'N/A');
+          y = addTableRow('Fecha Modificación', spec.modificationDate
+            ? new Date(spec.modificationDate).toLocaleDateString('es-ES')
+            : 'N/A');
+          y = addTableRow('Precondición', spec.precondition || 'N/A');
+          y = addTableRow('Procedimiento', spec.procedure || 'N/A');
+          y = addTableRow('Postcondición', spec.postcondition || 'N/A');
+
+          if (spec.comment) {
+            y = addTableRow('Comentarios', spec.comment);
+          }
+        });
+      }
+
+      // Obtener todas las páginas del documento
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+
+      // Añadir número de página en la esquina superior derecha de cada página
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50, // X: cerca del borde derecho
+          30, // Y: cerca del borde superior
           { align: 'right' }
         );
       }
 
-      // Finalize the PDF and end the response
+      // Finalizar el PDF y terminar la respuesta
       doc.end();
 
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting specifications to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting specifications to PDF.' });
+      console.error('Error al exportar a PDF:', err.message);
+      res.status(500).json({ error: 'Error al exportar a PDF.' });
     }
-  }
-
-  /**
-   * Draw attribute table with "Atributos | Descripción" structure
-   * with improved text overflow handling
-   */
-  private drawAttributesTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const tableTop = doc.y;
-    const tableLeft = 30;
-    const tableWidth = doc.page.width - 60;
-    const cellPadding = 5;
-
-    // Column widths - first column (attributes) is narrower
-    const columnWidths = [tableWidth * 0.3, tableWidth * 0.7];
-
-    // Draw header row
-    doc.fontSize(10).font('Helvetica-Bold');
-    headers.forEach((header, i) => {
-      doc.text(
-        header,
-        tableLeft + (i === 0 ? 0 : columnWidths[0]) + cellPadding,
-        tableTop + cellPadding,
-        {
-          width: columnWidths[i] - (2 * cellPadding),
-          align: 'left'
-        }
-      );
-    });
-
-    // Draw header line
-    const headerBottom = tableTop + 20;
-    doc.moveTo(tableLeft, headerBottom)
-      .lineTo(tableLeft + tableWidth, headerBottom)
-      .stroke();
-
-    // Draw rows with dynamic heights
-    let currentY = headerBottom;
-
-    for (const row of rows) {
-      // Get the text content for each column
-      const attributeText = String(row[0] || '');
-      const descriptionText = String(row[1] || '');
-
-      // Calculate the height needed for each cell
-      const textOptions = { lineBreak: true, width: 0, paragraphGap: 5 };
-
-      const attributeTextOptions = {
-        ...textOptions,
-        width: columnWidths[0] - (2 * cellPadding)
-      };
-
-      const descriptionTextOptions = {
-        ...textOptions,
-        width: columnWidths[1] - (2 * cellPadding)
-      };
-
-      // Measure text using PDFKit's heightOfString method for more accurate height
-      doc.font('Helvetica-Bold');
-      const attributeHeight = doc.heightOfString(attributeText, attributeTextOptions);
-
-      doc.font('Helvetica');
-      const descriptionHeight = doc.heightOfString(descriptionText, descriptionTextOptions);
-
-      // Use the taller height plus padding
-      const rowHeight = Math.max(attributeHeight, descriptionHeight) + (2 * cellPadding);
-
-      // Check if we need to start a new page
-      if (currentY + rowHeight > doc.page.height - 50) {
-        doc.addPage();
-        currentY = 50; // Start at top of new page with some margin
-
-        // Redraw table header on new page
-        doc.font('Helvetica-Bold').fontSize(10);
-        headers.forEach((header, i) => {
-          doc.text(
-            header,
-            tableLeft + (i === 0 ? 0 : columnWidths[0]) + cellPadding,
-            currentY + cellPadding,
-            {
-              width: columnWidths[i] - (2 * cellPadding),
-              align: 'left'
-            }
-          );
-        });
-
-        // Draw header line
-        currentY += 20;
-        doc.moveTo(tableLeft, currentY)
-          .lineTo(tableLeft + tableWidth, currentY)
-          .stroke();
-      }
-
-      // Save current position for borders
-      const rowTop = currentY;
-
-      // Draw attribute (left column)
-      doc.font('Helvetica-Bold').fontSize(10);
-      const attributeY = doc.y;
-      doc.text(
-        attributeText,
-        tableLeft + cellPadding,
-        currentY + cellPadding,
-        attributeTextOptions
-      );
-
-      // Draw description (right column)
-      doc.font('Helvetica').fontSize(10);
-      doc.text(
-        descriptionText,
-        tableLeft + columnWidths[0] + cellPadding,
-        currentY + cellPadding,
-        descriptionTextOptions
-      );
-
-      // Update Y position for next row
-      currentY += rowHeight;
-
-      // Draw horizontal line below row
-      doc.moveTo(tableLeft, currentY)
-        .lineTo(tableLeft + tableWidth, currentY)
-        .stroke();
-
-      // Draw vertical line between columns
-      doc.moveTo(tableLeft + columnWidths[0], rowTop)
-        .lineTo(tableLeft + columnWidths[0], currentY)
-        .stroke();
-    }
-
-    // Draw vertical borders
-    doc.moveTo(tableLeft, tableTop)
-      .lineTo(tableLeft, currentY)
-      .stroke();
-
-    doc.moveTo(tableLeft + tableWidth, tableTop)
-      .lineTo(tableLeft + tableWidth, currentY)
-      .stroke();
-
-    // Update y position for next element
-    doc.y = currentY + 10;
   }
 }
 
