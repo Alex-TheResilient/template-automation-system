@@ -207,60 +207,220 @@ export class ProjectController {
   }
 
   /**
-   * Exports projects to PDF
+   * Export projects to PDF
    */
   async exportToPDF(req: Request, res: Response) {
     const { orgcod } = req.params;
     try {
-      const projects = await projectService.getProjectsByOrganization(orgcod);
-      const doc = new PDFDocument({ size: 'A4', margin: 30 });
+      // Obtener todos los proyectos de la organización
+      const allProjects = await projectService.getProjectsByOrganization(orgcod);
 
-      // Set response headers
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=projects-${orgcod}.pdf`);
-
-      // Pipe PDF to response
-      doc.pipe(res);
-
-      // PDF header
-      doc.fontSize(18).text(`Project List for Organization ${orgcod}`, { align: 'center' });
-      doc.moveDown();
-
-      // Create table with project data
-      let y = 150;
-      const rowHeight = 20;
-      const columnWidths = [80, 150, 100, 100, 80];
-
-      // Table headers
-      doc.fontSize(12).text('Code', 30, y);
-      doc.text('Name', 110, y);
-      doc.text('Creation Date', 260, y);
-      doc.text('Mod. Date', 360, y);
-      doc.text('Status', 460, y);
-
-      y += rowHeight;
-
-      // Table rows
-      projects.forEach(project => {
-        doc.fontSize(10).text(project.code, 30, y);
-        doc.text(project.name, 110, y, { width: 150 });
-        doc.text(project.creationDate instanceof Date
-          ? project.creationDate.toISOString().split('T')[0]
-          : 'N/A', 260, y);
-        doc.text(project.modificationDate instanceof Date
-          ? project.modificationDate.toISOString().split('T')[0]
-          : 'N/A', 360, y);
-        doc.text(project.status || 'N/A', 460, y);
-
-        y += rowHeight;
+      // Ordenar los proyectos por fecha de creación (más antiguos primero)
+      const projects = allProjects.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
       });
 
-      // Finalize document
+      // Crear un nuevo documento PDF con la opción bufferPages para permitir modificaciones posteriores
+      const doc = new PDFDocument({
+        margin: 30,
+        size: 'A4',
+        // layout: 'landscape',
+        autoFirstPage: true,
+        bufferPages: true
+      });
+
+      // Configurar cabeceras de respuesta
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=proyectos-${orgcod}.pdf`);
+
+      // Enviar el PDF a la respuesta
+      doc.pipe(res);
+
+      // Traducir encabezados de tabla
+      const headers = ['Código', 'Nombre', 'Fecha Creación', 'Fecha Modificación', 'Estado'];
+
+      // Mapear datos de proyectos
+      const rows = projects.map(project => [
+        project.code || 'N/A',
+        project.name || 'N/A',
+        project.creationDate instanceof Date
+          ? new Date(project.creationDate).toLocaleDateString('es-ES')
+          : 'N/A',
+        project.modificationDate instanceof Date
+          ? new Date(project.modificationDate).toLocaleDateString('es-ES')
+          : 'N/A',
+        project.status || 'N/A'
+      ]);
+
+      // Añadir título y fecha
+      doc.fontSize(18).text(`Reporte de Proyectos - ${orgcod}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
+      doc.moveDown(2);
+
+      // Dibujar la tabla con manejo mejorado de desbordamiento de texto
+      this.drawTableImproved(doc, headers, rows);
+
+      // Obtener todas las páginas del documento
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+
+      // Añadir número de página en la esquina superior derecha de cada página
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50, // X: cerca del borde derecho
+          30, // Y: cerca del borde superior
+          { align: 'right' }
+        );
+      }
+
+      // Finalizar el PDF y terminar la respuesta
       doc.end();
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      res.status(500).json({ error: 'Error exporting to PDF' });
+      console.error('Error al exportar a PDF:', error);
+      res.status(500).json({ error: 'Error al exportar a PDF' });
     }
+  }
+
+  /**
+   * Improved table drawing function with text wrapping, dynamic row heights and complete grid
+   */
+  private drawTableImproved(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
+    const pageWidth = doc.page.width - 60; // Considerando márgenes
+    const columnWidths = this.calculateColumnWidths(headers, rows, pageWidth);
+    const margin = 30;
+    let y = doc.y;
+
+    // Dibujar borde superior de la tabla
+    doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+    // Dibujar encabezados
+    doc.font('Helvetica-Bold').fontSize(10);
+    let x = margin;
+
+    headers.forEach((header, i) => {
+      doc.text(header, x, y + 5, {
+        width: columnWidths[i],
+        align: 'center'
+      });
+      x += columnWidths[i];
+    });
+
+    // Dibujar línea de encabezado
+    y += 20;
+    doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+    // Guardar la posición Y inicial para líneas verticales
+    const tableStartY = y - 20;
+    let tableEndY = y;
+
+    y += 5;
+
+    // Dibujar filas con alturas dinámicas
+    doc.font('Helvetica').fontSize(9);
+
+    // Registrar las posiciones de las columnas para líneas verticales
+    const columnPositions = [margin];
+    let accumulatedWidth = margin;
+    for (const width of columnWidths) {
+      accumulatedWidth += width;
+      columnPositions.push(accumulatedWidth);
+    }
+
+    rows.forEach((row) => {
+      // Calcular la altura de la fila basada en el contenido
+      const rowHeight = this.calculateRowHeight(doc, row, columnWidths);
+
+      // Verificar si necesitamos una nueva página
+      if (y + rowHeight > doc.page.height - 50) {
+        // Dibujar líneas verticales para la página actual antes de añadir una nueva
+        for (let i = 0; i < columnPositions.length; i++) {
+          doc.moveTo(columnPositions[i], tableStartY)
+            .lineTo(columnPositions[i], tableEndY)
+            .stroke();
+        }
+
+        doc.addPage();
+        y = 50;
+
+        // Dibujar borde superior para la continuación de la tabla
+        doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+        // Restablecer las medidas de la tabla para la nueva página
+        tableEndY = y;
+      }
+
+      // Dibujar celdas con texto ajustado
+      x = margin;
+
+      row.forEach((cell, i) => {
+        const cellText = cell ? String(cell) : 'N/A';
+        const cellOptions = {
+          width: columnWidths[i],
+          align: 'left' as const,
+          lineBreak: true
+        };
+
+        // Dibujar texto de la celda
+        doc.text(cellText, x + 3, y + 3, cellOptions); // Añadir pequeño padding
+
+        // Mover a la siguiente columna
+        x += columnWidths[i];
+      });
+
+      // Mover a la siguiente fila y dibujar divisor
+      y += rowHeight + 5;
+      doc.moveTo(margin, y).lineTo(margin + pageWidth, y).stroke();
+
+      // Actualizar la posición final de la tabla
+      tableEndY = y;
+    });
+
+    // Dibujar todas las líneas verticales después de dibujar todas las filas
+    for (let i = 0; i < columnPositions.length; i++) {
+      doc.moveTo(columnPositions[i], tableStartY)
+        .lineTo(columnPositions[i], tableEndY)
+        .stroke();
+    }
+  }
+
+  /**
+   * Calculate dynamic row height based on content
+   */
+  private calculateRowHeight(doc: PDFKit.PDFDocument, row: any[], columnWidths: number[]): number {
+    let maxHeight = 20; // Altura mínima de fila
+
+    row.forEach((cell, i) => {
+      if (!cell) return;
+
+      const cellText = String(cell);
+      // Usar heightOfString en lugar de estimación manual
+      const cellHeight = doc.heightOfString(cellText, {
+        width: columnWidths[i] - 6, // Restar padding horizontal
+        lineBreak: true
+      });
+
+      // Añadir padding vertical explícito (6 puntos arriba y abajo)
+      const totalHeight = cellHeight + 12;
+
+      maxHeight = Math.max(maxHeight, totalHeight);
+    });
+
+    return maxHeight;
+  }
+
+  /**
+   * Calculate optimal column widths based on content
+   */
+  private calculateColumnWidths(headers: string[], rows: any[][], totalWidth: number): number[] {
+    // Definir proporciones de ancho optimizadas para A4 vertical
+    const widthRatios = [0.15, 0.30, 0.18, 0.18, 0.19];
+
+    return widthRatios.map(ratio => totalWidth * ratio);
   }
 
   /**
