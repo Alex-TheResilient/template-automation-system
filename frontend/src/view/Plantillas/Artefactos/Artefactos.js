@@ -39,17 +39,18 @@ const Artefactos = () => {
     }, [API_BASE_URL]);
 
     const fetchInterfaces = useCallback(async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interfaces`);
-        setInterfaces(response.data || []);
-    } catch (err) {
-        setError(
-            err.response
-                ? err.response.data.error
-                : "Error al obtener las interfaces"
+        try {
+            const response = await axios.get(`${API_BASE_URL}/interfaces`);
+            setInterfaces(response.data.data || []);
+        } catch (err) {
+            setError(
+                err.response
+                    ? err.response.data.error
+                    : "Error al obtener las interfaces"
             );
         }
-    }, [projcod, orgcod, API_BASE_URL]);
+    }, [API_BASE_URL]);
+
 
     useEffect(() => {
     
@@ -86,18 +87,59 @@ const Artefactos = () => {
         }
     };
 
-    const handleSearchInterfaz = async (campo) => {
-        if (!searchInterfaz.trim()) {
-            fetchInterfaces(); 
-            return;
+    const handleSearchInterfaz = async (searchType) => {
+    setLoading(true);
+    try {
+        let response;
+        if (searchInterfaz) { 
+            if (searchType === 'name') {
+                response = await axios.get(`${API_BASE_URL}/interfaces/search`, {
+                    params: { query: searchInterfaz } 
+                });
+            } 
+        } else {
+            response = await axios.get(`${API_BASE_URL}/interfaces`);
         }
+        const data = response.data.data || []; 
+        setInterfaces(data);
+        setNoResult(data.length === 0);
+        setError(null);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al buscar interfaces");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    const exportToExcel = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/interfaces/project/${projcod}?${campo}=${searchInterfaz}`);
-            const data = await response.json();
-            setInterfaces(data); 
-        } catch (error) {
-            console.error('Error al buscar interfaz:', error);
+            const response = await axios.get(`${API_BASE_URL}/interfaces/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Interfaces.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/interfaces/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Interfaces.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
         }
     };
 
@@ -147,7 +189,7 @@ const Artefactos = () => {
     });
     };
     const irASubirInterfaz = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/subir interfaz`,{
+        navigate(`/organizations/${orgcod}/projects/${projcod}/artifacts/subirInterfaz`,{
         state: {
             proid:proid
         }
@@ -264,7 +306,6 @@ const Artefactos = () => {
                                     <span class="tooltip-text">Filtrar información por nombre o código de interfaz</span>
                                 </span>
                                 <button className="search-button" onClick={() => handleSearchInterfaz('name')}>Busqueda por Nombre</button>
-                                <button className="search-button">Busqueda por Codigo</button>
                             </div>
                         </div>
 
@@ -313,9 +354,12 @@ const Artefactos = () => {
                         </div>
                         <h4>Total de registros {interfaces.length}</h4>
                             <div className="export-buttons">
-                                
                                 <span class="message">
-                                <button className="export-button">PDF</button>
+                                    <button className="export-button"onClick={exportToExcel}>Excel</button>
+                                    <span class="tooltip-text">Generar reporte de las interfaces en Excel</span>
+                                </span>
+                                <span class="message">
+                                <button className="export-button" onClick={exportToPDF}>PDF</button>
                                     <span class="tooltip-text">Generar reporte de las interfaces en Pdf</span>
                                 </span>
                             </div>

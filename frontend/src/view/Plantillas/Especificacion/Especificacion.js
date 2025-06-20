@@ -144,7 +144,7 @@ const Especificacion = () => {
     // Exportar a Excel
     const exportToExcel = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/exports/excel`, {
                 responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -332,7 +332,7 @@ const Especificacion = () => {
                         
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onClick={exportToExcel}>Excel</button>
                                     <span class="tooltip-text">Generar reporte de las especificaciones en Excel</span>
                                 </span>
                                 <span class="message">
