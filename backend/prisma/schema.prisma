@@ -288,6 +288,8 @@ model Source {
   creationDate     DateTime  @default(now())
   modificationDate DateTime?
   name             String
+  sourceAuthors    String?
+  sourceDate       DateTime?
   comment          String?
   status           String
   projectId        String
