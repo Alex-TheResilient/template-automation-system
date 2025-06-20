@@ -30,6 +30,7 @@ const NuevoExperto = () => {
     const [experience, setExperiencia] = useState("");
     const [status, setEstado] = useState("");
     const [comment, setComentario] = useState("");
+    const [externalOrganization, setExternalOrganization] = useState("");
     //Estados para manejar errores
     const [error, setError]=useState(null);
 
@@ -61,6 +62,7 @@ const NuevoExperto = () => {
         try {
             // Realiza la solicitud POST con los datos correctos
             await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts`, {
+                externalOrganization,
                 maternalSurname,
                 paternalSurname,
                 firstName,
@@ -211,7 +213,7 @@ const NuevoExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" value={orgcod} readOnly size="30" />
+                                    <input className="inputnombre-field" type="text" value={externalOrganization} onChange={(e) => setExperiencia(e.target.value)} size="30" />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
                                 

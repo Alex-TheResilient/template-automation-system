@@ -21,6 +21,7 @@ const EditarExperto = () => {
     const [status, setEstado] = useState("");
     const [creationDate, setFecha] = useState("");
     const [comment, setComentario] = useState("");
+    const [externalOrganization, setExternalOrganization] = useState("");
     const [error, setError] = useState(null);
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -38,6 +39,7 @@ const EditarExperto = () => {
             setExperiencia(data.experience);
             setEstado(data.status);
             setComentario(data.comment);
+            setExternalOrganization(data.externalOrganization);
         } catch (err) {
             setError("Error al obtener los datos del experto: " + err.message);
         }
@@ -53,6 +55,7 @@ const EditarExperto = () => {
         console.log("Guardando experto con código:", expcod);
         try {
             const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/${expcod}`, {
+                externalOrganization,
                 paternalSurname,
                 maternalSurname,
                 firstName,
@@ -197,8 +200,8 @@ const EditarExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" value={orgcod} readOnly size="30" />
-                                    <span class="tooltip-text"> Codigo de la Organizacion </span>
+                                    <input className="inputnombre-field" type="text" value={externalOrganization} onChange={(e) => setExternalOrganization(e.target.value)} size="30" />
+                                    <span class="tooltip-text"> Nombre de la Organizacion a la que pertenece</span>
                                 </span>
                                 
                             </div>

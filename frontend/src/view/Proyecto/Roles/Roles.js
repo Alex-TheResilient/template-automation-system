@@ -80,7 +80,7 @@ const Roles = () => {
 
     const exportToExcel = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/roles/excel`, {
+            const response = await axios.get(`${API_BASE_URL}/roles/exports/excel`, {
                 responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -268,11 +268,11 @@ const Roles = () => {
                         <h4  className="rol-h4">Total de registros {roles.length}</h4>
                         <div className="rol-export-buttons">
                             <span class="message">
-                                <button className="rol-export-button">Excel</button>
+                                <button className="rol-export-button"onClick={exportToExcel}>Excel</button>
                                 <span class="tooltip-text">Generar reporte de la lista de roles en Excel</span>
                             </span>
                             <span class="message">
-                                <button className="rol-export-button">PDF</button>
+                                <button className="rol-export-button"onClick={exportToPDF}>PDF</button>
                                 <span class="tooltip-text">Generar reporte de la lista de roles en Pdf</span>
                             </span>
                         </div>

@@ -339,40 +339,6 @@ const Educcion = () => {
                             </div>
                         </div>
 
-                        <div className="pp-search-section-text">
-                            <div className="pp-searchbar">
-                                <select className="pp-year-input">
-                                    <option value="">AÑO</option>
-                                    {[2024, 2023, 2022, 2021, 2020].map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    ))}
-                                </select>
-                                <select className="pp-month-input">
-                                    <option value="">MES</option>
-                                    {[
-                                        "Enero", 
-                                        "Febrero", 
-                                        "Marzo", 
-                                        "Abril", 
-                                        "Mayo", 
-                                        "Junio", 
-                                        "Julio", 
-                                        "Agosto", 
-                                        "Septiembre", 
-                                        "Octubre", 
-                                        "Noviembre", 
-                                        "Diciembre"
-                                    ].map((month, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {month}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
                         <div className="menu-tabla-center">
                             <table className="menu-centertabla">
                                 <thead>
@@ -477,40 +443,6 @@ const Educcion = () => {
                                     <span class="tooltip-text">Filtrar información por nombre o código de educción</span>
                                 </span>
                                 <button className="search-button">Buscar</button>
-                            </div>
-                        </div>
-
-                        <div className="pp-search-section-text">
-                            <div className="pp-searchbar">
-                                <select className="pp-year-input">
-                                    <option value="">AÑO</option>
-                                    {[2024, 2023, 2022, 2021, 2020].map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    ))}
-                                </select>
-                                <select className="pp-month-input">
-                                    <option value="">MES</option>
-                                    {[
-                                        "Enero", 
-                                        "Febrero", 
-                                        "Marzo", 
-                                        "Abril", 
-                                        "Mayo", 
-                                        "Junio", 
-                                        "Julio", 
-                                        "Agosto", 
-                                        "Septiembre", 
-                                        "Octubre", 
-                                        "Noviembre", 
-                                        "Diciembre"
-                                    ].map((month, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {month}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
                         </div>
 
