@@ -236,37 +236,43 @@ export class InterviewController {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Entrevistas');
 
-      // Define headers
       worksheet.columns = [
-        { header: 'Nombre', key: 'interviewName', width: 30 },
-        { header: 'Version', key: 'version', width: 10 },
-        { header: 'Fecha', key: 'creationDate', width: 20 },
-       
+        { header: 'Nombre de entrevista', key: 'interviewName', width: 25 },
+        { header: 'Fecha de la entrevista', key: 'interviewDate', width: 20 },
+        { header: 'Entrevistado', key: 'intervieweeName', width: 25 },
+        { header: 'Rol del entrevistado', key: 'intervieweeRole', width: 20 },
+        { header: 'Hora de inicio', key: 'startTime', width: 10 },
+        { header: 'Hora final', key: 'endTime', width: 10 },
+        { header: 'Agendas', key: 'agendaItems', width: 30 },
+        { header: 'Concluciones', key: 'conclusions', width: 15 },
+        { header: 'Observaciones', key: 'observations', width: 10 },
       ];
 
-      // Add data
       entrevistas.forEach(ent => {
         worksheet.addRow({
           interviewName: ent.interviewName,
-          version: ent.version,
-          interviewDate: ent.interviewDate.toISOString().split('T')[0],
+          interviewDate: ent.interviewDate ? ent.interviewDate.toISOString().split('T')[0] : 'N/A',
+          intervieweeName: ent.intervieweeName || 'N/A',
+          intervieweeRole: ent.intervieweeRole || 'N/A',
+          startTime: ent.startTime ? ent.startTime.toISOString().split('T')[1].slice(0, 5) : 'N/A',
+          endTime: ent.endTime ? ent.endTime.toISOString().split('T')[1].slice(0, 5) : 'N/A',
+          agendaItems: ent.agendaItems && ent.agendaItems.length > 0 ? ent.agendaItems.map(item => item.description).join(', ') : 'N/A',
+          conclusions: ent.conclusions && ent.conclusions.length > 0 ? ent.conclusions.map(item => item.description).join(', ') : 'N/A',
+          observations: ent.observations || 'N/A',
         });
       });
 
-      // Style headers
       worksheet.getRow(1).font = { bold: true };
 
-      // Configure HTTP response
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=entrevistas.xlsx');
 
-      // Send file
       await workbook.xlsx.write(res);
       res.end();
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to Excel:', err.message);
-      res.status(500).json({ error: 'Error exporting to Excel.' });
+      console.error('Error exporting interviews to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting interviews to Excel.' });
     }
   }
 
@@ -283,70 +289,92 @@ export class InterviewController {
       }
 
       const entrevistas = await interviewService.getInterviewByProjectExport(project.id, 1, 1000);
-      // Configure HTTP response
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true
+      });
+
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=entrevistas.pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=entrevistas-${projcod}.pdf`);
+      doc.pipe(res);
 
-      // Create PDF document
-      const doc = new PDFDocument({ margin: 30 });
-
-      // Title
-      doc.fontSize(16).font('Helvetica-Bold').text('Entrevistas Report', { align: 'center' });
-      doc.moveDown();
-
-      // Generation info
-      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+      doc.fontSize(18).text('Reporte de Entrevistas', { align: 'center' });
+      doc.fontSize(16).text(`${project.name}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
-      // Educciones table
-      const headers = ['Nombre', 'Version', 'Fecha'];
-      const rows = entrevistas.map(int => [
-        int.interviewName,
-        int.version,
-        int.interviewDate.toISOString().split('T')[0],
-      ]);
+      if (entrevistas.length === 0) {
+        doc.fontSize(12).text('No hay entrevistas registradas para este proyecto.', { align: 'center' });
+      } else {
+        entrevistas.forEach((ent, index) => {
+          if (index > 0) doc.addPage();
 
-      // Draw table
-      this.drawTable(doc, headers, rows);
+          doc.fontSize(14).font('Helvetica-Bold').text(`Entrevista: ${ent.interviewName}`, { underline: true });
+          doc.moveDown(1);
+          doc.font('Helvetica');
 
-      // Finalize document
+          const pageWidth = doc.page.width - 100;
+          const colWidth1 = 150;
+          const colWidth2 = pageWidth - colWidth1;
+          let y = doc.y;
+
+          const addTableRow = (attribute: string, value: string): number => {
+            const textOptions = { width: colWidth2 - 10 };
+            const valueHeight = doc.heightOfString(value || 'N/A', textOptions);
+            const attributeHeight = doc.heightOfString(attribute, { width: colWidth1 - 10 });
+            const rowHeight = Math.max(25, valueHeight + 14, attributeHeight + 14);
+
+            doc.rect(50, y, colWidth1, rowHeight).stroke();
+            doc.rect(50 + colWidth1, y, colWidth2, rowHeight).stroke();
+
+            doc.fontSize(10);
+            doc.text(attribute, 55, y + 7, { width: colWidth1 - 10 });
+            doc.text(value || 'N/A', 55 + colWidth1, y + 7, textOptions);
+
+            return y + rowHeight;
+          };
+
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.rect(50, y, colWidth1, 25).stroke();
+          doc.rect(50 + colWidth1, y, colWidth2, 25).stroke();
+          doc.text('Atributo', 55, y + 7, { width: colWidth1 - 10 });
+          doc.text('Descripción', 55 + colWidth1, y + 7, { width: colWidth2 - 10 });
+          y += 25;
+
+          doc.font('Helvetica');
+          y = addTableRow('Nombre', ent.interviewName);
+          y = addTableRow('Fecha de la entrevista', ent.interviewDate ? new Date(ent.interviewDate).toLocaleDateString('es-ES') : 'N/A');
+          y = addTableRow('Entrevistado', ent.intervieweeName || 'N/A');
+          y = addTableRow('Rol del entrevistado', ent.intervieweeRole || 'N/A');
+          y = addTableRow('Hora de inicio', ent.startTime ? ent.startTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A');
+          y = addTableRow('Hora final', ent.endTime ? ent.endTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A');
+          y = addTableRow('Agendas', ent.agendaItems && ent.agendaItems.length > 0 ? ent.agendaItems.map(item => item.description).join(', ') : 'N/A');
+          y = addTableRow('Concluciones', ent.conclusions && ent.conclusions.length > 0 ? ent.conclusions.map(item => item.description).join(', ') : 'N/A');
+          y = addTableRow('Observaciones', ent.observations || 'N/A');
+        });
+      }
+
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50,
+          30,
+          { align: 'right' }
+        );
+      }
+
       doc.end();
-      doc.pipe(res);
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting to PDF.' });
+      console.error('Error exporting interviews to PDF:', err.message);
+      res.status(500).json({ error: 'Error exporting interviews to PDF.' });
     }
-  }
-
-  /**
-   * Helper function to draw tables in PDF
-   */
-  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const columnWidths = [80, 150, 80, 80, 150]; // Adjust column widths
-    const tableMargin = 50; // Left margin
-    const rowHeight = 20;
-
-    let y = doc.y; // Initial Y position
-
-    // Draw headers
-    doc.fontSize(10).font('Helvetica-Bold');
-    headers.forEach((header, index) => {
-      const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-      doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
-    });
-
-    y += rowHeight;
-
-    // Draw data rows
-    doc.font('Helvetica');
-    rows.forEach(row => {
-      row.forEach((cell, index) => {
-        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-        doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
-      });
-      y += rowHeight;
-    });
   }
 
 }
