@@ -195,55 +195,67 @@ export class SourceController {
 async exportToExcel(req: Request, res: Response) {
     try {
       const { orgcod, projcod } = req.params;
-      // Verificar que el proyecto pertenece a esta organización
       const project = await projectService.getProjectByOrgAndCode(orgcod, projcod);
 
       if (!project) {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const expertos = await sourceService.getSourcesByProject(project.id, 1, 1000);
+      let sources = await sourceService.getSourcesByProject(project.id, 1, 1000);
+
+      // Ordenar por fecha de creación (más antiguos primero)
+      sources = sources.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
+      });
 
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Educciones');
+      const worksheet = workbook.addWorksheet('Fuentes');
 
-      // Define headers
       worksheet.columns = [
-        { header: 'Codigo', key: 'code', width: 15 },
-        { header: 'Nombre', key: 'name', width: 30 },
-        { header: 'Creation Date', key: 'creationDate', width: 20 },
-        { header: 'Modification Date', key: 'modificationDate', width: 20 },
-        { header: 'status', key: 'status', width: 10 },
-
-       
+        { header: 'Código de la fuente', key: 'code', width: 15 },
+        { header: 'Versión', key: 'version', width: 10 },
+        { header: 'Nombre', key: 'name', width: 25 },
+        { header: 'Autores', key: 'sourceAuthors', width: 25 },
+        { header: 'Fecha fuente', key: 'sourceDate', width: 15 },
+        { header: 'Fecha plantilla', key: 'creationDate', width: 20 },
+        { header: 'Estado', key: 'status', width: 15 },
+        { header: 'Comentario', key: 'comment', width: 30 },
       ];
 
-      // Add data
-      expertos.forEach(fue => {
+      function formatDateOnly(date: Date | string | null | undefined): string {
+        if (!date) return 'N/A';
+        const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : date;
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const year = d.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      sources.forEach(src => {
         worksheet.addRow({
-          code: fue.code,
-          name: fue.name,
-          creationDate: fue.creationDate.toISOString().split('T')[0],
-          modificationDate: fue.modificationDate ? fue.modificationDate.toISOString().split('T')[0] : 'N/A',
-          status: fue.status,
-                 
+          code: src.code,
+          name: src.name,
+          sourceAuthors: src.sourceAuthors || 'N/A',
+          sourceDate: formatDateOnly(src.sourceDate),
+          version: src.version,
+          creationDate: formatDateOnly(src.creationDate),
+          comment: src.comment || 'N/A',
+          status: src.status,
         });
       });
 
-      // Style headers
       worksheet.getRow(1).font = { bold: true };
 
-      // Configure HTTP response
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=fuentes.xlsx');
 
-      // Send file
       await workbook.xlsx.write(res);
       res.end();
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to Excel:', err.message);
-      res.status(500).json({ error: 'Error exporting to Excel.' });
+      console.error('Error exporting sources to Excel:', err.message);
+      res.status(500).json({ error: 'Error exporting sources to Excel.' });
     }
   }
 
@@ -293,74 +305,108 @@ async exportToExcel(req: Request, res: Response) {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const expertos = await sourceService.getSourcesByProject(project.id, 1, 1000);
-      // Configure HTTP response
+      let sources = await sourceService.getSourcesByProject(project.id, 1, 1000);
+
+      // Ordenar por fecha de creación (más antiguos primero)
+      sources = sources.sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
+      });
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4',
+        bufferPages: true
+      });
+
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=fuentes.pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=fuentes-${projcod}.pdf`);
+      doc.pipe(res);
 
-      // Create PDF document
-      const doc = new PDFDocument({ margin: 30 });
-
-      // Title
-      doc.fontSize(16).font('Helvetica-Bold').text('Fuentes Report', { align: 'center' });
-      doc.moveDown();
-
-      // Generation info
-      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+      doc.fontSize(18).text('Reporte de Fuentes', { align: 'center' });
+      doc.fontSize(16).text(`${project.name}`, { align: 'center' });
+      doc.fontSize(10).text(`Generado: ${new Date().toLocaleString('es-ES')}`, { align: 'center' });
       doc.moveDown(2);
 
-      // Fuente table
-      const headers = ['Code', 'Name', 'Creation Date',  'Modification Date', 'Status'];
-      const rows = expertos.map(fue => [
-        fue.code,
-        fue.name,
-        fue.creationDate.toISOString().split('T')[0],
-        fue.modificationDate ? fue.modificationDate.toISOString().split('T')[0] : 'N/A',
-        fue.status,
-        
-      ]);
+      if (sources.length === 0) {
+        doc.fontSize(12).text('No hay fuentes registradas para este proyecto.', { align: 'center' });
+      } else {
+        sources.forEach((src, index) => {
+          if (index > 0) doc.addPage();
 
-      // Draw table
-      this.drawTable(doc, headers, rows);
+          doc.fontSize(14).font('Helvetica-Bold').text(`Fuente: ${src.code}`, { underline: true });
+          doc.moveDown(1);
+          doc.font('Helvetica');
 
-      // Finalize document
+          const pageWidth = doc.page.width - 100;
+          const colWidth1 = 150;
+          const colWidth2 = pageWidth - colWidth1;
+          let y = doc.y;
+
+          const addTableRow = (attribute: string, value: string): number => {
+            const textOptions = { width: colWidth2 - 10 };
+            const valueHeight = doc.heightOfString(value || 'N/A', textOptions);
+            const attributeHeight = doc.heightOfString(attribute, { width: colWidth1 - 10 });
+            const rowHeight = Math.max(25, valueHeight + 14, attributeHeight + 14);
+
+            doc.rect(50, y, colWidth1, rowHeight).stroke();
+            doc.rect(50 + colWidth1, y, colWidth2, rowHeight).stroke();
+
+            doc.fontSize(10);
+            doc.text(attribute, 55, y + 7, { width: colWidth1 - 10 });
+            doc.text(value || 'N/A', 55 + colWidth1, y + 7, textOptions);
+
+            return y + rowHeight;
+          };
+
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.rect(50, y, colWidth1, 25).stroke();
+          doc.rect(50 + colWidth1, y, colWidth2, 25).stroke();
+          doc.text('Atributo', 55, y + 7, { width: colWidth1 - 10 });
+          doc.text('Descripción', 55 + colWidth1, y + 7, { width: colWidth2 - 10 });
+          y += 25;
+
+
+          function formatDateOnly(date: Date | string | null | undefined): string {
+            if (!date) return 'N/A';
+            const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : date;
+            const day = String(d.getUTCDate()).padStart(2, '0');
+            const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const year = d.getUTCFullYear();
+            return `${day}/${month}/${year}`;
+          }
+          doc.font('Helvetica');
+          y = addTableRow('Código de la fuente', src.code);
+          y = addTableRow('Versión', src.version);
+          y = addTableRow('Nombre', src.name);
+          y = addTableRow('Autores', src.sourceAuthors || 'N/A');
+          y = addTableRow('Fecha fuente', formatDateOnly(src.sourceDate));
+          y = addTableRow('Fecha Plantilla', formatDateOnly(src.creationDate)),
+          y = addTableRow('Estado', src.status);
+          y = addTableRow('Comentario', src.comment || 'N/A');
+        });
+      }
+
+      const pages = doc.bufferedPageRange();
+      const totalPages = pages.count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(10);
+        doc.text(
+          `${i + 1}/${totalPages}`,
+          doc.page.width - 50,
+          30,
+          { align: 'right' }
+        );
+      }
+
       doc.end();
-      doc.pipe(res);
     } catch (error) {
       const err = error as Error;
-      console.error('Error exporting to PDF:', err.message);
-      res.status(500).json({ error: 'Error exporting to PDF.' });
+      console.error('Error exporting sources to PDF:', err.message);
+      res.status(500).json({ error: 'Error exporting sources to PDF.' });
     }
-  }
-
-  /**
-   * Helper function to draw tables in PDF
-   */
-  private drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: any[][]) {
-    const columnWidths = [80, 150, 100, 100, 60]; // Adjust column widths
-    const tableMargin = 30; // Left margin
-    const rowHeight = 20;
-
-    let y = doc.y; // Initial Y position
-
-    // Draw headers
-    doc.fontSize(10).font('Helvetica-Bold');
-    headers.forEach((header, index) => {
-      const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-      doc.text(header, x, y, { width: columnWidths[index], align: 'center' });
-    });
-
-    y += rowHeight;
-
-    // Draw data rows
-    doc.font('Helvetica');
-    rows.forEach(row => {
-      row.forEach((cell, index) => {
-        const x = tableMargin + columnWidths.slice(0, index).reduce((a, b) => a + b, 0);
-        doc.text(String(cell), x, y, { width: columnWidths[index], align: 'center' });
-      });
-      y += rowHeight;
-    });
   }
 
 
