@@ -44,7 +44,15 @@ export class SourceController {
         return res.status(404).json({ error: 'Project not found in this organization.' });
       }
 
-      const sources = await sourceService.getSourcesByProject(project.id, page, limit);
+      let sources = await sourceService.getSourcesByProject(project.id, page, limit);
+                
+      // Ordenar por fecha de creación (más antiguos primero)
+      sources  = sources .sort((a, b) => {
+        const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+        const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+        return dateA - dateB;
+      });
+      
       res.status(200).json(sources);
     } catch (error) {
       const err = error as Error;
