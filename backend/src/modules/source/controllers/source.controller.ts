@@ -217,7 +217,7 @@ async exportToExcel(req: Request, res: Response) {
         { header: 'Código de la fuente', key: 'code', width: 15 },
         { header: 'Versión', key: 'version', width: 10 },
         { header: 'Nombre', key: 'name', width: 25 },
-        { header: 'Autores', key: 'sourceAuthors', width: 25 },
+        { header: 'Autores de la fuente', key: 'sourceAuthors', width: 25 },
         { header: 'Fecha fuente', key: 'sourceDate', width: 15 },
         { header: 'Fecha plantilla', key: 'creationDate', width: 20 },
         { header: 'Estado', key: 'status', width: 15 },
@@ -380,9 +380,9 @@ async exportToExcel(req: Request, res: Response) {
           y = addTableRow('Código de la fuente', src.code);
           y = addTableRow('Versión', src.version);
           y = addTableRow('Nombre', src.name);
-          y = addTableRow('Autores', src.sourceAuthors || 'N/A');
+          y = addTableRow('Autores de la fuente', src.sourceAuthors || 'N/A');
           y = addTableRow('Fecha fuente', formatDateOnly(src.sourceDate));
-          y = addTableRow('Fecha Plantilla', formatDateOnly(src.creationDate)),
+          y = addTableRow('Fecha plantilla', formatDateOnly(src.creationDate)),
           y = addTableRow('Estado', src.status);
           y = addTableRow('Comentario', src.comment || 'N/A');
         });
