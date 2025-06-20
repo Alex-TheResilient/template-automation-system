@@ -53,8 +53,15 @@ export class ExpertController {
           }
     
           // CAMBIO AQUÍ: Usar project.id (UUID) en lugar de projcod
-          const expertos = await expertService.getExpertsByProject(project.id, page, limit);
-    
+          let expertos = await expertService.getExpertsByProject(project.id, page, limit);
+          
+          // Ordenar por fecha de creación (más antiguos primero)
+          expertos = expertos.sort((a, b) => {
+          const dateA = a.creationDate ? new Date(a.creationDate).getTime() : 0;
+          const dateB = b.creationDate ? new Date(b.creationDate).getTime() : 0;
+          return dateA - dateB;
+      });
+
           res.status(200).json(expertos);
         } catch (error) {
           const err = error as Error;
@@ -277,6 +284,7 @@ export class ExpertController {
         { header: 'Código', key: 'code', width: 15 },
         { header: 'Nombre', key: 'firstName', width: 20 },
         { header: 'Apellido', key: 'apellidos', width: 20 },
+        { header: 'Organización', key: 'externalOrganization', width: 20 },
         { header: 'Experiencia', key: 'experience', width: 15 },
         { header: 'Versión', key: 'version', width: 10 },
         { header: 'Fecha Creación', key: 'creationDate', width: 20 },
@@ -290,6 +298,7 @@ export class ExpertController {
           code: exp.code,
           firstName: exp.firstName,
           apellidos: exp.paternalSurname + ' ' + exp.maternalSurname,
+          externalOrganization: exp.externalOrganization || 'N/A',
           experience: exp.experience,
           version: exp.version,
           creationDate: exp.creationDate ? exp.creationDate.toISOString().split('T')[0] : 'N/A',
@@ -389,6 +398,7 @@ export class ExpertController {
           y = addTableRow('Código', exp.code);
           y = addTableRow('Nombre', exp.firstName);
           y = addTableRow('Apellidos', exp.paternalSurname + ' ' + exp.maternalSurname);
+          y = addTableRow('Organización', exp.externalOrganization || 'N/A');
           y = addTableRow('Experiencia', exp.experience ? exp.experience.toString() : 'N/A');
           y = addTableRow('Versión', exp.version ? exp.version.toString() : 'N/A');
           y = addTableRow('Fecha Creación', exp.creationDate ? new Date(exp.creationDate).toLocaleDateString('es-ES') : 'N/A');
