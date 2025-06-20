@@ -16,6 +16,7 @@ const NuevoRol = () => {
             new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
     const [comments, setComments] = useState("");
     const [error, setError]=useState(null);
+    const [errorRol, setErrorRol] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
@@ -102,7 +103,34 @@ const NuevoRol = () => {
                             <div className="fiel-cod">
                                 <h4>Nombre del Rol</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text" placeholder="" value={name} onChange={(e) => setName(e.target.value)} size="50" />
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        placeholder="Ej. Analista de Requisitos"
+                                        value={name}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 50) {
+                                            setName(value);
+
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s\-()]*$/.test(value)) {
+                                                setErrorRol("");
+                                            } else {
+                                                setErrorRol("Solo se permiten letras, guiones y paréntesis.");
+                                            }
+                                            } else {
+                                            setErrorRol("Máximo 50 caracteres.");
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (!name.trim()) {
+                                            setErrorRol("El nombre del rol es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={50}
+                                        size="30"
+                                        />
+                                        {errorRol && <p style={{ color: 'red', margin: 0 }}>{errorRol}</p>}
                                     <span class="tooltip-text">Nombre del rol que se creará para el proyecto</span>
                                 </span>
                             </div>
@@ -118,7 +146,7 @@ const NuevoRol = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Añadir comentarios sobre el proyecto"></textarea>
+                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Añadir comentarios sobre el rol"></textarea>
                         </div>
 
                         <div className="rr-buttons">

@@ -10,8 +10,8 @@ const RegistroOrganizacion = () => {
     const hasFetched = useRef(false);
     // Datos automáticos
     const [code, setCodigo] = useState("");
-    const [version, setVersion] = useState("00.01");
-    const [creationDate, setFecha] = useState(
+    const [version] = useState("01.00");
+    const [creationDate] = useState(
         new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     );
 
@@ -28,6 +28,14 @@ const RegistroOrganizacion = () => {
     const [comments, setComentario] = useState("");
 
     // Estados para manejar errores y carga
+    const [errorNombre, setErrorNombre] = useState("");
+    const [errorDireccion, setErrorDireccion] = useState("");
+    const [errorRepresentanteLegal, setErrorRepresentanteLegal] = useState("");
+    const [errorTelefono, setErrorTelefono] = useState("");
+    const [errorRuc, setErrorRuc] = useState("");
+    const [errorContacto, setErrorContacto] = useState("");
+    const [errorTelefonoContacto, setErrorTelefonoContacto] = useState("");
+    const [errorRepresentante, setErrorRepresentante] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     
@@ -61,14 +69,38 @@ const RegistroOrganizacion = () => {
     // Registrar una nueva organización
     const handleRegister = async (e) => {
         e.preventDefault();
+        // Validación: Nombre obligatorio y caracteres válidos
 
-        // Validaciones básicas
         if (!name.trim()) {
             setError("El nombre de la organización es obligatorio.");
             return;
         }
-        if (phone && isNaN(Number(phone))) {
-            setError("El teléfono de la organización debe ser un número válido.");
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s']+$/.test(name.trim())) {
+            setError("El nombre solo puede contener letras, espacios y apóstrofes (').");
+            return;
+        }
+
+        // Validación: Teléfono organización
+        if (!/^\d{9}$/.test(phone)) {
+            setError("El teléfono de la organización debe tener exactamente 9 dígitos.");
+            return;
+        }
+
+        // Validación: Teléfono del representante
+        if (!/^\d{9}$/.test(representativePhone)) {
+            setError("El teléfono del representante debe tener exactamente 9 dígitos.");
+            return;
+        }
+
+        // Validación: Teléfono del contacto
+        if (!/^\d{9}$/.test(contactPhone)) {
+            setError("El teléfono del contacto debe tener exactamente 9 dígitos.");
+            return;
+        }
+
+        // Validación: RUC solo numérico y 11 dígitos
+        if (!/^\d{11}$/.test(taxId)) {
+            setError("El RUC debe contener exactamente 11 dígitos.");
             return;
         }
 
@@ -145,7 +177,28 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Nombre</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={name} onChange={(e) => setNombre(e.target.value)} size="30" />
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,&'-]*$/.test(value) && value.length <= 100) {
+                                            setNombre(value);
+                                            setErrorNombre("");
+                                            } else if (value.length > 100) {
+                                            setErrorNombre("Máximo 100 caracteres.");
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (!name.trim()) {
+                                            setErrorNombre("El nombre de la empresa es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={100}
+                                        size="30"
+                                        />
+                                        {errorNombre && <p style={{ color: 'red', margin: 0 }}>{errorNombre}</p>}
                                     <span class="tooltip-text">Ingresar el nombre de la organización</span>
                                 </span>
                                 
@@ -153,14 +206,58 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Dirección</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={address} onChange={(e) => setDireccion(e.target.value)} size="30" />
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={address}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 150) {
+                                            setDireccion(value);
+
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-#°º()\/]*$/.test(value)) {
+                                                setErrorDireccion("");
+                                            } else {
+                                                setErrorDireccion("La dirección contiene caracteres no permitidos.");
+                                            }
+                                            }
+                                        }}
+                                        maxLength={150}
+                                        size="30"
+                                        />
+                                        {errorDireccion && <p style={{ color: 'red', margin: 0 }}>{errorDireccion}</p>}
                                     <span class="tooltip-text">Ingresar la direccion de la organización </span>
                                 </span>
                             </div>
                             <div className="ro-fiel-fecha">
                                 <h4>Teléfono Organización</h4>
                                 <span class="message">
-                                <input className="inputnombre-field" type="text" value={phone} onChange={(e) => setTelefonoOrganizacion(e.target.value)} size="30" />
+                                <input
+                                    className="inputnombre-field"
+                                    type="text"
+                                    value={phone}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 9) {
+                                            setTelefonoOrganizacion(value);
+
+                                            // Validación en vivo: si tiene 9 dígitos y empieza con 9, quitar error
+                                            if (/^9\d{8}$/.test(value)) {
+                                                setErrorTelefono("");
+                                            } else if (value.length === 9) {
+                                                setErrorTelefono("El número debe comenzar con 9.");
+                                            }
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        // Si al salir sigue incompleto, muestra error
+                                        if (phone.length !== 9) {
+                                        setErrorTelefono("Ingrese un telefono válido");
+                                        }
+                                    }}
+                                    size="30"
+                                    />
+                                    {errorTelefono && <p style={{ color: 'red', margin: 0 }}>{errorTelefono}</p>}
                                     <span class="tooltip-text">Ingresar el numero telefonico o celular de la organización </span>
                                 </span>
                             </div>
@@ -170,7 +267,38 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Representante Legal</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={legalRepresentative} onChange={(e) => setRepresentanteLegal(e.target.value)} size="30" />
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={legalRepresentative}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+
+                                            // Solo permitir letras, espacios y apóstrofe mientras se escribe
+                                            if (value.length <= 80) {
+                                            setRepresentanteLegal(value);
+
+                                            // Validar mientras escribe
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s']*$/.test(value)) {
+                                                setErrorRepresentanteLegal(""); // válido
+                                            } else {
+                                                setErrorRepresentanteLegal("Solo se permiten letras.");
+                                            }
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            // Validar si está vacío al salir del campo
+                                            if (!legalRepresentative.trim()) {
+                                            setErrorRepresentanteLegal("El nombre del representante es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={80}
+                                        size="30"
+                                        />
+
+                                        {errorRepresentanteLegal && (
+                                        <p style={{ color: "red", margin: 0 }}>{errorRepresentanteLegal}</p>
+                                        )}
                                     <span class="tooltip-text"> Ingresar apellidos y nombres del representante legal de la organización </span>
                                 </span>
                                 
@@ -178,7 +306,24 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono Representante</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={representativePhone} onChange={(e) => setTelefonoRepresentante(e.target.value)} size="30" />  
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={representativePhone}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/\D/g, '');
+                                            if (value.length <= 9) {
+                                            setTelefonoRepresentante(value);
+                                            if (value.length === 9) {
+                                                setErrorRepresentante(""); // válido
+                                            } else {
+                                                setErrorRepresentante("Ingrese número valido.");
+                                            }
+                                            }
+                                        }}
+                                        size="30"
+                                        />
+                                        {errorRepresentante && <p style={{ color: 'red', margin: 0 }}>{errorRepresentante}</p>}
                                     <span class="tooltip-text"> Ingresar el numero telefonico o celular del representante legal </span>
                                 </span>
                                 
@@ -186,7 +331,28 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-fecha">
                                 <h4>RUC Organización</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={taxId} onChange={(e) => setRuc(e.target.value)} size="30" />  
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={taxId}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/\D/g, '');
+                                            if (value.length <= 11) {
+                                            setRuc(value);
+                                            if (/^\d{11}$/.test(value)) {
+                                                setErrorRuc("");
+                                            }
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (!/^\d{11}$/.test(taxId)) {
+                                            setErrorRuc("Ingrese RUC válido");
+                                            }
+                                        }}
+                                        maxLength={11}
+                                        size="30"
+                                        />
+                                        {errorRuc && <p style={{ color: 'red', margin: 0 }}>{errorRuc}</p>}
                                     <span class="tooltip-text"> Ingresar el numero de Ruc de la organizacion </span>
                                 </span>
                                 
@@ -197,7 +363,38 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-cod">
                                 <h4>Contacto (Nombre y Apellido)</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={contact} onChange={(e) => setContacto(e.target.value)} size="30" />
+                                    <input
+                                        className="inputnombre-field"
+                                        type="text"
+                                        value={contact}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+
+                                            // Solo permitir letras, espacios y apóstrofe mientras se escribe
+                                            if (value.length <= 80) {
+                                            setContacto(value);
+
+                                            // Validar mientras escribe
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s']*$/.test(value)) {
+                                                setErrorContacto(""); // válido
+                                            } else {
+                                                setErrorContacto("Solo se permiten letras.");
+                                            }
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            // Validar si está vacío al salir del campo
+                                            if (!contact.trim()) {
+                                            setErrorContacto("El nombre del representante es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={80}
+                                        size="30"
+                                        />
+
+                                        {errorContacto && (
+                                        <p style={{ color: "red", margin: 0 }}>{errorContacto}</p>
+                                        )}
                                     <span class="tooltip-text"> Ingresar los apellidos y nombres del contacto en la organización </span>
                                 </span>
                                 
@@ -205,7 +402,32 @@ const RegistroOrganizacion = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Teléfono del Contacto</h4>
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={contactPhone} onChange={(e) => setTelefonoContacto(e.target.value)} size="30" />
+                                    <input
+                                    className="inputnombre-field"
+                                    type="text"
+                                    value={contactPhone}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 9) {
+                                            setTelefonoContacto(value);
+
+                                            // Validación en vivo: si tiene 9 dígitos y empieza con 9, quitar error
+                                            if (/^9\d{8}$/.test(value)) {
+                                                setErrorTelefonoContacto("");
+                                            } else if (value.length === 9) {
+                                                setErrorTelefonoContacto("El número debe comenzar con 9.");
+                                            }
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        // Si al salir sigue incompleto, muestra error
+                                        if (contactPhone.length !== 9) {
+                                        setErrorTelefonoContacto("Ingrese un telefono válido");
+                                        }
+                                    }}
+                                    size="30"
+                                    />
+                                    {errorTelefonoContacto && <p style={{ color: 'red', margin: 0 }}>{errorTelefonoContacto}</p>}
                                     <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
@@ -238,7 +460,22 @@ const RegistroOrganizacion = () => {
                     <section className="ro-organizations-section">
                         <h3>Comentario</h3>
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComentario(e.target.value)} placeholder="Añadir comentarios y/o dato importante de la organización"></textarea>
+                            <textarea
+                                className="input-fieldtext"
+                                rows="3"
+                                value={comments}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value.length <= 300) {
+                                    setComentario(value);
+                                    }
+                                }}
+                                maxLength={300}
+                                placeholder="Añadir comentarios y/o dato importante de la organización"
+                                />
+                                <p style={{ fontSize: '0.8rem', textAlign: 'right', marginTop: 2 }}>
+                                {comments.length}/300
+                                </p>
                         </div>
 
                         <div className="ro-buttons">

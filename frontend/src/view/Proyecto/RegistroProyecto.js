@@ -17,6 +17,7 @@ const RegistroProyecto = () => {
     const [creationDate, setFechaCreacion] = useState(new Date().toLocaleDateString()); // Fecha de creación automática
 
     const [error, setError] = useState(null);
+    const [errorNombreProyecto, setErrorNombreProyecto] = useState("");
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     
     const navigate = useNavigate();
@@ -107,9 +108,28 @@ const RegistroProyecto = () => {
                                         type="text"
                                         className="inputnombre-field"
                                         value={name}
-                                        onChange={(e) => setNombreProyecto(e.target.value)}
-                                        size="200"
-                                    />
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 100) {
+                                            setNombreProyecto(value);
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(value)) {
+                                                setErrorNombreProyecto("");
+                                            } else {
+                                                setErrorNombreProyecto("Solo se permiten letras, números y caracteres comunes (, . - _ & /).");
+                                            }
+                                            } else {
+                                            setErrorNombreProyecto("Máximo 100 caracteres.");
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (!name.trim()) {
+                                            setErrorNombreProyecto("El nombre del proyecto es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={100}
+                                        size="30"
+                                        />
+                                        {errorNombreProyecto && <p style={{ color: 'red', margin: 0 }}>{errorNombreProyecto}</p>}
                                     <span class="tooltip-text"> Ingresar el nombre del proyecto </span>
                                 </span>
                                 
