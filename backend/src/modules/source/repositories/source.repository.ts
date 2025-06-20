@@ -9,10 +9,21 @@ export class SourceRepository {
 
     if (!project) throw new Error('Project not found');
 
+    if (!data.sourceDate) {
+      throw new Error('sourceDate is required');
+    }
+    const sourceDateStr = typeof data.sourceDate === 'string'
+    ? data.sourceDate
+    : data.sourceDate.toISOString().slice(0, 10);
+
+    // Parsear la fecha en componentes numéricos (año, mes, día)
+    const [year, month, day] = sourceDateStr.split('-').map(Number);
+    
     const code = await this.generateCode(projectId);
     return prisma.source.create({
       data: {
         ...data,
+        sourceDate: new Date(`${data.sourceDate}T00:00:00Z`),
         version: '01.00',
         code : code,
         projectId : projectId,
@@ -30,13 +41,30 @@ export class SourceRepository {
       where: { code, projectId } });
 
     if (!currentSour) throw new Error('Source not found');
+      
+    // Usar la fecha actual si no viene en el update
+    const sourceDateStr = data.sourceDate
+      ? typeof data.sourceDate === 'string'
+        ? data.sourceDate
+        : data.sourceDate.toISOString().slice(0, 10)
+      : currentSour.sourceDate
+        ? currentSour.sourceDate.toISOString().slice(0, 10)
+        : new Date().toISOString().slice(0, 10);
+
+     // Solo crear Date si hay fecha válida
+  let sourceDate: Date | undefined = undefined;
+  if (data.sourceDate) {
+    const d = new Date(`${sourceDateStr}T00:00:00Z`);
+    if (!isNaN(d.getTime())) sourceDate = d;
+  }
 
     const version = newVersion || this.incrementVersion(currentSour.version);
     return prisma.source.update({
       where: { 
         id: currentSour.id },
       data: { 
-        ...data, 
+        ...data,
+        ...(sourceDate && { sourceDate }), 
         version, 
         modificationDate: new Date() },
       include: {
