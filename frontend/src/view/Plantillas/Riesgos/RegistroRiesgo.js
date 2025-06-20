@@ -211,22 +211,6 @@ const RegistroRiesgo = () => {
 
                     <section className="ne-organization">
                         <h3 className="ne-label-container">
-                            <label className="ne-label">Indice P-I</label>
-                            <label className="ne-label">Costo de error*</label>
-                            <label className="ne-label">Exposicion al riesgo</label>
-                        </h3>
-                        <div className="ne-input-container">
-                            <input disabled type="text" className="ne-input" value="###%" readOnly />
-                            <span className="message">
-                                    <input className="input-text" type="text" placeholder="" size="80" />
-                                    <span className="tooltip-text">Costo del error en Dólares</span>
-                            </span>
-                            <input disabled type="text" className="ne-input" value="###%" readOnly />
-                        </div>
-                    </section>
-
-                    <section className="ne-organization">
-                        <h3 className="ne-label-container">
                             <label className="ne-label">Estado</label>
                             <label className="ne-label">Código artefacto*</label>
                         </h3>
