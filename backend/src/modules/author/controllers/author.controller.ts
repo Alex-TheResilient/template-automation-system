@@ -480,21 +480,23 @@ export class AuthorController {
       // Data rows
       allAuthors.forEach((author, index) => {
         const rowIndex = headerRow + 1 + index;
-        const permissionCount = Object.values(author.permissions).reduce((count: number, group) => 
-          count + Object.values(group as Record<string, unknown>).filter(Boolean).length, 0
+        const permissionCount: number = Object.values(author.permissions).reduce(
+          (count: number, group) => 
+            count + Object.values(group as Record<string, boolean>).filter(Boolean).length, 
+          0
         );
         
         worksheet.getRow(rowIndex).values = [
           author.code,
           author.firstName,
-          author.paternalSurname ?? 'N/A',
-          author.maternalSurname ?? 'N/A',
+          author.paternalSurname || 'N/A',
+          author.maternalSurname || 'N/A',
           author.status,
-          author.dni ?? 'N/A',
-          author.phone ?? 'N/A',
-          author.organization?.name ?? 'N/A',
-          author.role?.name ?? 'N/A',
-          author.interviewCount ?? 0,
+          author.dni || 'N/A',
+          author.phone || 'N/A',
+          author.organization?.name || 'N/A',
+          author.role?.name || 'N/A',
+          author.interviewCount || 0,
           author.version,
           author.creationDate instanceof Date 
             ? author.creationDate.toLocaleDateString() 
@@ -568,19 +570,41 @@ export class AuthorController {
 
       doc.pipe(res);
 
-      // Header
-      doc.fontSize(20).text('Author Report', { align: 'center' });
-      doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
-      doc.moveDown();
+      let currentPage = 1;
+      const authorsPerPage = 15; // Authors per page
+      const totalPages = Math.max(1, Math.ceil(allAuthors.length / authorsPerPage)); // At least 1 page
+
+      // Function to add header with pagination
+      const addHeader = (pageNumber: number) => {
+        // Page number (right top) - Format: 1/10, 2/10, etc.
+        doc.fontSize(10).fillColor('black').text(
+          `${pageNumber}/${totalPages}`, 
+          doc.page.width - 120, 
+          40, 
+          { align: 'right', width: 80 }
+        );
+
+        // Title (center)
+        doc.fontSize(20).fillColor('black').text('Author Report', 200, 40, { align: 'center', width: 400 });
+        doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, 200, 65, { align: 'center', width: 400 });
+      };
+
+      // Add first page header
+      addHeader(currentPage);
 
       // Summary
-      doc.fontSize(14).text('Summary', { underline: true });
+      doc.fontSize(14).text('Summary', 40, 100, { underline: true });
       doc.fontSize(10);
-      doc.text(`Total Authors: ${stats.total}`);
-      doc.text(`Active: ${stats.byStatus.active} | Inactive: ${stats.byStatus.inactive}`);
-      doc.text(`Total Interviews: ${stats.totalInterviews}`);
-      doc.text(`Average Permissions per Author: ${stats.averagePermissionsPerAuthor.toFixed(1)}`);
-      doc.moveDown();
+      doc.text(`Total Authors: ${stats.total}`, 40, 120);
+      doc.text(`Active: ${stats.byStatus.active} | Inactive: ${stats.byStatus.inactive}`, 40, 135);
+      doc.text(`Total Interviews: ${stats.totalInterviews}`, 40, 150);
+      doc.text(`Average Permissions per Author: ${stats.averagePermissionsPerAuthor.toFixed(1)}`, 40, 165);
+      
+      // DNI Information
+      doc.fontSize(10).fillColor('gray');
+      doc.text('DNI Format: Accepts 8-11 digits (standard Peruvian format)', 400, 120);
+      doc.text('Examples: 12345678, 87654321, 12345678901', 400, 135);
+      doc.fillColor('black');
 
       // Table
       let y = 200;
@@ -601,13 +625,13 @@ export class AuthorController {
       let x = tableLeft;
       const colX = {
         code: x,
-        name: x + colWidths.code,
-        surname: x + colWidths.code + colWidths.name,
-        status: x + colWidths.code + colWidths.name + colWidths.surname,
-        org: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status,
-        role: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org,
-        interviews: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org + colWidths.role,
-        permissions: x + colWidths.code + colWidths.name + colWidths.surname + colWidths.status + colWidths.org + colWidths.role + colWidths.interviews
+        name: x += colWidths.code,
+        surname: x += colWidths.name,
+        status: x += colWidths.surname,
+        org: x += colWidths.status,
+        role: x += colWidths.org,
+        interviews: x += colWidths.role,
+        permissions: x += colWidths.interviews
       };
 
       // Headers
@@ -630,9 +654,11 @@ export class AuthorController {
       allAuthors.forEach((author, index) => {
         if (y > 500) {
           doc.addPage();
-          y = 50;
+          currentPage++;
+          addHeader(currentPage); // Add header to new page
+          y = 120; // Start after header
           
-          // Redraw headers
+          // Redraw table headers
           doc.fontSize(10).fillColor('black');
           doc.text('Code', colX.code, y);
           doc.text('Name', colX.name, y);
@@ -655,22 +681,22 @@ export class AuthorController {
         }
 
         const permissionCount = Object.values(author.permissions).reduce(
-          (count: number, group) =>
-            count + Object.values(group as Record<string, unknown>).filter(Boolean).length,
+          (count: number, group) => 
+            count + Object.values(group as Record<string, boolean>).filter(Boolean).length, 
           0
         );
 
         doc.text(author.code, colX.code, y, { width: colWidths.code - 5 });
         doc.text(author.firstName, colX.name, y, { width: colWidths.name - 5 });
-        doc.text(author.paternalSurname ?? 'N/A', colX.surname, y, { width: colWidths.surname - 5 });
+        doc.text(author.paternalSurname || 'N/A', colX.surname, y, { width: colWidths.surname - 5 });
         doc.text(author.status, colX.status, y, { width: colWidths.status - 5 });
         
-        const orgName = author.organization?.name ?? 'N/A';
+        const orgName = author.organization?.name || 'N/A';
         const truncatedOrg = orgName.length > 15 ? orgName.substring(0, 15) + '...' : orgName;
         doc.text(truncatedOrg, colX.org, y, { width: colWidths.org - 5 });
         
-        doc.text(author.role?.name ?? 'N/A', colX.role, y, { width: colWidths.role - 5 });
-        doc.text((author.interviewCount ?? 0).toString(), colX.interviews, y, { width: colWidths.interviews - 5 });
+        doc.text(author.role?.name || 'N/A', colX.role, y, { width: colWidths.role - 5 });
+        doc.text((author.interviewCount || 0).toString(), colX.interviews, y, { width: colWidths.interviews - 5 });
         doc.text(permissionCount.toString(), colX.permissions, y, { width: colWidths.permissions - 5 });
 
         y += rowHeight;
