@@ -484,18 +484,34 @@ export class RoleController {
       // Pipe PDF to response
       doc.pipe(res);
 
-      // PDF header
-      doc.fontSize(20).text('Role Report', { align: 'center' });
-      doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
-      doc.moveDown();
+      let currentPage = 1;
+      const rolesPerPage = 15; // Roles per page
+      const totalPages = Math.max(1, Math.ceil(allRoles.length / rolesPerPage)); // At least 1 page
+
+      // Function to add header with pagination
+      const addHeader = (pageNumber: number) => {
+        // Page number (right top) - Format: 1/10, 2/10, etc.
+        doc.fontSize(10).fillColor('black').text(
+          `${pageNumber}/${totalPages}`, 
+          doc.page.width - 120, 
+          40, 
+          { align: 'right', width: 80 }
+        );
+
+        // Title (center)
+        doc.fontSize(20).fillColor('black').text('Role Report', 200, 40, { align: 'center', width: 400 });
+        doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, 200, 65, { align: 'center', width: 400 });
+      };
+
+      // Add first page header
+      addHeader(currentPage);
 
       // Summary section
-      doc.fontSize(14).text('Summary', { underline: true });
+      doc.fontSize(14).text('Summary', 40, 100, { underline: true });
       doc.fontSize(10);
-      doc.text(`Total Roles: ${stats.total}`);
-      doc.text(`Active: ${stats.byStatus.active} | Inactive: ${stats.byStatus.inactive}`);
-      doc.text(`Total Actors: ${stats.totalActors} | Total Authors: ${stats.totalAuthors}`);
-      doc.moveDown();
+      doc.text(`Total Roles: ${stats.total}`, 40, 120);
+      doc.text(`Active: ${stats.byStatus.active} | Inactive: ${stats.byStatus.inactive}`, 40, 135);
+      doc.text(`Total Actors: ${stats.totalActors} | Total Authors: ${stats.totalAuthors}`, 40, 150);
 
       // Table setup
       let y = 200;
@@ -572,9 +588,11 @@ export class RoleController {
         // Check for page break
         if (y > 500) {
           doc.addPage();
-          y = 50;
+          currentPage++;
+          addHeader(currentPage); // Add header to new page
+          y = 120; // Start after header
           
-          // Redraw headers on new page
+          // Redraw table headers
           doc.fontSize(12).fillColor('black');
           doc.text('Code', colX.code, y);
           doc.text('Name', colX.name, y);
