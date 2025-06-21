@@ -14,6 +14,7 @@ const RNF = () => {
     const { proid } = location.state || {};
 
     const [rnfs, setRnfs] = useState([]);
+    const [riesgos, setRiesgos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchNombre, setSearchNombre] = useState("");
 
@@ -21,6 +22,8 @@ const RNF = () => {
 
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+    const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Req. No Funcional");
 
     const fetchRnfs = useCallback(async () => {
     //Obtener o listar expertos de un proyecto
@@ -35,12 +38,6 @@ const RNF = () => {
             );
         }
     }, [proid,API_BASE_URL]);
-    
-    useEffect(() => {
-        
-        fetchRnfs();
-        
-    }, [fetchRnfs]);
 
 
     const deleteRnf = async (codigo) => {
@@ -116,6 +113,60 @@ const RNF = () => {
         }
     };
 
+    const exportToExcelRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDFRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+    const fetchRiesgos = useCallback(async () => {
+    //Obtener o listar educciones de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks`);
+            setRiesgos(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [proid,API_BASE_URL]);
+
+    useEffect(() => {
+    
+        fetchRiesgos();
+        fetchRnfs();
+    
+    }, [fetchRiesgos, fetchRnfs]);
+
     const irALogin = () => {
         navigate("/");
     };
@@ -144,7 +195,12 @@ const RNF = () => {
     };
     
     const irARegistrarRiesgo = () => {
-        navigate("/registroRiesgo");
+        navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
+        state: {
+            proid:proid,
+            from: location.pathname
+        }
+    });
     };
     const irAEditarRiesgo = () => {
         navigate("/editarRiesgo");
@@ -363,7 +419,7 @@ const RNF = () => {
 
                     </section>
                     <section className="pp-section">
-                        <h3>Registro de Riesgos de Requerimientos No Funcionales</h3>
+                        <h3>Gestión de Riesgos de Requerimientos No Funcionales</h3>
                         <div className="search-section-bar">
                             <button onClick={irARegistrarRiesgo} className="nuevo-pp-button">Registrar Riesgo</button>
                             <div className="sectionTextBuscar">
@@ -374,43 +430,9 @@ const RNF = () => {
                                     placeholder="Buscar" 
                                     style={{ width: "500px" }} 
                                     />
-                                    <span class="tooltip-text">Filtrar información por código del requerimiento no funcional, responsbale o versión del riesgo</span>
+                                    <span class="tooltip-text">Filtrar información por nombre o código de RNF</span>
                                 </span>
-                                <button className="search-button">Buscar</button>
-                            </div>
-                        </div>
-
-                        <div className="pp-search-section-text">
-                            <div className="pp-searchbar">
-                                <select className="pp-year-input">
-                                    <option value="">AÑO</option>
-                                    {[2025, 2024, 2023, 2022, 2021, 2020].map((year) => (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    ))}
-                                </select>
-                                <select className="pp-month-input">
-                                    <option value="">MES</option>
-                                    {[
-                                        "Enero", 
-                                        "Febrero", 
-                                        "Marzo", 
-                                        "Abril", 
-                                        "Mayo", 
-                                        "Junio", 
-                                        "Julio", 
-                                        "Agosto", 
-                                        "Septiembre", 
-                                        "Octubre", 
-                                        "Noviembre", 
-                                        "Diciembre"
-                                    ].map((month, index) => (
-                                        <option key={index} value={index + 1}>
-                                            {month}
-                                        </option>
-                                    ))}
-                                </select>
+                                <button className="search-button"onClick={handleSearch}>Buscar</button>
                             </div>
                         </div>
 
@@ -425,19 +447,21 @@ const RNF = () => {
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
-                                <tbody onClick={irAVerRiesgo}>
-                                    <tr>
-                                        <td>ESP-0001</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0002</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
+                                <tbody>
+                                    {riesgos
+                                        .filter((riesgo) => riesgo.entityType === "Req. No Funcional")
+                                        .map((riesgo, index) => (
+                                        <tr key={index}>
+                                            <td>{riesgo.registryCode}</td>
+                                            <td>{riesgo.code}</td>
+                                            <td>AUT-001</td>
+                                            <td>{riesgo.description}</td>
+                                            <td>
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
+                                                e.stopPropagation();
+                                                irAEditarRiesgo(riesgo.id); // puedes pasar el id
                                                 }}
                                             >
                                                 <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
@@ -445,42 +469,16 @@ const RNF = () => {
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
+                                                e.stopPropagation();
+                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
                                             </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>ESP-0002</td>
-                                        <td>00.01</td>
-                                        <td>AUT-0003</td>
-                                        <td>DDDDDDDDDDDDDD</td>
-                                        <td>
-                                            {/* Evitar que el evento se propague al contenedor */}
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    irAEditarRiesgo();
-                                                }}
-                                            >
-                                                <FaPencilAlt style={{ color: "blue", cursor: "pointer" }} />
-                                            </button>
-                                            <button
-                                                className="botton-crud"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    abrirPopup();
-                                                }}
-                                            >
-                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                            </td>
+                                        </tr>
+                                        ))}
+                                    </tbody>
 
                             </table>
 
@@ -499,20 +497,20 @@ const RNF = () => {
                             )}
 
                         </div>
-                        <h4>Total de registros </h4>
+                        <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
-                                    <span class="tooltip-text">Generar reporte de los riesgos del RNF en Excel</span>
+                                    <button className="export-button" onClick={exportToExcelRisk}>Excel</button>
+                                    <span class="tooltip-text">Generar reporte en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
-                                    <span class="tooltip-text">Generar reporte de los riesgos del RNF en Pdf</span>
+                                <button className="export-button" onClick={exportToPDFRisk}>PDF</button>
+                                    <span class="tooltip-text">Generar reporte en Pdf</span>
                                 </span>
                             </div>
 
                         <div className="search-section-bar">
-                            <button onClick={irAPlantillas} className="atras-button">Regresar</button>
+                            <button  className="atras-button"onClick={irAPlantillas}>Regresar</button>
                         </div>
                     </section>
                 </main>

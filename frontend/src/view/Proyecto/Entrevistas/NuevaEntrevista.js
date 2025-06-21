@@ -252,18 +252,17 @@ const NuevaEntrevista = () => {
                     <section className="rp-organization-section">
                         <h3>Agenda</h3>
                         {agendaItems.map((item, index) => (
-                        <div className="rp-cod-vers" key={`agenda-${index}`}>
-                            <div className="fiel-vers">
+                        <div className="rp-cod-vers2" key={`agenda-${index}`}>
+                            <div className="fiel-vers2">
                             <input
                                 disabled
                                 type="text"
-                                className="inputBloq-field2"
+                                className="input-numero-agenda"
                                 value={index + 1}
                                 readOnly
-                                size="50"
                             />
                             </div>
-                            <div className="fiel-vers">
+                            <div className="fiel-vers2">
                             <span className="message">
                                 <input
                                 className="input-text"
@@ -271,7 +270,7 @@ const NuevaEntrevista = () => {
                                 value={item}
                                 onChange={(e) => handleAgendaChange(index, e.target.value)}
                                 placeholder="Ingrese punto de agenda"
-                                size="100"
+                                size="200"
                                 />
                                 <span className="tooltip-text">
                                 Agregar agenda o puntos a tratar durante la reunión
@@ -288,18 +287,18 @@ const NuevaEntrevista = () => {
                     <section className="rp-organization-section">
                         <h3>Conclusiones</h3>
                         {conclusions.map((item, index) => (
-                        <div className="rp-cod-vers" key={`conclusion-${index}`}>
-                            <div className="fiel-vers">
+                        <div className="rp-cod-vers2" key={`conclusion-${index}`}>
+                            <div className="fiel-vers2">
                             <input
                                 disabled
                                 type="text"
-                                className="inputBloq-field2"
+                                className="input-numero-agenda"
                                 value={index + 1}
                                 readOnly
                                 size="50"
                             />
                             </div>
-                            <div className="fiel-vers">
+                            <div className="fiel-vers2">
                             <span className="message">
                                 <input
                                 className="input-text"
@@ -307,7 +306,7 @@ const NuevaEntrevista = () => {
                                 value={item}
                                 onChange={(e) => handleConclusionChange(index, e.target.value)}
                                 placeholder="Ingrese conclusión"
-                                size="100"
+                                size="200"
                                 />
                                 <span className="tooltip-text">
                                 Agregar conclusiones llegadas en la reunión

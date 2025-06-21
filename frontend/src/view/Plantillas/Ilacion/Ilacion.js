@@ -118,6 +118,38 @@ const Ilacion = () => {
         }
     };
 
+    const exportToExcelRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDFRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
 
     const fetchRiesgos = useCallback(async () => {
     //Obtener o listar educciones de un proyecto
@@ -171,7 +203,8 @@ const Ilacion = () => {
     const irARegistrarRiesgo = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
         state: {
-            proid:proid
+            proid:proid,
+            from: location.pathname
         }
     });
     };
@@ -455,11 +488,11 @@ const Ilacion = () => {
                         <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button">Excel</button>
+                                    <button className="export-button" onClick={exportToExcelRisk}>Excel</button>
                                     <span class="tooltip-text">Generar reporte en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button" >PDF</button>
+                                <button className="export-button" onClick={exportToPDFRisk}>PDF</button>
                                     <span class="tooltip-text">Generar reporte en Pdf</span>
                                 </span>
                             </div>

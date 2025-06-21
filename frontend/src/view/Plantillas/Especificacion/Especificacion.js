@@ -41,11 +41,106 @@ const Especificacion = () => {
       );
     }
   }, [projcod,orgcod,API_BASE_URL]);
+
+    // Eliminar una especificacion
+    const deleteEspecification = async (specod) => {
+        try {
+        // /organizations/:orgcod/projects/:projcod/sources/:srccod'
+        await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
+        fetchSpecification(); // Refrescar la lista de fuentes después de eliminar uno
+        } catch (err) {
+        console.error("Error al eliminar la especificacion:", err);
+        setError(err.response?.data?.error || "Error al eliminar la especificcacion");
+        }
+    };
+    
+    // Exportar a Excel
+    const exportToExcel = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'fuentes.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDF = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'organizaciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+    const exportToExcelRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/excel`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.xlsx');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a Excel");
+        }
+    };
+
+    // Exportar a PDF
+    const exportToPDFRisk = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks/exports/pdf`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Educciones.pdf');
+            document.body.appendChild(link);
+            link.click();
+        } catch (err) {
+            setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+    const fetchRiesgos = useCallback(async () => {
+    //Obtener o listar educciones de un proyecto
+        try {
+            const response = await axios.get(`${API_BASE_URL}/projects/${proid}/risks`);
+            setRiesgos(response.data||[]);
+        } catch (err) {
+            setError(
+                err.response
+                ? err.response.data.error
+                : "Error al obtener los proyectos"
+            );
+        }
+    }, [proid,API_BASE_URL]);
+
     useEffect(() => {
         
         fetchSpecification();
+        fetchRiesgos();
          
-      }, [fetchSpecification]);
+      }, [fetchSpecification, fetchRiesgos]);
 
     const irALogin = () => {
         navigate("/");
@@ -81,7 +176,8 @@ const Especificacion = () => {
     const irARegistrarRiesgo = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
         state: {
-            proid:proid
+            proid:proid,
+            from: location.pathname
         }
     });
     };
@@ -129,51 +225,7 @@ const Especificacion = () => {
     const cerrarPopup = () => {
       setMostrarPopup(false);
     };
-    // Eliminar una especificacion
-    const deleteEspecification = async (specod) => {
-        try {
-        // /organizations/:orgcod/projects/:projcod/sources/:srccod'
-        await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
-        fetchSpecification(); // Refrescar la lista de fuentes después de eliminar uno
-        } catch (err) {
-        console.error("Error al eliminar la especificacion:", err);
-        setError(err.response?.data?.error || "Error al eliminar la especificcacion");
-        }
-    };
-    
-    // Exportar a Excel
-    const exportToExcel = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/exports/excel`, {
-                responseType: 'blob',
-            });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'fuentes.xlsx');
-            document.body.appendChild(link);
-            link.click();
-        } catch (err) {
-            setError(err.response?.data?.error || "Error al exportar a Excel");
-        }
-    };
 
-    // Exportar a PDF
-    const exportToPDF = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/exports/pdf`, {
-                responseType: 'blob',
-            });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'organizaciones.pdf');
-            document.body.appendChild(link);
-            link.click();
-        } catch (err) {
-            setError(err.response?.data?.error || "Error al exportar a PDF");
-        }
-    };
     const eliminarRiesgo = () => {
         console.log("Riesgo eliminado");
         cerrarPopup();
@@ -354,7 +406,7 @@ const Especificacion = () => {
                                     placeholder="Buscar" 
                                     style={{ width: "500px" }} 
                                     />
-                                    <span class="tooltip-text">Filtrar información por código del requisito, responsbale o versión dle riesgo</span>
+                                    <span class="tooltip-text">Filtrar información por código del requisito, responsbale o versión del riesgo</span>
                                 </span>
                                 <button className="search-button" onClick={handleSearch}>Buscar</button>
                             </div>
@@ -424,12 +476,12 @@ const Especificacion = () => {
                         <h4>Total de registros {riesgosFiltrados.length}</h4>
                             <div className="export-buttons">
                                 <span class="message">
-                                    <button className="export-button" onclick = {exportToExcel}>Excel</button>
-                                    <span class="tooltip-text">Generar reporte de los riesgos de especificación en Excel</span>
+                                    <button className="export-button" onClick={exportToExcelRisk}>Excel</button>
+                                    <span class="tooltip-text">Generar reporte de los riesgos en Excel</span>
                                 </span>
                                 <span class="message">
-                                <button className="export-button">PDF</button>
-                                    <span class="tooltip-text">Generar reporte de los riesgos de especificación en Pdf</span>
+                                <button className="export-button" onClick = {exportToPDFRisk}>PDF</button>
+                                    <span class="tooltip-text">Generar reporte de los riesgos en Pdf</span>
                                 </span>
                             </div>
 

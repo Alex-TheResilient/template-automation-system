@@ -9,7 +9,7 @@ const RegistroRiesgo = () => {
     const navigate = useNavigate();
     const { orgcod, projcod } = useParams();
     const location = useLocation();
-    const { proid } = location.state || {};
+    const { proid, from } = location.state || {};
 
     const [entityType, setEntityType] = useState("");
     const [version, setVersion] = useState("01.00");
@@ -62,7 +62,7 @@ const RegistroRiesgo = () => {
             });
             
             // Redirigir a la página de expertos o realizar otra acción
-            irAEduccion();
+            irARutaAnterior();
     
         } catch (err) {
             console.error("Error al registrar el experto:", err);
@@ -85,13 +85,17 @@ const RegistroRiesgo = () => {
     const irAPlantillas = () => {
         navigate(`/projects/${projcod}/plantillas`);
     };
-    const irAEduccion = () => {
-        navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`,{
-        state: {
-            proid:proid
+    const irARutaAnterior = () => {
+        if (from) {
+            navigate(from, { state: { proid: proid } });
+        } else {
+            // Ruta por defecto (fallback)
+            navigate(`/organizations/${orgcod}/projects/${projcod}/educcion`, {
+                state: { proid: proid }
+            });
         }
-    });
     };
+
 
     return (
         <div className="ne-container">
@@ -102,7 +106,6 @@ const RegistroRiesgo = () => {
                     <span onClick={irAListaProyecto}>Mocar Company /</span>
                     <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span onClick={irAEduccion}>Educcion /</span>
                     <span>Registro Riesgo</span>
                 </div>
             </header>
@@ -254,7 +257,7 @@ const RegistroRiesgo = () => {
                             </div>
 
                             <div className="ne-buttons">
-                            <button onClick={irAEduccion} className="ne-button" size="50">Cancelar</button>
+                            <button onClick={irARutaAnterior} className="ne-button" size="50">Cancelar</button>
                             <button onClick={registrarRiesgo} className="ne-button" size="50">Guardar Riesgo</button>
                         </div>
                     </section>

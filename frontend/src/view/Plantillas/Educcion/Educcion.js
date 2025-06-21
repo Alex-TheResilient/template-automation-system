@@ -229,7 +229,8 @@ const Educcion = () => {
     const irARegistrarRiesgo = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/riesgoNew`,{
         state: {
-            proid:proid
+            proid:proid,
+            from: location.pathname
         }
     });
     };
