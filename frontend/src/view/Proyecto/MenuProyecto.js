@@ -152,52 +152,6 @@ const MenuProyecto = () => {
                             <button className="catalogo-button"  onClick={descargarCatalogo}>DESCARGAR CATÁLOGO DE REQUISITOS</button>
                         </div>
                     </section>
-                    
-                    <section className="historial-section">
-                        <h3>Historial de cambios</h3>
-                        {mensaje && <div className="mensaje">{mensaje}</div>}  {/* Mostrar mensaje si hay error o no resultados */}
-                        <div className="menu-tabla-center">
-                            <table className="menu-centertabla">
-                                <thead>
-                                    <tr>
-                                        <th>Autor</th>
-                                        <th>Plantilla</th>
-                                        <th>Fecha de modificación</th>
-                                        <th>Estado</th>
-                                        <th>Opciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {resultados.length > 0 ?(
-                                        resultados.map((autor) => (
-                                            <tr key={autor.autCod}>
-                                                <td>{autor.autCod}</td>
-                                                <td>Ilacion</td>
-                                                <td>23/10/2024</td>
-                                                <td>00.01</td>
-                                                <td>
-                                                    <button className="button-ver"><FaEye style={{ color: "brown", cursor: "pointer" }} /></button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td>AUT-0007</td>
-                                            <td>Educcion</td>
-                                            <td>10/05/2024</td>
-                                            <td>00.02</td>
-                                            <td>
-                                                <button className="button-ver"><FaEye style={{ color: "brown", cursor: "pointer" }} /></button>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-
-                        </div>
-
-                        <h4>Total de registros 2</h4>
-                    </section>
 
                 </main>
             </div>
