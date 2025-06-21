@@ -287,6 +287,7 @@ export class AuthorRepository {
       },
       data: {
         authorId: null as any, // CORREGIDO: Cast a any para evitar error de tipos
+        
       },
     });
   }

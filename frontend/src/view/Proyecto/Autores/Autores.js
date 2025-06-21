@@ -54,7 +54,7 @@ const Autores = () => {
                 endpoint = `${API_BASE_URL}/authors/search`;
                 params.name = searchNombre;
             }
-             else {
+            else {
                 // Si no hay criterios de búsqueda, cargar todos los proyectos
                 await fetchAuthors();
                 return;
@@ -72,13 +72,16 @@ const Autores = () => {
             setLoading(false);
         }
     };
-
+    const eliminarAutor = () => {
+      console.log("Autor eliminado");
+      cerrarPopup();
+    };
     // Eliminar una fuente
-    const deleteAuthor = async (codigo) => {
+    const deleteAuthor = async (id) => {
         try {
             // /organizations/:orgcod/projects/:projcod/sources/:srccod'
             //await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors/${codigo}`);
-            await axios.delete(`${API_BASE_URL}/authors/${codigo}`);
+            await axios.delete(`${API_BASE_URL}/authors/${id}`);
             fetchAuthors(); // Refrescar la lista de fuentes después de eliminar uno
         } catch (err) {
             console.error("Error al eliminar la fuente:", err);
@@ -113,7 +116,7 @@ const Autores = () => {
     // Exportar a Excel ref source
     const exportToExcel = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/excel`, {
+            const response = await axios.get(`${API_BASE_URL}/authors/exports/excel`, {
                 responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -130,7 +133,7 @@ const Autores = () => {
     // Exportar a PDF ref source
     const exportToPDF = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/exports/pdf`, {
+            const response = await axios.get(`${API_BASE_URL}/authors/exports/pdf`, {
                 responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -153,15 +156,15 @@ const Autores = () => {
     const irANuevoAutor = () => {
         navigate(`/organizations/${orgcod}/projects/${projcod}/authors/new`);
     };
-    const irAEditarAutor = (autid,autcod) => {
-        navigate(`/authors/${autcod}`,{
-        state: {
-            orgcod: orgcod,
-            projcod: projcod,
-            autid,
-            autcod,
-        }
-    });
+    const irAEditarAutor = (autid, autcod) => {
+        navigate(`/authors/${autcod}`, {
+            state: {
+                orgcod: orgcod,
+                projcod: projcod,
+                autid,
+                autcod,
+            }
+        });
     };
     // const irAEditarAutor = (autid,autcod) => {
     //     //navigate(`/organizations/${orgcod}/projects/${projcod}/authors/${autcod}`);
@@ -237,23 +240,18 @@ const Autores = () => {
                                 </thead>
                                 <tbody>
                                     {authors.map((author) => (
-                                        <tr key={author.code} onClick={() => irAEditarAutor(author.id,author.code)}>
+                                        <tr key={author.code} onClick={() => irAEditarAutor(author.id, author.code)}>
                                             <td>{author.code}</td>
                                             <td>{author.firstName}</td>
                                             <td>{new Date(author.creationDate).toLocaleDateString()}</td>
                                             <td>{author.version}</td>
-                                            <td>{author.rol}</td>
+                                            <td>{author.role?.name}</td>
                                             <td>
-                                                <button className="botton-crud">
-                                                    <FaFolder
-                                                        style={{ color: "orange", cursor: "pointer" }}
-                                                    />
-                                                </button>
                                                 <button
                                                     className="botton-crud"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                        irAEditarAutor(author.id,author.code); // Llama a la función para editar
+                                                        irAEditarAutor(author.id, author.code); // Llama a la función para editar
                                                     }}
                                                 >
                                                     <FaPencilAlt
@@ -283,7 +281,7 @@ const Autores = () => {
                             <div className="popup-overlay">
                                 <div className="popup-content">
                                     <p>¿Está seguro de eliminar este autor?</p>
-                                    <button onClick={deleteAuthor} className="si-button">Sí</button>
+                                    <button onClick={eliminarAutor} className="si-button">Sí</button>
                                     <button onClick={cerrarPopup} className="no-button">No</button>
                                 </div>
                             </div>

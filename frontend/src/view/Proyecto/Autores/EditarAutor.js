@@ -11,16 +11,19 @@ const EditarAutor = () => {
     const {orgcod, projcod,autid,autcod } = location.state || {};
 
     // Datos controlados por el usuario
-    const [apellidoPaterno, setApellidoPaternoAutor] = useState("");
-    const [apellidoMaterno, setApellidoMaternoAutor] = useState("");
-    const [nombre, setNombreAutor] = useState("");
+    const [paternalSurname, setApellidoPaternoAutor] = useState("");
+    const [maternalSurname, setApellidoMaternoAutor] = useState("");
+    const [firstName, setNombreAutor] = useState("");
     const [alias, setAliasAutor] = useState("");
     const [rol, setRolAutor] = useState("");
+    const [roleId, setRoleId] = useState("");
+    const [roles, setRoles] = useState([]);
+    const [selectedRole, setSelectedRole] = useState(null);
     const [password, setPasswordAutor] = useState("");
-    const [telefono, setTelefonoAutor] = useState("");
+    const [phone, setTelefonoAutor] = useState("");
     const [dni, setDniAutor] = useState("");
-    const [estado, setEstado] = useState("");
-    const [comentario, setComentario] = useState("");
+    const [status, setEstado] = useState("");
+    const [comments, setComentario] = useState("");
     const [error, setError] = useState(null);
     //const [permisoPantilla, setPermisoPantilla] = useState([]);
 
@@ -50,7 +53,9 @@ const EditarAutor = () => {
             setEstado(data.status);
             setDniAutor(data.dni);
             setTelefonoAutor(data.phone);
-            setRolAutor(data.role);
+            //setRolAutor(data.role);
+            setSelectedRole(data.roles);
+            setRoleId(data.roleId);
             setPasswordAutor(data.password);
             setEstado(data.status);
             setAutorPantilla(data.templateAuthor?.name);
@@ -65,8 +70,21 @@ const EditarAutor = () => {
         
         try {
             const response = await axios.put(`${API_BASE_URL}/authors/${autid}`, {
-                nombre,
-                comentario, 
+                firstName,
+                paternalSurname,
+                maternalSurname,
+                version,
+                status,
+                alias,
+                password,
+                phone,
+                dni,
+                comments,
+                role: {
+                    connect: {
+                        id: roleId
+                    }
+                }
             });
     
             if (response.status === 200) {
@@ -81,6 +99,14 @@ const EditarAutor = () => {
             fetchAuthorData();
     }, [autid]);
 
+    useEffect(() => {
+        const fetchRoles = async () => {
+            const res = await axios.get(`${API_BASE_URL}/roles`);
+            setRoles(res.data.data || []); // Asegúrate de ajustar según cómo devuelves los datos
+        };
+
+        fetchRoles();
+    }, []);
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
     };
@@ -180,7 +206,7 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={apellidoPaterno} 
+                                    value={paternalSurname} 
                                     OnChange={(e) => setApellidoPaternoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Apellido paterno del autor</span>
@@ -192,7 +218,7 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={apellidoMaterno} 
+                                    value={maternalSurname} 
                                     OnChange={(e) => setApellidoMaternoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Apellido materno del autor</span>
@@ -204,7 +230,7 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={nombre} 
+                                    value={firstName} 
                                     OnChange={(e) => setNombreAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Nombres del autor</span>
@@ -228,12 +254,18 @@ const EditarAutor = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Rol</h4>
                                 <span class="message">
-                                    <input 
-                                    className="inputnombre-field" 
-                                    type="text" 
-                                    value={rol?.name} 
-                                    OnChange={(e) => setRolAutor(e.target.value)} 
-                                    size="30" />
+                                    <select id="rol" name="estadrol" value={roleId} onChange={(e) => {
+                                        const selectedId = e.target.value;
+                                        setRoleId(selectedId);
+
+                                        const fullRole = roles.find((r) => r.id === selectedId);
+                                        setSelectedRole(fullRole); // Aquí sí: guardas el objeto seleccionado
+                                    }} required>
+                                        <option value="">Seleccione un rol</option>
+                                        {roles.map((r) => (
+                                            <option key={r.id} value={r.id}>{r.name}</option>
+                                        ))}
+                                    </select>
                                     <span class="tooltip-text">Rol del autor en el proyecto</span>
                                 </span>
                             </div>
@@ -258,7 +290,7 @@ const EditarAutor = () => {
                                     <input 
                                     className="inputnombre-field" 
                                     type="text" 
-                                    value={telefono} 
+                                    value={phone} 
                                     OnChange={(e) => setTelefonoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Teléfono del autor, este debe contener 9 dígitos</span>
@@ -308,7 +340,7 @@ const EditarAutor = () => {
                             <div className="ro-fiel-fecha">
                                 <select 
                                     className="estado-input" 
-                                    value={estado} 
+                                    value={status} 
                                     onChange={(e) => setEstado(e.target.value)}
                                 >
                                     <option value="">[Seleccionar]</option>
@@ -328,14 +360,14 @@ const EditarAutor = () => {
                             <textarea 
                             className="input-fieldtext" 
                             rows="3" 
-                            value={comentario} 
+                            value={comments} 
                             onChange={(e) => setComentario(e.target.value)} 
                             placeholder="Añadir comentarios sobre el proyecto"></textarea>
                         </div>
                     </section>
 
-                    <section className="ro-organizations-section">
-                        <h3>Permiso para ver y editar plantillas</h3>
+                     <section className="ro-organizations-section">
+                        {/*<h3>Permiso para ver y editar plantillas</h3>
 
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
@@ -437,13 +469,13 @@ const EditarAutor = () => {
                             <div className="ro-fiel-cod-mar">
                                 <input disabled type="text" className="inputBloq-field-select" value="Plantilla de Pruebas de Software" readOnly size="60" />
                             </div>
-                        </div>
+                        </div>*/}
 
                         <div className="ro-buttons">
                             <button onClick={irAAutores} className="ro-button" size="60">Cancelar</button>
-                            <button onClick={irAAutores} className="ro-button" size="60">Guardar cambios</button>
+                            <button onClick={handleEdit} className="ro-button" size="60">Guardar cambios</button>
                         </div>
-                    </section>
+                    </section> 
                 </main>
             </div>
         </div>

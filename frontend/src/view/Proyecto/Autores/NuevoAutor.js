@@ -82,9 +82,13 @@ const NuevoAutor = () => {
                 alias,
                 password,
                 phone,
-                roleId,
                 dni,
-                comentario: comments,
+                comments,
+                role: {
+                    connect: {
+                        id: roleId
+                    }
+                }
             });
 
             // Redirigir a la página de expertos o realizar otra acción
@@ -225,7 +229,7 @@ const NuevoAutor = () => {
                             <div className="ro-fiel-vers">
                                 <h4>Rol</h4>
                                 <span class="message">
-                                    <select id="estado" name="estado" value={roleId} onChange={(e) => {
+                                    <select id="rol" name="rol" value={roleId} onChange={(e) => {
                                         const selectedId = e.target.value;
                                         setRoleId(selectedId);
 
@@ -280,16 +284,17 @@ const NuevoAutor = () => {
                                 <input disabled type="text" className="inputBloq-field" value={autorPantilla} readOnly size="30" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <select
-                                    className="estado-input"
+                                <select id="estado" name="estado-input"
                                     value={status}
-                                    onChange={(e) => setEstado(e.target.value)}
-                                >
-                                    <option value="">[Seleccionar]</option>
+                                    onChange={(e) => setEstado(e.target.value)} required>
+                                    <option value="">Seleccione un tipo</option>
                                     <option value="por empezar">Por empezar</option>
                                     <option value="en progreso">En progreso</option>
                                     <option value="finalizado">Finalizado</option>
+
                                 </select>
+
+                                
                             </div>
 
                         </div>
