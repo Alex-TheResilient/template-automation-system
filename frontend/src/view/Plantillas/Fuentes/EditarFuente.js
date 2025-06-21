@@ -130,7 +130,7 @@ const EditarFuente = () => {
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={name}  size="110" />
+                                    <input className="inputnombre-field" type="text" value={name} onChange={(e) => setNombre(e.target.value)} size="110" />
                                     <span class="tooltip-text"> Editar el nombre de la fuente </span>
                                 </span><br />
                                 {/*<span class="message">

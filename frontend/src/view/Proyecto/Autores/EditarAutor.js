@@ -169,7 +169,7 @@ const EditarAutor = () => {
                                 type="text" 
                                 className="inputBloq-field" 
                                 value={codigo} 
-                                OnChange={(e) => setCodigoAutor(e.target.value)} 
+                                onChange={(e) => setCodigoAutor(e.target.value)} 
                                 readOnly 
                                 size="30" />
                             </div>
@@ -179,7 +179,7 @@ const EditarAutor = () => {
                                 type="text" 
                                 className="inputBloq-field" 
                                 value={version}
-                                OnChange={(e) => setVersionAutor(e.target.value)}
+                                onChange={(e) => setVersionAutor(e.target.value)}
                                 readOnly 
                                 size="30" />
                             </div>
@@ -189,7 +189,7 @@ const EditarAutor = () => {
                                 type="text" 
                                 className="inputBloq-field" 
                                 value={fechaCreacion} 
-                                OnChange={(e) => setFechaCreacionAutor(e.target.value)}
+                                onChange={(e) => setFechaCreacionAutor(e.target.value)}
                                 readOnly 
                                 size="30" />
                             </div>
@@ -204,11 +204,12 @@ const EditarAutor = () => {
                                 <h4>Apellido Paterno</h4>
                                 <span class="message">
                                     <input 
-                                    className="inputnombre-field" 
+                                    className="input-text" 
                                     type="text" 
+                                    placeholder=""
                                     value={paternalSurname} 
-                                    OnChange={(e) => setApellidoPaternoAutor(e.target.value)} 
-                                    size="30" />
+                                    onChange={(e) => setApellidoPaternoAutor(e.target.value)} 
+                                    size="100" />
                                     <span class="tooltip-text">Apellido paterno del autor</span>
                                 </span>
                             </div>
@@ -219,7 +220,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={maternalSurname} 
-                                    OnChange={(e) => setApellidoMaternoAutor(e.target.value)} 
+                                    onChange={(e) => setApellidoMaternoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Apellido materno del autor</span>
                                 </span>
@@ -231,7 +232,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={firstName} 
-                                    OnChange={(e) => setNombreAutor(e.target.value)} 
+                                    onChange={(e) => setNombreAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Nombres del autor</span>
                                 </span>
@@ -246,7 +247,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={alias} 
-                                    OnChange={(e) => setAliasAutor(e.target.value)}
+                                    onChange={(e) => setAliasAutor(e.target.value)}
                                     size="30" />
                                     <span class="tooltip-text">Alias del autor</span>
                                 </span>
@@ -276,7 +277,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={password} 
-                                    OnChange={(e) => setPasswordAutor(e.target.value)}
+                                    onChange={(e) => setPasswordAutor(e.target.value)}
                                     size="30" />
                                     <span class="tooltip-text">Contraseña del autor, este debe tener al menos 6 caracteres</span>
                                 </span>
@@ -291,7 +292,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={phone} 
-                                    OnChange={(e) => setTelefonoAutor(e.target.value)} 
+                                    onChange={(e) => setTelefonoAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">Teléfono del autor, este debe contener 9 dígitos</span>
                                 </span>
@@ -303,7 +304,7 @@ const EditarAutor = () => {
                                     className="inputnombre-field" 
                                     type="text" 
                                     value={dni} 
-                                    OnChange={(e) => setDniAutor(e.target.value)} 
+                                    onChange={(e) => setDniAutor(e.target.value)} 
                                     size="30" />
                                     <span class="tooltip-text">DNI del autor, este debe contener 8 dígitos</span>
                                 </span>
@@ -333,7 +334,7 @@ const EditarAutor = () => {
                                 type="text" 
                                 className="inputBloq-field" 
                                 value={autorPantilla} 
-                                OnChange={(e) => setAutorPantilla(e.target.value)}  
+                                onChange={(e) => setAutorPantilla(e.target.value)}  
                                 readOnly 
                                 size="30" />
                             </div>
