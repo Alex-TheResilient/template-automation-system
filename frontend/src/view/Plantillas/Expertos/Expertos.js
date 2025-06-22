@@ -281,7 +281,7 @@ const Expertos = () => {
               </div>
             </div>
 
-            <div className="expe-search-section-text">
+            {/*<div className="expe-search-section-text">
               <div className="expe-searchbar">
                 <select
                   className="expe-year-input"
@@ -313,6 +313,7 @@ const Expertos = () => {
             {error ? (
             <p>{error}</p>
           ) : (
+           */}
             <table className="expe-centertabla">
               <thead>
                 <tr>
@@ -360,7 +361,7 @@ const Expertos = () => {
                 ))}
               </tbody>
             </table>
-          )}
+          
 
           {mostrarPopup && (
               <div className="popup-overlay">

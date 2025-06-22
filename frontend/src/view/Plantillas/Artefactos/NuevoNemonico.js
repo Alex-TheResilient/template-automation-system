@@ -11,6 +11,8 @@ const NuevoNemonico = () => {
          const [name, setName] = useState("");
          const [mnemonic, setMnemonic] = useState("");
          const [error, setError]=useState(null);
+         const [errorName, setErrorName] = useState("");
+        const [errorMnemonic, setErrorMnemonic] = useState("");
         const [organizacion, setOrganizacion] = useState({});
         const [proyecto, setProyecto] = useState({});
 
@@ -18,6 +20,15 @@ const NuevoNemonico = () => {
 
     const registrarMnemonic = async (e) => {
         e.preventDefault();
+        if (!name) {
+            setErrorName("Este campo es obligatorio");
+            return;
+        }
+        if (!mnemonic) {
+            setErrorMnemonic("Este campo es obligatorio");
+            return;
+        }
+
         try {
             // Realiza la solicitud POST con los datos correctos
             await axios.post(`${API_BASE_URL}/artifacts`, {
@@ -119,7 +130,33 @@ const NuevoNemonico = () => {
                         <div className="fiel-cod2">
                                 <h4>Artefacto*</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text"  value={name} onChange={(e) => setName(e.target.value)} placeholder=""  size="400" />
+                                    <input
+                                    type="text"
+                                    className="inputnombre-field"
+                                    
+                                    value={name}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                        if (permitido.test(value) && value.length <= 30) {
+                                        setName(value);
+                                        setErrorName(""); // limpiar el error si todo está bien
+                                        } else {
+                                        setErrorName("No se permiten caracteres especiales.");
+                                        // No actualiza el input → no se muestra el carácter inválido
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!name.trim()) {
+                                        setErrorName("Este campo es obligatorio.");
+                                        }
+                                    }}
+                                    maxLength={30}
+                                    size="400"
+                                    />
+                                    {errorName && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorName}</p>)}
                                     <span class="tooltip-text">Nombre del artefacto en donde se creará el nemónico.</span>
                                 </span>
                         </div>
@@ -127,7 +164,33 @@ const NuevoNemonico = () => {
                         <div className="fiel-cod2">
                                 <h4>Nemónico*</h4>
                                 <span class="message">
-                                    <input  className="inputnombre-field" type="text" value={mnemonic} onChange={(e) => setMnemonic(e.target.value)}  placeholder=""  size="400" />
+                                    <input
+                                    type="text"
+                                    className="inputnombre-field"
+                                    
+                                    value={mnemonic}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                        if (permitido.test(value) && value.length <= 10) {
+                                        setMnemonic(value);
+                                        setErrorMnemonic(""); // limpiar el error si todo está bien
+                                        } else {
+                                        setErrorMnemonic("No se permiten caracteres especiales.");
+                                        // No actualiza el input → no se muestra el carácter inválido
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!mnemonic.trim()) {
+                                        setErrorMnemonic("Este campo es obligatorio.");
+                                        }
+                                    }}
+                                    maxLength={10}
+                                    size="400"
+                                    />
+                                    {errorMnemonic && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorMnemonic}</p>)}
                                     <span class="tooltip-text">Nemónico a crear, sea lo mas breve y corto posible.</span>
                                 </span>
 

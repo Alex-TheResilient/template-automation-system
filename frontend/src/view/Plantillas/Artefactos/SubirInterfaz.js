@@ -20,6 +20,7 @@ const SubirInterfaz = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
     const [error, setError]=useState(null);
+    const [errorName, setErrorName] = useState("");
     
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
         
@@ -186,7 +187,33 @@ const SubirInterfaz = () => {
                         <div className="ne-input-container">
                             <input disabled type="text" className="ne-input" value={code} readOnly />
                             <span className="message">
-                                    <input className="input-text" type="text" placeholder="" value={name} onChange={(e) => setName(e.target.value)} size="80" />
+                                    <input
+                                    type="text"
+                                    className="inputnombre-field"
+                                    
+                                    value={name}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                        if (permitido.test(value) && value.length <= 30) {
+                                        setName(value);
+                                        setErrorName(""); // limpiar el error si todo está bien
+                                        } else {
+                                        setErrorName("No se permiten caracteres especiales.");
+                                        // No actualiza el input → no se muestra el carácter inválido
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!name.trim()) {
+                                        setErrorName("Este campo es obligatorio.");
+                                        }
+                                    }}
+                                    maxLength={30}
+                                    size="400"
+                                    />
+                                    {errorName && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorName}</p>)}
                                     <span className="tooltip-text">Agregar nombre que identifique a la interfaz creada, generalmente el nombre es equivalente al titulo de la interfaz.</span>
                             </span>
                             <input disabled type="text" className="ne-input" value={creationDate} readOnly />

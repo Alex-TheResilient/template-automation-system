@@ -477,11 +477,6 @@ const EditarRNF = () => {
                                     setErrorComment("No se permiten caracteres especialeS.");
                                     }
                                 }}
-                                onBlur={() => {
-                                    if (!comment.trim()) {
-                                    setErrorComment("El campo no puede estar vacío.");
-                                    }
-                                }}
                                 ></textarea>
 
                                 {errorComment && <p style={{ color: 'red', margin: 0 }}>{errorComment}</p>}
