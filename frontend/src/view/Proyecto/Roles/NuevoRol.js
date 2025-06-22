@@ -16,12 +16,36 @@ const NuevoRol = () => {
             new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
     const [comments, setComments] = useState("");
     const [error, setError]=useState(null);
+    const [errorComentarios, setErrorComentarios] = useState("");
     const [errorRol, setErrorRol] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
     const registrarRol = async (e) => {
         e.preventDefault();
+        if (!name.trim()) {
+        setError("El nombre del rol es obligatorio.");
+        return;
+        }
+
+        if (name.length > 60) {
+        setError("El nombre del rol no debe exceder los 60 caracteres.");
+        return;
+        }
+
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(name)) {
+        setError("El nombre del rol contiene caracteres no permitidos.");
+        return;
+        }
+        if (comments && !/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/.test(comments)) {
+        setError("Los comentarios contienen caracteres no permitidos.");
+        return;
+        }
+
+        if (comments.length > 300) {
+        setError("Los comentarios no deben exceder los 300 caracteres.");
+        return;
+        }
         try {
             // Realiza la solicitud POST con los datos correctos
             await axios.post(`${API_BASE_URL}/roles`, {
@@ -104,22 +128,20 @@ const NuevoRol = () => {
                                 <h4>Nombre del Rol</h4>
                                 <span class="message">
                                     <input
-                                        className="inputnombre-field"
                                         type="text"
-                                        placeholder="Ej. Analista de Requisitos"
+                                        className="inputnombre-field"
                                         value={name}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            if (value.length <= 50) {
+                                            if (value.length <= 60) {
                                             setName(value);
-
-                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s\-()]*$/.test(value)) {
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(value)) {
                                                 setErrorRol("");
                                             } else {
-                                                setErrorRol("Solo se permiten letras, guiones y paréntesis.");
+                                                setErrorRol("Carácter(es) no permitidos, excepto (, . - _ & /).");
                                             }
                                             } else {
-                                            setErrorRol("Máximo 50 caracteres.");
+                                            setErrorRol("Máximo 60 caracteres.");
                                             }
                                         }}
                                         onBlur={() => {
@@ -127,7 +149,7 @@ const NuevoRol = () => {
                                             setErrorRol("El nombre del rol es obligatorio.");
                                             }
                                         }}
-                                        maxLength={50}
+                                        maxLength={60}
                                         size="30"
                                         />
                                         {errorRol && <p style={{ color: 'red', margin: 0 }}>{errorRol}</p>}
@@ -146,13 +168,50 @@ const NuevoRol = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Añadir comentarios sobre el rol"></textarea>
+                            <textarea
+                            className="input-fieldtext"
+                            name="comments"
+                            value={comments}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/;
+
+                                if (value.length <= 300) {
+                                // Validar que no use caracteres especiales
+                                if (permitido.test(value)) {
+                                    setComments(value);
+                                    setErrorComentarios(""); // limpia error si es válido
+                                } else {
+                                    setErrorComentarios("Solo se permiten letras, números y puntuación básica.");
+                                }
+                                }
+                            }}
+                            onBlur={() => {
+                                if (comments && !/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/.test(comments)) {
+                                setErrorComentarios("Los comentarios contienen caracteres no permitidos.");
+                                } else if (comments.length > 300) {
+                                setErrorComentarios("Máximo 300 caracteres.");
+                                } else {
+                                setErrorComentarios("");
+                                }
+                            }}
+                            placeholder="Comentarios del rol"
+                            rows="3"
+                            maxLength={300}
+                            />
+                            {errorComentarios && (
+                            <p style={{ color: 'red', margin: 0 }}>{errorComentarios}</p>
+                            )}
+                            <p style={{ fontSize: '0.8rem', textAlign: 'right' }}>
+                            {comments.length}/300
+                            </p>
                         </div>
 
                         <div className="rr-buttons">
                             <button onClick={irARoles} className="rp-button" size="50">Cancelar</button>
                             <button onClick={registrarRol} className="rp-button" size="50">Crear</button>
                         </div>
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>
 
 

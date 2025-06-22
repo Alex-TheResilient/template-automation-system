@@ -16,6 +16,7 @@ const NuevaEvidencia = () => {
     const [codigo, setCodigo] = useState("");
     const [name, setName] = useState("");
     const [error, setError] = useState('');
+    const [errorName, setErrorName] = useState('');
     const [creationDate, setCreationDate] = useState(
             new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }));
     const [selectedFile, setSelectedFile] = useState(null);
@@ -51,10 +52,32 @@ const NuevaEvidencia = () => {
         }
     };
 
-    const handleSaveEvidencia = async () => {
-        if (!selectedInterviewId || !selectedFile || !name) {
-            alert("Complete todos los campos requeridos");
+    const handleSaveEvidencia = async (e) => {
+        e.preventDefault();
+
+        if (!selectedInterviewId) {
+            setError("Debe seleccionar una entrevista.");
             return;
+        }
+
+        if (!selectedFile) {
+            setError("Debe subir un archivo.");
+            return;
+        }
+
+        if (!name || !name.trim()) {
+            setError("Debe ingresar un nombre.");
+            return;
+        }
+
+        if (name.length > 50) {
+        setError("El nombre del laevidencia no debe exceder los 50 caracteres.");
+        return;
+        }
+
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(name)) {
+        setError("El nombre del proyecto contiene caracteres no permitidos.");
+        return;
         }
 
         const formData = new FormData();
@@ -186,7 +209,37 @@ const NuevaEvidencia = () => {
                             <div className="fiel-cod">
                                 <h4>Nombre </h4>
                                 <span class="message"> 
-                                    <input  className="inputnombre-field" type="text" placeholder="" value={name} onChange={(e) => setName(e.target.value)} size="50" />
+                                    <input
+                                        type="text"
+                                        className="inputnombre-field"
+                                        value={name}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+
+                                            // Expresión permitida: letras, números, espacios y (, . - _ & /)
+                                            const regexPermitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                            // Validar solo si cumple con el regex
+                                            if (regexPermitido.test(value)) {
+                                            if (value.length <= 50) {
+                                                setName(value);
+                                                setErrorName(""); // Limpia error
+                                            } else {
+                                                setErrorName("Máximo 60 caracteres.");
+                                            }
+                                            } else {
+                                            setErrorName("Solo se permiten letras, números y caracteres (, . - _ & /).");
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            if (!name.trim()) {
+                                            setErrorName("El nombre del proyecto es obligatorio.");
+                                            }
+                                        }}
+                                        maxLength={50}
+                                        size="30"
+                                        />
+                                        {errorName && <p style={{ color: 'red', margin: 0 }}>{errorName}</p>}
                                     <span class="tooltip-text"> Ingresar el nombre de la evidencia </span>
                                 </span>                          
                             </div>
@@ -234,6 +287,7 @@ const NuevaEvidencia = () => {
                             <button onClick={irAEntrevistas} className="rp-button" size="50">Cancelar</button>
                             <button onClick={handleSaveEvidencia} className="rp-button" size="50">Guardar Evidencia</button>
                         </div>
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>
 
 

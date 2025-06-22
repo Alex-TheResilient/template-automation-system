@@ -14,8 +14,6 @@ const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchNombre, setSearchNombre] = useState("");
-    const [searchStatus, setSearcStatus] = useState("");
-    
 
     const [error, setError] = useState(null);
 
@@ -125,11 +123,6 @@ const Roles = () => {
     });
     };
 
-    
-
-    const irAVerRol = () => {
-        navigate("/verRol");
-    };
     const irAEditarRol = (idRol,codeRol) => {
         navigate(`/editarRol/${codeRol}`,{
         state: {

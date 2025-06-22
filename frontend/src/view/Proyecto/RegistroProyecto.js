@@ -18,6 +18,7 @@ const RegistroProyecto = () => {
 
     const [error, setError] = useState(null);
     const [errorNombreProyecto, setErrorNombreProyecto] = useState("");
+    const [errorComentarios, setErrorComentarios] = useState("");
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
     
     const navigate = useNavigate();
@@ -43,6 +44,29 @@ const RegistroProyecto = () => {
     // Función para registrar el proyecto
     const handleRegister = async (e) => {
         e.preventDefault();
+        if (!name.trim()) {
+        setError("El nombre del proyecto es obligatorio.");
+        return;
+        }
+
+        if (name.length > 60) {
+        setError("El nombre del proyecto no debe exceder los 60 caracteres.");
+        return;
+        }
+
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(name)) {
+        setError("El nombre del proyecto contiene caracteres no permitidos.");
+        return;
+        }
+        if (comments && !/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/.test(comments)) {
+        setError("Los comentarios contienen caracteres no permitidos.");
+        return;
+        }
+
+        if (comments.length > 300) {
+        setError("Los comentarios no deben exceder los 300 caracteres.");
+        return;
+        }
         try {
             await axios.post(`${API_BASE_URL}/organizations/${orgcod}/projects`, {
                 code,
@@ -110,15 +134,15 @@ const RegistroProyecto = () => {
                                         value={name}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            if (value.length <= 100) {
+                                            if (value.length <= 60) {
                                             setNombreProyecto(value);
                                             if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/.test(value)) {
                                                 setErrorNombreProyecto("");
                                             } else {
-                                                setErrorNombreProyecto("Solo se permiten letras, números y caracteres comunes (, . - _ & /).");
+                                                setErrorNombreProyecto("Carácter(es) no permitido, excepto (, . - _ & /).");
                                             }
                                             } else {
-                                            setErrorNombreProyecto("Máximo 100 caracteres.");
+                                            setErrorNombreProyecto("Máximo 60 caracteres.");
                                             }
                                         }}
                                         onBlur={() => {
@@ -126,7 +150,7 @@ const RegistroProyecto = () => {
                                             setErrorNombreProyecto("El nombre del proyecto es obligatorio.");
                                             }
                                         }}
-                                        maxLength={100}
+                                        maxLength={60}
                                         size="30"
                                         />
                                         {errorNombreProyecto && <p style={{ color: 'red', margin: 0 }}>{errorNombreProyecto}</p>}
@@ -164,19 +188,49 @@ const RegistroProyecto = () => {
                         <h3>Comentario</h3>
                         <div className="input-text">
                             <textarea
-                                className="input-fieldtext"
-                                name="comments"
-                                value={comments}
-                                onChange={(e) => setComentariosProyecto(e.target.value)}
-                                rows="3"
-                                placeholder="Añadir comentarios sobre el proyecto"
-                            ></textarea>
+                            className="input-fieldtext"
+                            name="comments"
+                            value={comments}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/;
+
+                                if (value.length <= 300) {
+                                // Validar que no use caracteres especiales
+                                if (permitido.test(value)) {
+                                    setComentariosProyecto(value);
+                                    setErrorComentarios(""); // limpia error si es válido
+                                } else {
+                                    setErrorComentarios("Solo se permiten letras, números y puntuación básica.");
+                                }
+                                }
+                            }}
+                            onBlur={() => {
+                                if (comments && !/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-()¿?!¡"']*$/.test(comments)) {
+                                setErrorComentarios("Los comentarios contienen caracteres no permitidos.");
+                                } else if (comments.length > 300) {
+                                setErrorComentarios("Máximo 300 caracteres.");
+                                } else {
+                                setErrorComentarios("");
+                                }
+                            }}
+                            placeholder="Comentarios del proyecto"
+                            rows="3"
+                            maxLength={300}
+                            />
+                            {errorComentarios && (
+                            <p style={{ color: 'red', margin: 0 }}>{errorComentarios}</p>
+                            )}
+                            <p style={{ fontSize: '0.8rem', textAlign: 'right' }}>
+                            {comments.length}/300
+                            </p>
                         </div>
 
                         <div className="rp-buttons">
                             <button onClick={irAListaProyectos} className="rp-button" size="50">Cancelar</button>
                             <button onClick={handleRegister} className="rp-button">Registrar Proyecto</button>
                         </div>
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                     </section>
                 </main>
             </div>

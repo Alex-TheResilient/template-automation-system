@@ -79,6 +79,58 @@ const EditarOrganizacion = () => {
     // Función para actualizar la organización
     const handleEdit = async (e) => {
         e.preventDefault();
+        // Nombre organización
+        if (!name.trim()) {
+            setError("El nombre de la organización es obligatorio.");
+            return;
+        }
+        if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,&'-]{1,60}$/.test(name.trim())) {
+            setError("El nombre de la organización contiene caracteres no permitidos.");
+            return;
+        }
+
+        // Dirección (opcional, pero si se llena debe ser válida)
+        if (address && !/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-#°º()\/]{1,50}$/.test(address)) {
+            setError("La dirección contiene caracteres no permitidos o excede el límite.");
+            return;
+        }
+
+        // Teléfono organización
+        if (phone &&!/^9\d{8}$/.test(phone)) {
+            setError("El teléfono de la organización debe tener 9 dígitos y empezar con 9.");
+            return;
+        }
+
+        // Representante legal
+        
+        if (legalRepresentative &&!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s']{1,60}$/.test(legalRepresentative.trim())) {
+            setError("El nombre del representante legal solo puede contener letras y espacios.");
+            return;
+        }
+
+        // Teléfono representante
+        if (representativePhone &&!/^9\d{8}$/.test(representativePhone)) {
+            setError("El teléfono del representante debe tener 9 dígitos y empezar con 9.");
+            return;
+        }
+
+        // RUC
+        if (taxId &&!/^(10|20)\d{9}$/.test(taxId)) {
+            setError("El RUC debe tener 11 dígitos y comenzar con 10 o 20.");
+            return;
+        }
+
+        // Contacto
+        if (contact &&!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s']{1,60}$/.test(contact.trim())) {
+            setError("El nombre del contacto solo puede contener letras y espacios.");
+            return;
+        }
+
+        // Teléfono contacto
+        if (contactPhone &&!/^9\d{8}$/.test(contactPhone)) {
+            setError("El teléfono del contacto debe tener 9 dígitos y empezar con 9.");
+            return;
+        }
         try {
             await axios.put(`${API_BASE_URL}/organizations/${orgcod}`, {
                 name,
@@ -156,10 +208,10 @@ const EditarOrganizacion = () => {
                                         value={name}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,&'-]*$/.test(value) && value.length <= 100) {
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,&'-]*$/.test(value) && value.length <= 60) {
                                             setNombre(value);
                                             setErrorNombre("");
-                                            } else if (value.length > 100) {
+                                            } else if (value.length > 60) {
                                             setErrorNombre("Máximo 100 caracteres.");
                                             }
                                         }}
@@ -168,7 +220,7 @@ const EditarOrganizacion = () => {
                                             setErrorNombre("El nombre de la empresa es obligatorio.");
                                             }
                                         }}
-                                        maxLength={100}
+                                        maxLength={60}
                                         size="30"
                                         />
                                         {errorNombre && <p style={{ color: 'red', margin: 0 }}>{errorNombre}</p>}
@@ -185,17 +237,15 @@ const EditarOrganizacion = () => {
                                         value={address}
                                         onChange={(e) => {
                                             const value = e.target.value;
-                                            if (value.length <= 150) {
+                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-#°º()\/]*$/.test(value) && value.length <= 50) {
                                             setDireccion(value);
 
-                                            if (/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,\-#°º()\/]*$/.test(value)) {
-                                                setErrorDireccion("");
-                                            } else {
-                                                setErrorDireccion("La dirección contiene caracteres no permitidos.");
+                                            } else if (value.length > 50) {
+                                            setErrorDireccion("Máximo 100 caracteres.");
                                             }
                                             }
-                                        }}
-                                        maxLength={150}
+                                        }
+                                        maxLength={50}
                                         size="30"
                                         />
                                         {errorDireccion && <p style={{ color: 'red', margin: 0 }}>{errorDireccion}</p>}
@@ -223,10 +273,9 @@ const EditarOrganizacion = () => {
                                         }
                                     }}
                                     onBlur={() => {
-                                        // Si al salir sigue incompleto, muestra error
-                                        if (phone.length !== 9) {
-                                        setErrorTelefono("Ingrese un telefono válido");
-                                        }
+                                    if (phone && phone.length !== 9) {
+                                        setErrorTelefono("Ingrese un teléfono válido");
+                                    }
                                     }}
                                     size="30"
                                     />
@@ -248,7 +297,7 @@ const EditarOrganizacion = () => {
                                             const value = e.target.value;
 
                                             // Solo permitir letras, espacios y apóstrofe mientras se escribe
-                                            if (value.length <= 80) {
+                                            if (value.length <= 60) {
                                             setRepresentanteLegal(value);
 
                                             // Validar mientras escribe
@@ -259,13 +308,7 @@ const EditarOrganizacion = () => {
                                             }
                                             }
                                         }}
-                                        onBlur={() => {
-                                            // Validar si está vacío al salir del campo
-                                            if (!legalRepresentative.trim()) {
-                                            setErrorRepresentanteLegal("El nombre del representante es obligatorio.");
-                                            }
-                                        }}
-                                        maxLength={80}
+                                        maxLength={60}
                                         size="30"
                                         />
 
@@ -280,23 +323,30 @@ const EditarOrganizacion = () => {
                                 <h4>Teléfono Representante</h4>
                                 <span class="message">
                                     <input
-                                        className="inputnombre-field"
-                                        type="text"
-                                        value={representativePhone}
-                                        onChange={(e) => {
-                                            const value = e.target.value.replace(/\D/g, '');
-                                            if (value.length <= 9) {
+                                    className="inputnombre-field"
+                                    type="text"
+                                    value={representativePhone}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 9) {
                                             setTelefonoRepresentante(value);
-                                            if (value.length === 9) {
-                                                setErrorRepresentante(""); // válido
-                                            } else {
-                                                setErrorRepresentante("Ingrese número valido.");
+
+                                            // Validación en vivo: si tiene 9 dígitos y empieza con 9, quitar error
+                                            if (/^9\d{8}$/.test(value)) {
+                                                setErrorRepresentante("");
+                                            } else if (value.length === 9) {
+                                                setErrorRepresentante("El número debe comenzar con 9.");
                                             }
-                                            }
-                                        }}
-                                        size="30"
-                                        />
-                                        {errorRepresentante && <p style={{ color: 'red', margin: 0 }}>{errorRepresentante}</p>}
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                    if (representativePhone && representativePhone.length !== 9) {
+                                        setErrorRepresentante("Ingrese un teléfono válido");
+                                    }
+                                    }}
+                                    size="30"
+                                    />
+                                    {errorRepresentante && <p style={{ color: 'red', margin: 0 }}>{errorRepresentante}</p>}
                                     <span class="tooltip-text"> Ingresar el numero telefonico o celular del representante legal </span>
                                 </span>
                                 
@@ -312,14 +362,20 @@ const EditarOrganizacion = () => {
                                             const value = e.target.value.replace(/\D/g, '');
                                             if (value.length <= 11) {
                                             setRuc(value);
-                                            if (/^\d{11}$/.test(value)) {
+
+                                            // Validación en vivo: si empieza con 10 o 20 y tiene 11 dígitos
+                                            if (/^(10|20)\d{9}$/.test(value)) {
                                                 setErrorRuc("");
+                                            } else if (value.length === 11) {
+                                                setErrorRuc("El RUC debe comenzar con 10 o 20.");
+                                            } else {
+                                                setErrorRuc(""); // no mostrar errores mientras escribe menos de 11 dígitos
                                             }
                                             }
                                         }}
                                         onBlur={() => {
-                                            if (!/^\d{11}$/.test(taxId)) {
-                                            setErrorRuc("Ingrese RUC válido");
+                                            if (taxId && !/^(10|20)\d{9}$/.test(taxId)) {
+                                            setErrorRuc("Ingrese un RUC válido.");
                                             }
                                         }}
                                         maxLength={11}
@@ -344,7 +400,7 @@ const EditarOrganizacion = () => {
                                             const value = e.target.value;
 
                                             // Solo permitir letras, espacios y apóstrofe mientras se escribe
-                                            if (value.length <= 80) {
+                                            if (value.length <= 60) {
                                             setContacto(value);
 
                                             // Validar mientras escribe
@@ -355,20 +411,15 @@ const EditarOrganizacion = () => {
                                             }
                                             }
                                         }}
-                                        onBlur={() => {
-                                            // Validar si está vacío al salir del campo
-                                            if (!legalRepresentative.trim()) {
-                                            setErrorContacto("El nombre del representante es obligatorio.");
-                                            }
-                                        }}
-                                        maxLength={80}
+                                    
+                                        maxLength={60}
                                         size="30"
                                         />
 
                                         {errorContacto && (
                                         <p style={{ color: "red", margin: 0 }}>{errorContacto}</p>
                                         )}
-                                    <span class="tooltip-text"> Editar los apellidos y nombres del contacto en la organización </span>
+                                    <span class="tooltip-text"> Ingresar los apellidos y nombres del contacto en la organización </span>
                                 </span>
                                 
                             </div>
@@ -393,24 +444,28 @@ const EditarOrganizacion = () => {
                                         }
                                     }}
                                     onBlur={() => {
-                                        // Si al salir sigue incompleto, muestra error
-                                        if (contactPhone.length !== 9) {
-                                        setErrorTelefonoContacto("Ingrese un telefono válido");
-                                        }
+                                    if (contactPhone && contactPhone.length !== 9) {
+                                        setErrorTelefonoContacto("Ingrese un teléfono válido");
+                                    }
                                     }}
                                     size="30"
                                     />
                                     {errorTelefonoContacto && <p style={{ color: 'red', margin: 0 }}>{errorTelefonoContacto}</p>}
-                                    <span class="tooltip-text"> Editar el nuemero teléfonico o celular del contacto </span>
+                                    <span class="tooltip-text"> Ingresar el nuemero teléfonico o celular del contacto </span>
                                 </span>
                                 
                             </div>
+                            
                             <div className="ro-fiel-fecha">
                                 <h4>Estado</h4>
-                                <span class="message">
-                                    <input className="inputnombre-field" type="text" value={status} onChange={(e) => setEstado(e.target.value)} size="30" />
-                                    <span class="tooltip-text"> Editar el estado de la organización </span>
-                                </span>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setEstado(e.target.value)}
+                                    
+                                >
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
                                 
                             </div>   
                         </div>
