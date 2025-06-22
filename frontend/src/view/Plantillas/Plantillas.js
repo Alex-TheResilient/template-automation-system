@@ -287,6 +287,7 @@ const Plantillas = () => {
                             <div>
                                 <button onClick={irAFuentes} className="fuentes-button">FUENTES</button>
                             </div>
+                            {/*
                             <div>
                                 <button onClick={irAMetricas} className="metricas-button">MÉTRICAS</button>
                                 <p className="boton-text">Educción, Ilación, Especificación</p>
@@ -295,6 +296,7 @@ const Plantillas = () => {
                                 <button onClick={irAPruebasDeSoftware} className="pruebas-button">PRUEBAS DE SOFTWARE</button>
                                 <p className="boton-text">Especificación</p>
                             </div>
+                            */}
                         </div>
                     </section>
 
