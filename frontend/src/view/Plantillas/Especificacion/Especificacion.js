@@ -24,6 +24,14 @@ const Especificacion = () => {
     const [searchNombre, setSearchNombre] = useState("");
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
+
+    const [mostrarPopupEsp, setMostrarPopupEsp] = useState(false);
+    const [mensajePopupEsp, setMensajePopupEsp] = useState("");
+    const [codigoAEliminarEsp, setCodigoAEliminarEsp] = useState("");
+    const [mostrarPopupRiesgo, setMostrarPopupRiesgo] = useState(false);
+    const [mensajePopupRiesgo, setMensajePopupRiesgo] = useState("");
+    const [codigoAEliminarRiesgo, setCodigoAEliminarRiesgo] = useState("");
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Especificación");
@@ -48,9 +56,15 @@ const Especificacion = () => {
         // /organizations/:orgcod/projects/:projcod/sources/:srccod'
         await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${ilacod}/specifications/${specod}`);
         fetchSpecification(); // Refrescar la lista de fuentes después de eliminar uno
+        setMensajePopupEsp("Especificación eliminada correctamente.");
         } catch (err) {
-        console.error("Error al eliminar la especificacion:", err);
-        setError(err.response?.data?.error || "Error al eliminar la especificcacion");
+            setMensajePopupEsp("Error al eliminar la especificación");
+            setError(err.response?.data?.error || "Error al eliminar la especificación");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupEsp();
+            setMensajePopupEsp(""); 
+            }, 1500);
         }
     };
     
@@ -135,6 +149,22 @@ const Especificacion = () => {
         }
     }, [proid,API_BASE_URL]);
 
+    const deleteRiesgos = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/projects/${proid}/risks/${codigo}`);
+            fetchRiesgos(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupRiesgo("Riesgo eliminado correctamente.");
+        } catch (err) {
+            setMensajePopupRiesgo("Error al eliminar el riesgo");
+            setError(err.response?.data?.error || "Error al eliminar el riesgo");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupRiesgo();
+            setMensajePopupRiesgo(""); 
+            }, 1500);
+        }
+    };
+
     useEffect(() => {
         
         fetchSpecification();
@@ -216,20 +246,36 @@ const Especificacion = () => {
     });
     };
 
-    const [mostrarPopup, setMostrarPopup] = useState(false);
-  
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+const abrirPopupEsp = (code) => {
+        setCodigoAEliminarEsp(code);
+        setMostrarPopupEsp(true);
     };
-  
-    const cerrarPopup = () => {
-      setMostrarPopup(false);
+      
+    const cerrarPopupEsp = () => {
+        setMostrarPopupEsp(false);
+    };
+      
+    const confirmarEliminacionEsp = () => {
+        if (codigoAEliminarEsp) {
+            deleteEspecification(codigoAEliminarEsp);
+        }
     };
 
-    const eliminarRiesgo = () => {
-        console.log("Riesgo eliminado");
-        cerrarPopup();
-      };
+    const abrirPopupRiesgo = (code) => {
+        setCodigoAEliminarRiesgo(code);
+        setMostrarPopupRiesgo(true);
+    };
+      
+    const cerrarPopupRiesgo = () => {
+        setMostrarPopupRiesgo(false);
+    };
+      
+    const confirmarEliminacionRiesgo = () => {
+        if (codigoAEliminarRiesgo) {
+            deleteRiesgos(codigoAEliminarRiesgo);
+        }
+    };
+
     const handleSearch = async () => {
     try {
       setLoading(true);
@@ -346,11 +392,6 @@ const Especificacion = () => {
                                         <td>{specification.status}</td>
                                         <td>{specification.version}</td>
                                         <td>
-                                            <button className="botton-crud">
-                                            <FaFolder
-                                                style={{ color: "orange", cursor: "pointer" }}
-                                            />
-                                            </button>
                                             <button
                                             className="botton-crud"
                                             onClick={(e) => {
@@ -366,7 +407,7 @@ const Especificacion = () => {
                                             className="botton-crud"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                deleteEspecification(specification.code);//deleteProject(source.code); // Llama a la función de eliminación
+                                                abrirPopupEsp(specification.code);//deleteProject(source.code); // Llama a la función de eliminación
                                             }}
                                             >
                                             <FaTrash
@@ -378,6 +419,22 @@ const Especificacion = () => {
                                  ))}
                                 </tbody>
                             </table>
+
+                            {mostrarPopupEsp && (
+                            <div className="popup-overlay">
+                            <div className="popup-content">
+                            {mensajePopupEsp ? (
+                                <p>{mensajePopupEsp}</p>
+                                ) : (
+                                <>
+                                <p>¿Está seguro de eliminar la especificación <strong>{codigoAEliminarEsp}</strong> ? </p>
+                                <button onClick={confirmarEliminacionEsp} className="si-button">Sí</button>
+                                <button onClick={cerrarPopupEsp} className="no-button">No</button>
+                                </>
+                                )}
+                                </div>
+                            </div>
+                            )}
                                                         
                         </div>
 
@@ -446,7 +503,7 @@ const Especificacion = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                 e.stopPropagation();
-                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
+                                                abrirPopupRiesgo(riesgo.code); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -458,16 +515,18 @@ const Especificacion = () => {
 
                             </table>
 
-                            {mostrarPopup && (
+                            {mostrarPopupRiesgo && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                                    {mensajePopupRiesgo ? (
+                                        <p>{mensajePopupRiesgo}</p>
+                                        ) : (
+                                        <>
+                                        <p>¿Está seguro de eliminar el riesgo <strong>{codigoAEliminarRiesgo}</strong> ? </p>
+                                        <button onClick={confirmarEliminacionRiesgo} className="si-button">Sí</button>
+                                        <button onClick={cerrarPopupRiesgo} className="no-button">No</button>
+                                        </>
+                                    )}
                                 </div>
                                 </div>
                             )}

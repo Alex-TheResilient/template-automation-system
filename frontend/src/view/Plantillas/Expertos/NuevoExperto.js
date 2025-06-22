@@ -150,13 +150,13 @@ const NuevoExperto = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={code}  readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code}  readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field"  value={version} readOnly size="30" />
+                                <input type="text" className="inputBloq-field"  value={version} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="45" />
                             </div>
                         </div>
 
@@ -213,14 +213,14 @@ const NuevoExperto = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input className="inputnombre-field" type="text" value={externalOrganization} onChange={(e) => setExperiencia(e.target.value)} size="30" />
+                                    <input className="inputnombre-field" type="text" value={externalOrganization} onChange={(e) => setExperiencia(e.target.value)} size="45" />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
                                 
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" value="AUT-000"  readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value="AUT-000"  readOnly size="45" />
                                     <span class="tooltip-text"> Codigo del autor de la plantilla </span>
                                 </span>
                                 

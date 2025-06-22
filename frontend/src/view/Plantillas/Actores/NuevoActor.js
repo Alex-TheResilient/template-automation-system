@@ -162,13 +162,13 @@ const NuevoActor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="45" />
                             </div>
                         </div>
                         <section className="ro-organizations-section">
@@ -215,21 +215,21 @@ const NuevoActor = () => {
                     </section>
                     <section className="ro-organization">
                         <h3>
-                            <label className="ro-codigo">Organizacion </label>
+                            <label className="ro-codigo">Organización </label>
                             <label className="ro-version">Autor de plantilla </label>
                             <label className="ro-Fecha">Estado* </label>
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" readOnly size="30" value={orgcod} />
+                                    <input type="text" className="inputBloq-field" readOnly size="45" value={orgcod} />
                                     <span class="tooltip-text"> Codigo de la Organizacion </span>
                                 </span>
 
                             </div>
                             <div className="ro-fiel-vers">
                                 <span class="message">
-                                    <input type="text" className="inputBloq-field" value="AUT-000" readOnly size="30" />
+                                    <input type="text" className="inputBloq-field" value="AUT-000" readOnly size="45" />
                                     <span class="tooltip-text"> Codigo del autor de la plantilla </span>
                                 </span>
 

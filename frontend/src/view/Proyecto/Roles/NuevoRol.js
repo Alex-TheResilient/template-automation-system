@@ -150,7 +150,7 @@ const NuevoRol = () => {
                                             }
                                         }}
                                         maxLength={60}
-                                        size="30"
+                                        size="100"
                                         />
                                         {errorRol && <p style={{ color: 'red', margin: 0 }}>{errorRol}</p>}
                                     <span class="tooltip-text">Nombre del rol que se creará para el proyecto</span>

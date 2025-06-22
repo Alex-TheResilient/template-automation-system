@@ -25,6 +25,13 @@ const Educcion = () => {
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
 
+    const [mostrarPopupEdu, setMostrarPopupEdu] = useState(false);
+    const [mensajePopupEdu, setMensajePopupEdu] = useState("");
+    const [codigoAEliminarEdu, setCodigoAEliminarEdu] = useState("");
+    const [mostrarPopupRiesgo, setMostrarPopupRiesgo] = useState(false);
+    const [mensajePopupRiesgo, setMensajePopupRiesgo] = useState("");
+    const [codigoAEliminarRiesgo, setCodigoAEliminarRiesgo] = useState("");
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const riesgosFiltrados = riesgos.filter((riesgo) => riesgo.entityType === "Educción");
@@ -93,9 +100,31 @@ const Educcion = () => {
         try {
             await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${codigo}`);
             fetchEducciones(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupEdu("Educción eliminada correctamente.");
         } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+            setMensajePopupEdu("Error al eliminar la educción");
+            setError(err.response?.data?.error || "Error al eliminar la educción");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupEdu();
+            setMensajePopupEdu(""); 
+            }, 1500);
+        }
+    };
+
+    const deleteRiesgos = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/projects/${proid}/risks/${codigo}`);
+            fetchRiesgos(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupRiesgo("Riesgo eliminado correctamente.");
+        } catch (err) {
+            setMensajePopupRiesgo("Error al eliminar el riesgo");
+            setError(err.response?.data?.error || "Error al eliminar el riesgo");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupRiesgo();
+            setMensajePopupRiesgo(""); 
+            }, 1500);
         }
     };
 
@@ -262,28 +291,36 @@ const Educcion = () => {
         }
     });
     };
-
-
-
-    const [mostrarPopup, setMostrarPopup] = useState(false);
   
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+    const abrirPopupEdu = (code) => {
+        setCodigoAEliminarEdu(code);
+        setMostrarPopupEdu(true);
     };
-  
-    const cerrarPopup = () => {
-      setMostrarPopup(false);
+      
+    const cerrarPopupEdu = () => {
+        setMostrarPopupEdu(false);
     };
-  
-    const eliminarEduccion = () => {
-      console.log("Educcion eliminada");
-      cerrarPopup();
+      
+    const confirmarEliminacionEdu = () => {
+        if (codigoAEliminarEdu) {
+            deleteEduction(codigoAEliminarEdu);
+        }
     };
 
-    const eliminarRiesgo = () => {
-        console.log("Riesgo eliminado");
-        cerrarPopup();
-      };
+    const abrirPopupRiesgo = (code) => {
+        setCodigoAEliminarRiesgo(code);
+        setMostrarPopupRiesgo(true);
+    };
+      
+    const cerrarPopupRiesgo = () => {
+        setMostrarPopupRiesgo(false);
+    };
+      
+    const confirmarEliminacionRiesgo = () => {
+        if (codigoAEliminarRiesgo) {
+            deleteRiesgos(codigoAEliminarRiesgo);
+        }
+    };
 
     return (
         <div className="menu-container">
@@ -374,10 +411,6 @@ const Educcion = () => {
                                                     }} className="option-button">Ver Ilación</button>
                                         </td>
                                         <td>
-                                            <button className="botton-crud">
-                                                <FaFolder
-                                                style={{ color: "orange", cursor: "pointer" }}
-                                            /></button>
                                             <button className="botton-crud" onClick={() => irAEditarEduccion(educcion.code)}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
@@ -387,7 +420,7 @@ const Educcion = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                    deleteEduction(educcion.code) // Llama a la función de eliminación
+                                                    abrirPopupEdu(educcion.code) // Llama a la función de eliminación
                                                     }}
                                                 >
                                                 <FaTrash
@@ -400,18 +433,20 @@ const Educcion = () => {
                                 </tbody>
                             </table>
 
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta educción?</p>
-                                    <button onClick={eliminarEduccion} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
-                                </div>
+                            {mostrarPopupEdu && (
+                            <div className="popup-overlay">
+                            <div className="popup-content">
+                            {mensajePopupEdu ? (
+                                <p>{mensajePopupEdu}</p>
+                                ) : (
+                                <>
+                                <p>¿Está seguro de eliminar la educción <strong>{codigoAEliminarEdu}</strong> ? </p>
+                                <button onClick={confirmarEliminacionEdu} className="si-button">Sí</button>
+                                <button onClick={cerrarPopupEdu} className="no-button">No</button>
+                                </>
+                                )}
+                                </div>  
+                            </div>
                             )}
                             
                         </div>
@@ -481,7 +516,7 @@ const Educcion = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                 e.stopPropagation();
-                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
+                                                abrirPopupRiesgo(riesgo.code); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -493,16 +528,18 @@ const Educcion = () => {
 
                             </table>
 
-                            {mostrarPopup && (
+                            {mostrarPopupRiesgo && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                                    {mensajePopupRiesgo ? (
+                                        <p>{mensajePopupRiesgo}</p>
+                                        ) : (
+                                        <>
+                                        <p>¿Está seguro de eliminar el riesgo <strong>{codigoAEliminarRiesgo}</strong> ? </p>
+                                        <button onClick={confirmarEliminacionRiesgo} className="si-button">Sí</button>
+                                        <button onClick={cerrarPopupRiesgo} className="no-button">No</button>
+                                        </>
+                                    )}
                                 </div>
                                 </div>
                             )}

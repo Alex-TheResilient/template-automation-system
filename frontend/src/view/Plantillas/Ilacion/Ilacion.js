@@ -20,6 +20,12 @@ const Ilacion = () => {
     const [error, setError] = useState(null);
     const { proid } = location.state || {};
 
+    const [mostrarPopupIla, setMostrarPopupIla] = useState(false);
+    const [mensajePopupIla, setMensajePopupIla] = useState("");
+    const [codigoAEliminarIla, setCodigoAEliminarIla] = useState("");
+    const [mostrarPopupRiesgo, setMostrarPopupRiesgo] = useState(false);
+    const [mensajePopupRiesgo, setMensajePopupRiesgo] = useState("");
+    const [codigoAEliminarRiesgo, setCodigoAEliminarRiesgo] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -49,9 +55,31 @@ const Ilacion = () => {
         try {
             await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}/ilaciones/${codigo}`);
             fetchIlaciones(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupIla("Ilación eliminada correctamente.");
         } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+            setMensajePopupIla("Error al eliminar la ilación");
+            setError(err.response?.data?.error || "Error al eliminar la ilación");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupIla();
+            setMensajePopupIla(""); 
+            }, 1500);
+        }
+    };
+
+    const deleteRiesgos = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/projects/${proid}/risks/${codigo}`);
+            fetchRiesgos(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupRiesgo("Riesgo eliminado correctamente.");
+        } catch (err) {
+            setMensajePopupRiesgo("Error al eliminar el riesgo");
+            setError(err.response?.data?.error || "Error al eliminar el riesgo");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupRiesgo();
+            setMensajePopupRiesgo(""); 
+            }, 1500);
         }
     };
 
@@ -244,26 +272,35 @@ const Ilacion = () => {
     });
     };
 
-    const [mostrarPopup, setMostrarPopup] = useState(false);
-  
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+   const abrirPopupIla = (code) => {
+        setCodigoAEliminarIla(code);
+        setMostrarPopupIla(true);
     };
-  
-    const cerrarPopup = () => {
-      setMostrarPopup(false);
+      
+    const cerrarPopupIla = () => {
+        setMostrarPopupIla(false);
     };
-  
-    const eliminarEduccion = () => {
-      console.log("Educcion eliminada");
-      cerrarPopup();
+      
+    const confirmarEliminacionIla = () => {
+        if (codigoAEliminarIla) {
+            deleteIlation(codigoAEliminarIla);
+        }
     };
 
-    const eliminarRiesgo = () => {
-        console.log("Riesgo eliminado");
-        cerrarPopup();
-      };
-
+    const abrirPopupRiesgo = (code) => {
+        setCodigoAEliminarRiesgo(code);
+        setMostrarPopupRiesgo(true);
+    };
+      
+    const cerrarPopupRiesgo = () => {
+        setMostrarPopupRiesgo(false);
+    };
+      
+    const confirmarEliminacionRiesgo = () => {
+        if (codigoAEliminarRiesgo) {
+            deleteRiesgos(codigoAEliminarRiesgo);
+        }
+    };
     return (
         <div className="menu-container">
             <header className="menu-header">
@@ -351,10 +388,6 @@ const Ilacion = () => {
                                             <button onClick={() => irAEspecificaciones(ilacion.code)} className="option-button">Ver Especificacion</button>
                                         </td>
                                         <td>
-                                            <button className="botton-crud">
-                                                <FaFolder
-                                                style={{ color: "orange", cursor: "pointer" }}
-                                            /></button>
                                             <button className="botton-crud" onClick={() => irAEditarIlacion(ilacion.code)}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
@@ -364,7 +397,7 @@ const Ilacion = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                    deleteIlation(ilacion.code) // Llama a la función de eliminación
+                                                    abrirPopupIla(ilacion.code) // Llama a la función de eliminación
                                                     }}
                                                 >
                                                 <FaTrash
@@ -377,18 +410,20 @@ const Ilacion = () => {
                                 </tbody>
                             </table>
 
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta ilación?</p>
-                                    <button onClick={eliminarEduccion} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                            {mostrarPopupIla && (
+                            <div className="popup-overlay">
+                            <div className="popup-content">
+                            {mensajePopupIla ? (
+                                <p>{mensajePopupIla}</p>
+                                ) : (
+                                <>
+                                <p>¿Está seguro de eliminar la ilación <strong>{codigoAEliminarIla}</strong> ? </p>
+                                <button onClick={confirmarEliminacionIla} className="si-button">Sí</button>
+                                <button onClick={cerrarPopupIla} className="no-button">No</button>
+                                </>
+                                )}
                                 </div>
-                                </div>
+                            </div>
                             )}
                             
                         </div>
@@ -458,7 +493,7 @@ const Ilacion = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                 e.stopPropagation();
-                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
+                                                abrirPopupRiesgo(riesgo.code); // opcionalmente pasar el id
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -470,16 +505,18 @@ const Ilacion = () => {
 
                             </table>
 
-                            {mostrarPopup && (
+                            {mostrarPopupRiesgo && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                                    {mensajePopupRiesgo ? (
+                                        <p>{mensajePopupRiesgo}</p>
+                                        ) : (
+                                        <>
+                                        <p>¿Está seguro de eliminar el riesgo <strong>{codigoAEliminarRiesgo}</strong> ? </p>
+                                        <button onClick={confirmarEliminacionRiesgo} className="si-button">Sí</button>
+                                        <button onClick={cerrarPopupRiesgo} className="no-button">No</button>
+                                        </>
+                                    )}
                                 </div>
                                 </div>
                             )}

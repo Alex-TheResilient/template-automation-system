@@ -178,13 +178,13 @@ const RegistroOrganizacion = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={isLoading ? "Cargando..." : code} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={isLoading ? "Cargando..." : code} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="45" />
                             </div>
                         </div>
                     </section>

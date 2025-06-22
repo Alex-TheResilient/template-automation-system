@@ -113,11 +113,11 @@ const RegistroProyecto = () => {
                             <label className="rp-version">Versión</label>
                         </h3>
                         <div className="rp-cod-vers">
-                            <div className="fiel-cod">
-                                <input type="text" className="inputBloq-field" value={code} readOnly />
+                            <div className="ro-fiel-vers">
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="100" />
                             </div>
-                            <div className="fiel-vers">
-                                <input type="text" className="inputBloq-field" value={version} readOnly size="50"/>
+                            <div className="ro-fiel-fecha">
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="100" />
                             </div>
                         </div>
                     </section>
@@ -151,7 +151,7 @@ const RegistroProyecto = () => {
                                             }
                                         }}
                                         maxLength={60}
-                                        size="30"
+                                        size="80"
                                         />
                                         {errorNombreProyecto && <p style={{ color: 'red', margin: 0 }}>{errorNombreProyecto}</p>}
                                     <span class="tooltip-text"> Ingresar el nombre del proyecto </span>
@@ -165,7 +165,7 @@ const RegistroProyecto = () => {
                                     className="inputBloq-field"
                                     value={creationDate}
                                     readOnly
-                                    size="50"
+                                    size="80"
                                 />
                             </div>
                         </div>
@@ -178,7 +178,7 @@ const RegistroProyecto = () => {
                                     className="inputBloq-field"
                                     value="Active"
                                     readOnly
-                                    size="50"
+                                    size="80"
                                 />
                             </div>
                         </div>

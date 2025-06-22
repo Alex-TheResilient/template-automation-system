@@ -235,7 +235,7 @@ const NuevoRNF = () => {
                                         }
                                     }}
                                     maxLength={100}
-                                    size="100"
+                                    size="114"
                                     />
                                     {errorName && (
                                     <p style={{ color: 'red', margin: 0 }}>{errorName}</p>)}
@@ -310,7 +310,7 @@ const NuevoRNF = () => {
                                         }
                                     }}
                                     maxLength={100}
-                                    size="100"
+                                    size="114"
                                     />
                                     {errorDescription && (
                                     <p style={{ color: 'red', margin: 0 }}>{errorDescription}</p>)}

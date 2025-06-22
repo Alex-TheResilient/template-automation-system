@@ -278,11 +278,6 @@ const Actores = () => {
                                         <td>{actor.type}</td>
                                         
                                         <td>
-                                            <button className="botton-crud">
-                                                <FaFolder
-                                                    style={{ color: "orange", cursor: "pointer" }}
-                                                />
-                                            </button>
                                             <button
                                                 className="botton-crud"
                                                 onClick={(e) => {

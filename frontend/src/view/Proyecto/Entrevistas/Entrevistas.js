@@ -22,6 +22,10 @@ const Entrevistas = () => {
     const [searchEvidence, setSearchEvidence] = useState('');
     const [loading, setLoading] = useState(true);
 
+    const [idAEliminarEnt, setIdAEliminarEnt] = useState(null); 
+    const [mostrarPopupEnt, setMostrarPopupEnt] = useState(false);
+    const [mensajePopupEnt, setMensajePopupEnt] = useState("");
+    const [codigoAEliminarEnt, setCodigoAEliminarEnt] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -60,7 +64,21 @@ const Entrevistas = () => {
     
     }, [fetchEentrevistas, fetchEvidencias]);
 
-    
+    const deleteEntrevistas = async (id) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/interviews/${id}`);
+            fetchEentrevistas(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupEnt("Entrevista eliminada correctamente.");
+        } catch (err) {
+            setMensajePopupEnt("Error al eliminar la entrevista");
+            setError(err.response?.data?.error || "Error al eliminar la entrevista");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupEnt();
+            setMensajePopupEnt(""); 
+            }, 1500);
+        }
+    };
 
 
     const handleSearch = async () => {
@@ -191,23 +209,21 @@ const Entrevistas = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
  
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+    const abrirPopupEnt = (id, code) => {
+        setIdAEliminarEnt(id);
+        setCodigoAEliminarEnt(code);
+        setMostrarPopupEnt(true);
     };
-  
-    const cerrarPopup = () => {
-      setMostrarPopup(false);
+      
+    const cerrarPopupEnt = () => {
+        setMostrarPopupEnt(false);
     };
-  
-    const eliminarEntrevista = () => {
-      console.log("Entrevista eliminada");
-      cerrarPopup();
+      
+    const confirmarEliminacionEnt = () => {
+        if (idAEliminarEnt) {
+            deleteEntrevistas(idAEliminarEnt);
+        }
     };
-
-    const eliminarEvidencia = () => {
-        console.log("Evidencia eliminada");
-        cerrarPopup();
-      };
 
     return (
         <div className="menu-container">
@@ -280,27 +296,38 @@ const Entrevistas = () => {
                                             <td>{entrevista.version}</td>
                                             <td>{new Date(entrevista.interviewDate).toLocaleDateString()}</td>
                                             <td>
-                                                <button className="botton-crud" onClick={() => navigate(`/projects/${projcod}/entrevistas/${entrevista.id}`)}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
                                                 <button className="botton-crud" onClick={() => irAEditarEntrevista(entrevista.id)}><FaPencilAlt style={{ color: "blue", cursor: "pointer" }} /></button>
-                                                <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                                <button
+                                                    className="botton-crud"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que el clic se propague al <tr>
+                                                        abrirPopupEnt(entrevista.id, entrevista.code) // Llama a la función de eliminación
+                                                        }}
+                                                    >
+                                                    <FaTrash
+                                                    style={{ color: "red", cursor: "pointer" }}
+                                                    />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
 
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta entrevista?</p>
-                                    <button onClick={eliminarEntrevista} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                            {mostrarPopupEnt && (
+                            <div className="popup-overlay">
+                            <div className="popup-content">
+                            {mensajePopupEnt ? (
+                                <p>{mensajePopupEnt}</p>
+                                ) : (
+                                <>
+                                <p>¿Está seguro de eliminar la entrevista <strong>{codigoAEliminarEnt}</strong> ? </p>
+                                <button onClick={confirmarEliminacionEnt} className="si-button">Sí</button>
+                                <button onClick={cerrarPopupEnt} className="no-button">No</button>
+                                </>
+                                )}
                                 </div>
-                                </div>
+                            </div>
                             )}
                             
                         </div>
@@ -349,7 +376,6 @@ const Entrevistas = () => {
                                         <th>Nombre</th>
                                         <th>Entrevista</th>
                                         <th>Fecha</th>
-                                        <th>Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -359,28 +385,11 @@ const Entrevistas = () => {
                                         <td>{evi.name}</td>
                                         <td>{evi.interview?.interviewName || 'Sin nombre'}</td>
                                         <td>{new Date(evi.evidenceDate).toLocaleDateString()}</td>
-                                        <td>
-                                            <button className="botton-crud" onClick={irAVerEvidencia}><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
-                                        </td>
+                                        
                                     </tr>
                                     ))}
                                 </tbody>
                             </table>
-
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta evidencia?</p>
-                                    <button onClick={eliminarEvidencia} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
-                                </div>
-                            )}
 
                         </div>
                         <div className="search-section-bar">

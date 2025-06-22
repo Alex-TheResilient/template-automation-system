@@ -259,13 +259,13 @@ const NuevoAutor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input disabled type="text" className="inputBloq-field" value={codigo} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={codigo} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input disabled type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={version} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input disabled type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={creationDate} readOnly size="45" />
                             </div>
                         </div>
                     </section>
@@ -550,10 +550,10 @@ const NuevoAutor = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input disabled type="text" className="inputBloq-field" value={codigoOrganizacion} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={codigoOrganizacion} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input disabled type="text" className="inputBloq-field" value={autorPantilla} readOnly size="30" />
+                                <input disabled type="text" className="inputBloq-field" value={autorPantilla} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
                                 <select id="estado" name="estado-input"
@@ -563,12 +563,8 @@ const NuevoAutor = () => {
                                     <option value="por empezar">Por empezar</option>
                                     <option value="en progreso">En progreso</option>
                                     <option value="finalizado">Finalizado</option>
-
                                 </select>
-
-                                
                             </div>
-
                         </div>
                     </section>
 

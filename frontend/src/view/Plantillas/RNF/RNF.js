@@ -400,10 +400,6 @@ const RNF = () => {
                                         <td>{rnf.status}</td>
                                         <td>{rnf.version}</td>
                                         <td>
-                                            <button className="botton-crud">
-                                                <FaFolder
-                                                style={{ color: "orange", cursor: "pointer" }}
-                                            /></button>
                                             <button className="botton-crud" onClick={() => irAEditarRNF(rnf.code)}>
                                                 <FaPencilAlt 
                                                 style={{ color: "blue", cursor: "pointer" }}
@@ -427,20 +423,20 @@ const RNF = () => {
                             </table>
 
                             {mostrarPopupRnf && (
-              <div className="popup-overlay">
-              <div className="popup-content">
-              {mensajePopupRnf ? (
-                <p>{mensajePopupRnf}</p>
-                  ) : (
-                  <>
-                <p>¿Está seguro de eliminar el <strong>{codigoAEliminarRnf}</strong> ? </p>
-                <button onClick={confirmarEliminacionRnf} className="si-button">Sí</button>
-                <button onClick={cerrarPopupRnf} className="no-button">No</button>
-                   </>
-                )}
-                </div>
-              </div>
-            )}
+                            <div className="popup-overlay">
+                            <div className="popup-content">
+                            {mensajePopupRnf ? (
+                                <p>{mensajePopupRnf}</p>
+                                ) : (
+                                <>
+                                <p>¿Está seguro de eliminar el <strong>{codigoAEliminarRnf}</strong> ? </p>
+                                <button onClick={confirmarEliminacionRnf} className="si-button">Sí</button>
+                                <button onClick={cerrarPopupRnf} className="no-button">No</button>
+                                </>
+                                )}
+                                </div>
+                            </div>
+                            )}
                             
                         </div>
 

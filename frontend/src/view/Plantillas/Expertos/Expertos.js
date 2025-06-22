@@ -316,11 +316,6 @@ const Expertos = () => {
                     <td>{experto.version}</td>
                     <td>{experto.experience}</td>
                     <td>
-                      <button className="botton-crud">
-                        <FaFolder
-                          style={{ color: "orange", cursor: "pointer" }}
-                        />
-                      </button>
                       <button
                         className="botton-crud"
                         onClick={(e) => {

@@ -22,6 +22,11 @@ const Artefactos = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchInterfaz, setSearchInterfaz] = useState('');
 
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+    const [idAEliminar, setIdAEliminar] = useState(null); 
+    const [mensajePopup, setMensajePopup] = useState("");
+    const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const fetchMnemonic = useCallback(async () => {
@@ -143,6 +148,23 @@ const Artefactos = () => {
         }
     };
 
+    // Función para eliminar una interfaz
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/interfaces/${id}`);
+            fetchInterfaces();
+            setMensajePopup("Interfaz eliminada correctamente.");
+        } catch (err) {
+            setMensajePopup("Error al eliminar la interfaz.");
+            console.error(err);
+        } finally {
+            setTimeout(() => {
+                cerrarPopup();
+                setMensajePopup(""); 
+            }, 1500);
+        }
+    };
+
     const irALogin = () => {
         navigate("/");
     };
@@ -195,20 +217,21 @@ const Artefactos = () => {
         }
     });
     };
-
-    const [mostrarPopup, setMostrarPopup] = useState(false);
   
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+    const abrirPopup = (id, code) => {
+        setIdAEliminar(id);
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
     };
-  
+      
     const cerrarPopup = () => {
-      setMostrarPopup(false);
+        setMostrarPopup(false);
     };
-  
-    const eliminarNemonico = () => {
-      console.log("Nemonico eliminado");
-      cerrarPopup();
+      
+    const confirmarEliminacion = () => {
+        if (idAEliminar) {
+            handleDelete(idAEliminar);
+        }
     };
 
     return (
@@ -328,8 +351,15 @@ const Artefactos = () => {
                                         <td>{inter.version}</td>
                                         <td>{new Date(inter.date).toLocaleDateString()}</td>
                                         <td>
-                                            <button className="botton-crud"><FaFolder style={{ color: "orange", cursor: "pointer" }} /></button>
-                                            <button className="botton-crud" onClick={abrirPopup}><FaTrash style={{ color: "red", cursor: "pointer" }} /></button>
+                                            <button
+                                                className="botton-crud"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    abrirPopup(inter.id, inter.code);
+                                                    }}
+                                                >
+                                                <FaTrash style={{ color: "red", cursor: "pointer" }} />
+                                            </button>
                                         </td>
                                     </tr>
                                     ))}
@@ -339,15 +369,17 @@ const Artefactos = () => {
 
                             {mostrarPopup && (
                                 <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar esta interfaz?</p>
-                                    <button onClick={eliminarNemonico} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
+                                    <div className="popup-content">
+                                    {mensajePopup ? (
+                                        <p>{mensajePopup}</p>
+                                    ) : (
+                                        <>
+                                        <p>¿Está seguro de eliminar la interfaz <strong>{codigoAEliminar}</strong> ? </p>
+                                        <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                                        <button onClick={cerrarPopup} className="no-button">No</button>
+                                        </>
+                                    )}
+                                    </div>
                                 </div>
                             )}
 

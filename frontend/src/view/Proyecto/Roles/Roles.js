@@ -230,10 +230,6 @@ const Roles = () => {
                                     <td>{rol.name}</td>
                                     <td>{new Date(rol.creationDate).toLocaleDateString()}</td>
                                     <td>
-                                        <button className="botton-crud">
-                                            <FaFolder
-                                            style={{ color: "orange", cursor: "pointer" }}
-                                        /></button>
                                         <button className="botton-crud" onClick={() => irAEditarRol(rol.id,rol.code)}>
                                             <FaPencilAlt 
                                             style={{ color: "blue", cursor: "pointer" }}

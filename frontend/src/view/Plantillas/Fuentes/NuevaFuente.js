@@ -126,13 +126,13 @@ const NuevaFuente = () => {
                         </h3>
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
-                                <input type="text" className="inputBloq-field" value={code} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={code} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-vers">
-                                <input type="text" className="inputBloq-field" value={version} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={version} readOnly size="45" />
                             </div>
                             <div className="ro-fiel-fecha">
-                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="30" />
+                                <input type="text" className="inputBloq-field" value={creationDate} readOnly size="45" />
                             </div>
                         </div>
 
@@ -164,7 +164,7 @@ const NuevaFuente = () => {
                         <div className="ro-cod-vers">
                             <div className="ro-fiel-cod">
                                 <span class="message">
-                                    <input type="text" className="inputfechafuen-field" size="30" />
+                                    <input type="text" className="inputfechafuen-field" size="45" />
                                     <span class="tooltip-text"> Ingresar la fecha de la fuente </span>
                                 </span>
 

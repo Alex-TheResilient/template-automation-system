@@ -306,11 +306,6 @@ const currentYear = new Date().getFullYear();
                       <td>{source.status}</td>
                       <td>{source.version}</td>
                       <td>
-                        <button className="botton-crud">
-                          <FaFolder
-                            style={{ color: "orange", cursor: "pointer" }}
-                          />
-                        </button>
                         <button
                           className="botton-crud"
                           onClick={(e) => {
