@@ -20,6 +20,11 @@ const Actores = () => {
     const [searchNombre, setSearchNombre] = useState("");
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
+
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+      const [mensajePopup, setMensajePopup] = useState("");
+      const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const fetchActors = useCallback(async () => {
         //Obtener o listar expertos de un proyecto
@@ -128,9 +133,15 @@ const Actores = () => {
             // /organizations/:orgcod/projects/:projcod/sources/:srccod'
             await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/actors/${codigo}`);
             fetchActors(); // Refrescar la lista de fuentes después de eliminar uno
+            setMensajePopup("Actor eliminado correctamente.");
         } catch (err) {
-            console.error("Error al eliminar la fuente:", err);
-            setError(err.response?.data?.error || "Error al eliminar la fuente");
+            setMensajePopup("Error al eliminar el actor");
+            setError(err.response?.data?.error || "Error al eliminar el actor");
+        } finally {
+            setTimeout(() => {
+            cerrarPopup();
+            setMensajePopup(""); 
+            }, 1500);
         }
     };
 
@@ -176,14 +187,20 @@ const Actores = () => {
 
         fetchRoles();
     }, []);    
-    const [mostrarPopup, setMostrarPopup] = useState(false);
+    
+    const abrirPopup = (code) => {
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
+    };
+      
     const cerrarPopup = () => {
         setMostrarPopup(false);
     };
-
-    const eliminarActor = () => {
-        console.log("Actor eliminado");
-        cerrarPopup();
+      
+    const confirmarEliminacion = () => {
+        if (codigoAEliminar) {
+            deleteActor(codigoAEliminar);
+        }
     };
 
     return (
@@ -281,7 +298,7 @@ const Actores = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                    deleteActor(actor.code);//deleteProject(source.code); // Llama a la función de eliminación
+                                                    abrirPopup(actor.code);//deleteProject(source.code); // Llama a la función de eliminación
                                                 }}
                                             >
                                                 <FaTrash
@@ -295,20 +312,22 @@ const Actores = () => {
                         </table>
 
                         {mostrarPopup && (
-                            <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este autor?</p>
-                                    <button onClick={eliminarActor} className="si-button">
-                                        Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                        No
-                                    </button>
-                                </div>
+                        <div className="popup-overlay">
+                        <div className="popup-content">
+                        {mensajePopup ? (
+                            <p>{mensajePopup}</p>
+                            ) : (
+                            <>
+                            <p>¿Está seguro de eliminar el actor <strong>{codigoAEliminar}</strong> ? </p>
+                            <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                            <button onClick={cerrarPopup} className="no-button">No</button>
+                            </>
+                            )}
                             </div>
+                        </div>
                         )}
 
-                        <h4>Total de registros 2</h4>
+                        <h4>Total de registros {actors.length}</h4>
                         <div className="autor-export-buttons">
                             <span class="message">
                                 <button className="autor-export-button" onClick={exportToExcel}>Excel</button>

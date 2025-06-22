@@ -11,28 +11,29 @@
   }
   .popup-content {
     background: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .si-button, .no-button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
   }
   .si-button {
-    background-color: #a4dba7;
+    background-color: #d3569d;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-right: 10px;
-    cursor: pointer;
-    border-radius: 5px;
   }
   .no-button {
-    background-color: #d89898;
+    background-color: #c589ac;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
   }
   .si-button:hover, .no-button:hover {
     opacity: 0.9;
+    background-color: #771D4B;
   }

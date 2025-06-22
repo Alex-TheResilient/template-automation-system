@@ -16,6 +16,11 @@ const Autores = () => {
     // Estado para los parámetros de búsqueda
     const [searchNombre, setSearchNombre] = useState("");
 
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+    const [idAEliminar, setIdAEliminar] = useState(null); 
+    const [mensajePopup, setMensajePopup] = useState("");
+    const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const fetchAuthors = useCallback(async () => {
@@ -81,16 +86,21 @@ const Autores = () => {
             //await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/authors/${codigo}`);
             await axios.delete(`${API_BASE_URL}/authors/${id}`);
             fetchAuthors(); // Refrescar la lista de fuentes después de eliminar uno
+            setMensajePopup("Autor eliminado correctamente.");
         } catch (err) {
-            console.error("Error al eliminar la fuente:", err);
-            setError(err.response?.data?.error || "Error al eliminar la fuente");
+            setMensajePopup("Error al eliminar el autor.");
+            console.error(err);
+        } finally {
+            setTimeout(() => {
+                cerrarPopup();
+                setMensajePopup(""); 
+            }, 1500);
         }
     };
 
-    const [autorAEliminar, setAutorAEliminar] = useState(null); // Estado para el autor a eliminar
-    const [mostrarPopup, setMostrarPopup] = useState(false); // Estado para mostrar el popup
-
-    const abrirPopup = () => {
+    const abrirPopup = (id, code) => {
+        setIdAEliminar(id);
+        setCodigoAEliminar(code);
         setMostrarPopup(true);
     };
 
@@ -98,6 +108,11 @@ const Autores = () => {
         setMostrarPopup(false);
     };
 
+    const confirmarEliminacion = () => {
+        if (idAEliminar) {
+            deleteAuthor(idAEliminar);
+        }
+    };
     // const eliminarAutor = async () => {
     //     if (autorAEliminar) {
     //         try {
@@ -238,7 +253,7 @@ const Autores = () => {
                                 </thead>
                                 <tbody>
                                     {authors.map((author) => (
-                                        <tr key={author.code} onClick={() => irAEditarAutor(author.id, author.code)}>
+                                        <tr key={author.code}>
                                             <td>{author.code}</td>
                                             <td>{author.firstName}</td>
                                             <td>{new Date(author.creationDate).toLocaleDateString()}</td>
@@ -260,7 +275,7 @@ const Autores = () => {
                                                     className="botton-crud"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                        deleteAuthor(author.id);//deleteProject(source.code); // Llama a la función de eliminación
+                                                        abrirPopup(author.id, author.code);//deleteProject(source.code); // Llama a la función de eliminación
                                                     }}
                                                 >
                                                     <FaTrash
@@ -276,13 +291,19 @@ const Autores = () => {
 
                         {/* Popup de confirmación */}
                         {mostrarPopup && (
-                            <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este autor?</p>
-                                    <button onClick={eliminarAutor} className="si-button">Sí</button>
-                                    <button onClick={cerrarPopup} className="no-button">No</button>
-                                </div>
-                            </div>
+                                    <div className="popup-overlay">
+                                        <div className="popup-content">
+                                        {mensajePopup ? (
+                                            <p>{mensajePopup}</p>
+                                        ) : (
+                                            <>
+                                            <p>¿Está seguro de eliminar el autor <strong>{codigoAEliminar}</strong> ? </p>
+                                            <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                                            <button onClick={cerrarPopup} className="no-button">No</button>
+                                            </>
+                                        )}
+                                        </div>
+                                    </div>
                         )}
 
                         <h4 className="autor-h4">Total de registros {authors.length}</h4>

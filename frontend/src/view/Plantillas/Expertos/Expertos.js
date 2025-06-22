@@ -21,6 +21,10 @@ const Expertos = () => {
   const [searchYear, setSearchYear] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
 
+  const [mostrarPopup, setMostrarPopup] = useState(false);
+  const [mensajePopup, setMensajePopup] = useState("");
+  const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
   // Variables de Enrutamiento
   const navigate = useNavigate();
 
@@ -114,9 +118,15 @@ const Expertos = () => {
     try {
       await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/experts/${codigo}`);
       fetchExpertos(); // Refrescar la lista de proyectos después de eliminar uno
+      setMensajePopup("Experto eliminado correctamente.");
     } catch (err) {
-      console.error("Error al eliminar el proyecto:", err);
-      setError(err.response?.data?.error || "Error al eliminar el proyecto");
+      setMensajePopup("Error al eliminar el experto");
+      setError(err.response?.data?.error || "Error al eliminar el experto");
+    } finally {
+        setTimeout(() => {
+          cerrarPopup();
+          setMensajePopup(""); 
+        }, 1500);
     }
   };
 
@@ -176,6 +186,21 @@ const Expertos = () => {
             link.click();
         } catch (err) {
             setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+
+    const abrirPopup = (code) => {
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
+    };
+      
+    const cerrarPopup = () => {
+        setMostrarPopup(false);
+    };
+      
+    const confirmarEliminacion = () => {
+        if (codigoAEliminar) {
+            deleteExpert(codigoAEliminar);
         }
     };
 
@@ -311,7 +336,7 @@ const Expertos = () => {
                         className="botton-crud"
                         onClick={(e) => {
                           e.stopPropagation(); // Evita que el clic se propague al <tr>
-                          deleteExpert(experto.code); // Llama a la función de eliminación
+                          abrirPopup(experto.code); // Llama a la función de eliminación
                         }}
                       >
                         <FaTrash
@@ -324,6 +349,22 @@ const Expertos = () => {
               </tbody>
             </table>
           )}
+
+          {mostrarPopup && (
+              <div className="popup-overlay">
+              <div className="popup-content">
+              {mensajePopup ? (
+                <p>{mensajePopup}</p>
+                  ) : (
+                  <>
+                <p>¿Está seguro de eliminar el experto <strong>{codigoAEliminar}</strong> ? </p>
+                <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                <button onClick={cerrarPopup} className="no-button">No</button>
+                   </>
+                )}
+                </div>
+              </div>
+            )}
 
             <div className="ro-buttons">
               <button

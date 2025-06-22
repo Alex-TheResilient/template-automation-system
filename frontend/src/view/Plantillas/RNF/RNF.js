@@ -19,7 +19,12 @@ const RNF = () => {
     const [searchNombre, setSearchNombre] = useState("");
 
     const [error, setError] = useState(null);
-
+    const [mostrarPopupRnf, setMostrarPopupRnf] = useState(false);
+    const [mensajePopupRnf, setMensajePopupRnf] = useState("");
+    const [codigoAEliminarRnf, setCodigoAEliminarRnf] = useState("");
+    const [mostrarPopupRiesgo, setMostrarPopupRiesgo] = useState(false);
+    const [mensajePopupRiesgo, setMensajePopupRiesgo] = useState("");
+    const [codigoAEliminarRiesgo, setCodigoAEliminarRiesgo] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -44,9 +49,15 @@ const RNF = () => {
         try {
             await axios.delete(`${API_BASE_URL}/projects/${proid}/nfrs/${codigo}`);
             fetchRnfs(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupRnf("Requerimiento no funcional eliminado correctamente.");
         } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+            setMensajePopupRnf("Error al eliminar el RNF");
+            setError(err.response?.data?.error || "Error al eliminar el RNF");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupRnf();
+            setMensajePopupRnf(""); 
+            }, 1500);
         }
     };
 
@@ -155,10 +166,26 @@ const RNF = () => {
             setError(
                 err.response
                 ? err.response.data.error
-                : "Error al obtener los proyectos"
+                : "Error al obtener los riesgos"
             );
         }
     }, [proid,API_BASE_URL]);
+
+    const deleteRiesgos = async (codigo) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/projects/${proid}/risks/${codigo}`);
+            fetchRiesgos(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopupRiesgo("Riesgo eliminado correctamente.");
+        } catch (err) {
+            setMensajePopupRiesgo("Error al eliminar el riesgo");
+            setError(err.response?.data?.error || "Error al eliminar el riesgo");
+        } finally {
+            setTimeout(() => {
+            cerrarPopupRiesgo();
+            setMensajePopupRiesgo(""); 
+            }, 1500);
+        }
+    };
 
     useEffect(() => {
     
@@ -226,26 +253,36 @@ const RNF = () => {
         }
     });
     };
+  
+    const abrirPopupRnf = (code) => {
+        setCodigoAEliminarRnf(code);
+        setMostrarPopupRnf(true);
+    };
+      
+    const cerrarPopupRnf = () => {
+        setMostrarPopupRnf(false);
+    };
+      
+    const confirmarEliminacionRnf = () => {
+        if (codigoAEliminarRnf) {
+            deleteRnf(codigoAEliminarRnf);
+        }
+    };
 
-    const [mostrarPopup, setMostrarPopup] = useState(false);
-  
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+    const abrirPopupRiesgo = (code) => {
+        setCodigoAEliminarRiesgo(code);
+        setMostrarPopupRiesgo(true);
     };
-  
-    const cerrarPopup = () => {
-      setMostrarPopup(false);
+      
+    const cerrarPopupRiesgo = () => {
+        setMostrarPopupRiesgo(false);
     };
-  
-    const eliminarRNF = () => {
-      console.log("Requerimiento no funcional eliminado");
-      cerrarPopup();
+      
+    const confirmarEliminacionRiesgo = () => {
+        if (codigoAEliminarRiesgo) {
+            deleteRiesgos(codigoAEliminarRiesgo);
+        }
     };
-
-    const eliminarRiesgo = () => {
-        console.log("Riesgo eliminado");
-        cerrarPopup();
-      };
 
     return (
         <div className="menu-container">
@@ -376,7 +413,7 @@ const RNF = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                    deleteRnf(rnf.code) // Llama a la función de eliminación
+                                                    abrirPopupRnf(rnf.code) // Llama a la función de eliminación
                                                     }}
                                                 >
                                                 <FaTrash
@@ -389,19 +426,21 @@ const RNF = () => {
                                 </tbody>    
                             </table>
 
-                            {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este Requerimiento No Funcional?</p>
-                                    <button onClick={eliminarRNF} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
-                                </div>
-                            )}
+                            {mostrarPopupRnf && (
+              <div className="popup-overlay">
+              <div className="popup-content">
+              {mensajePopupRnf ? (
+                <p>{mensajePopupRnf}</p>
+                  ) : (
+                  <>
+                <p>¿Está seguro de eliminar el <strong>{codigoAEliminarRnf}</strong> ? </p>
+                <button onClick={confirmarEliminacionRnf} className="si-button">Sí</button>
+                <button onClick={cerrarPopupRnf} className="no-button">No</button>
+                   </>
+                )}
+                </div>
+              </div>
+            )}
                             
                         </div>
 
@@ -470,7 +509,7 @@ const RNF = () => {
                                                 className="botton-crud"
                                                 onClick={(e) => {
                                                 e.stopPropagation();
-                                                abrirPopup(riesgo.id); // opcionalmente pasar el id
+                                                abrirPopupRiesgo(riesgo.code) 
                                                 }}
                                             >
                                                 <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -481,17 +520,18 @@ const RNF = () => {
                                     </tbody>
 
                             </table>
-
-                            {mostrarPopup && (
+                            {mostrarPopupRiesgo && (
                                 <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este riesgo?</p>
-                                    <button onClick={eliminarRiesgo} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
+                                    {mensajePopupRiesgo ? (
+                                        <p>{mensajePopupRiesgo}</p>
+                                        ) : (
+                                        <>
+                                        <p>¿Está seguro de eliminar el riesgo <strong>{codigoAEliminarRiesgo}</strong> ? </p>
+                                        <button onClick={confirmarEliminacionRiesgo} className="si-button">Sí</button>
+                                        <button onClick={cerrarPopupRiesgo} className="no-button">No</button>
+                                        </>
+                                    )}
                                 </div>
                                 </div>
                             )}

@@ -17,6 +17,11 @@ const Roles = () => {
 
     const [error, setError] = useState(null);
 
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+    const [idAEliminar, setIdAEliminar] = useState(null); 
+    const [mensajePopup, setMensajePopup] = useState("");
+    const [rolAEliminar, setRolAEliminar] = useState("");
+
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -44,9 +49,15 @@ const Roles = () => {
         try {
             await axios.delete(`${API_BASE_URL}/roles/${id}`);
             fetchRoles(); // Refrescar la lista de proyectos después de eliminar uno
+            setMensajePopup("Rol eliminado correctamente.");
         } catch (err) {
-            console.error("Error al eliminar el proyecto:", err);
-            setError(err.response?.data?.error || "Error al eliminar el proyecto");
+            setMensajePopup("Error al eliminar el rol.");
+            console.error(err);
+        } finally {
+            setTimeout(() => {
+                cerrarPopup();
+                setMensajePopup(""); 
+            }, 1500);
         }
     };
 
@@ -139,20 +150,21 @@ const Roles = () => {
     const irAListaProyecto = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
-
-    const [mostrarPopup, setMostrarPopup] = useState(false);
   
-    const abrirPopup = () => {
-      setMostrarPopup(true);
+    const abrirPopup = (id, name) => {
+        setIdAEliminar(id);
+        setRolAEliminar(name);
+        setMostrarPopup(true);
     };
-  
+      
     const cerrarPopup = () => {
-      setMostrarPopup(false);
+        setMostrarPopup(false);
     };
-  
-    const eliminarRol = () => {
-      console.log("Rol eliminado");
-      cerrarPopup();
+      
+    const confirmarEliminacion = () => {
+        if (idAEliminar) {
+            deleteRol(idAEliminar);
+        }
     };
 
     return (
@@ -231,7 +243,7 @@ const Roles = () => {
                                             className="botton-crud"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Evita que el clic se propague al <tr>
-                                                deleteRol(rol.id) // Llama a la función de eliminación
+                                                abrirPopup(rol.id, rol.name);// Llama a la función de eliminación
                                                 }}
                                             >
                                             <FaTrash
@@ -245,17 +257,19 @@ const Roles = () => {
                         </table>
 
                         {mostrarPopup && (
-                                <div className="popup-overlay">
-                                <div className="popup-content">
-                                    <p>¿Está seguro de eliminar este rol?</p>
-                                    <button onClick={eliminarRol} className="si-button">
-                                    Sí
-                                    </button>
-                                    <button onClick={cerrarPopup} className="no-button">
-                                    No
-                                    </button>
-                                </div>
-                                </div>
+                                    <div className="popup-overlay">
+                                        <div className="popup-content">
+                                        {mensajePopup ? (
+                                            <p>{mensajePopup}</p>
+                                        ) : (
+                                            <>
+                                            <p>¿Está seguro de eliminar el rol <strong>{rolAEliminar}</strong> ? </p>
+                                            <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                                            <button onClick={cerrarPopup} className="no-button">No</button>
+                                            </>
+                                        )}
+                                        </div>
+                                    </div>
                         )}
                                                
                         <h4  className="rol-h4">Total de registros {roles.length}</h4>

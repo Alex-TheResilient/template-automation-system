@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaFolder, FaPencilAlt, FaTrash } from "react-icons/fa";
 import '../../styles/stylesMenuOrganizaciones.css';
 import '../../styles/styles.css';
+import '../../styles/stylesEliminar.css';
 
 const MenuOrganizaciones = () => {
     // Variables de enrutamiento
@@ -21,6 +22,11 @@ const MenuOrganizaciones = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [noResult, setNoResult] = useState(false);
+    const [mostrarPopup, setMostrarPopup] = useState(false);
+    const [idAEliminar, setIdAEliminar] = useState(null); 
+    const [mensajePopup, setMensajePopup] = useState("");
+    const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
 
     // Estados para búsqueda
     const [searchNombre, setSearchNombre] = useState('');
@@ -58,15 +64,18 @@ const MenuOrganizaciones = () => {
 
     // Función para eliminar una organización
     const handleDelete = async (id) => {
-        if (window.confirm("¿Estás seguro de que deseas eliminar esta organización?")) {
-            try {
-                await axios.delete(`${API_BASE_URL}/organizations/${id}`);
-                setOrganizations((prev) => prev.filter((org) => org.id !== id));
-                alert("Organización eliminada correctamente.");
-            } catch (err) {
-                setError("Error al eliminar la organización.");
-                console.error(err);
-            }
+        try {
+            await axios.delete(`${API_BASE_URL}/organizations/${id}`);
+            setOrganizations((prev) => prev.filter((org) => org.id !== id));
+            setMensajePopup("Organización eliminada correctamente.");
+        } catch (err) {
+            setMensajePopup("Error al eliminar la organización.");
+            console.error(err);
+        } finally {
+            setTimeout(() => {
+                cerrarPopup();
+                setMensajePopup(""); 
+            }, 1500);
         }
     };
 
@@ -135,6 +144,22 @@ const MenuOrganizaciones = () => {
             link.click();
         } catch (err) {
             setError(err.response?.data?.error || "Error al exportar a PDF");
+        }
+    };
+      
+    const abrirPopup = (id, code) => {
+        setIdAEliminar(id);
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
+    };
+      
+    const cerrarPopup = () => {
+        setMostrarPopup(false);
+    };
+      
+    const confirmarEliminacion = () => {
+        if (idAEliminar) {
+            handleDelete(idAEliminar);
         }
     };
     
@@ -302,7 +327,7 @@ const MenuOrganizaciones = () => {
                                                         className="botton-crud"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleDelete(org.id);
+                                                            abrirPopup(org.id, org.code);
                                                         }}
                                                     >
                                                         <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -312,6 +337,21 @@ const MenuOrganizaciones = () => {
                                         ))}
                                     </tbody>
                                 </table>
+                                {mostrarPopup && (
+                                    <div className="popup-overlay">
+                                        <div className="popup-content">
+                                        {mensajePopup ? (
+                                            <p>{mensajePopup}</p>
+                                        ) : (
+                                            <>
+                                            <p>¿Está seguro de eliminar la organización <strong>{codigoAEliminar}</strong> ? </p>
+                                            <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                                            <button onClick={cerrarPopup} className="no-button">No</button>
+                                            </>
+                                        )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 

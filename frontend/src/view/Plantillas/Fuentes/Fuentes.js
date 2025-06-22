@@ -20,6 +20,10 @@ const Fuentes = () => {
     const [searchNombre, setSearchNombre] = useState("");
     const [searchYear, setSearchYear] = useState("");
     const [searchMonth, setSearchMonth] = useState("");
+
+      const [mostrarPopup, setMostrarPopup] = useState(false);
+      const [mensajePopup, setMensajePopup] = useState("");
+      const [codigoAEliminar, setCodigoAEliminar] = useState("");
   
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -110,9 +114,15 @@ const Fuentes = () => {
       // /organizations/:orgcod/projects/:projcod/sources/:srccod'
       await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/sources/${codigo}`);
       fetchSources(); // Refrescar la lista de fuentes después de eliminar uno
+      setMensajePopup("Fuente eliminada correctamente.");
     } catch (err) {
-      console.error("Error al eliminar la fuente:", err);
+      setMensajePopup("Error al eliminar la fuente");
       setError(err.response?.data?.error || "Error al eliminar la fuente");
+    } finally {
+        setTimeout(() => {
+          cerrarPopup();
+          setMensajePopup(""); 
+        }, 1500);
     }
   };
 // Exportar a Excel
@@ -165,6 +175,21 @@ const currentYear = new Date().getFullYear();
     "Noviembre",
     "Diciembre",
   ];
+
+      const abrirPopup = (code) => {
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
+    };
+      
+    const cerrarPopup = () => {
+        setMostrarPopup(false);
+    };
+      
+    const confirmarEliminacion = () => {
+        if (codigoAEliminar) {
+            deleteSource(codigoAEliminar);
+        }
+    };
 
   return (
     <div className="expe-container">
@@ -301,7 +326,7 @@ const currentYear = new Date().getFullYear();
                           className="botton-crud"
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que el clic se propague al <tr>
-                            deleteSource(source.code);//deleteProject(source.code); // Llama a la función de eliminación
+                            abrirPopup(source.code);//deleteProject(source.code); // Llama a la función de eliminación
                           }}
                         >
                           <FaTrash
@@ -313,6 +338,23 @@ const currentYear = new Date().getFullYear();
                   ))}
                 </tbody>
               </table>
+              
+            )}
+
+            {mostrarPopup && (
+              <div className="popup-overlay">
+              <div className="popup-content">
+              {mensajePopup ? (
+                <p>{mensajePopup}</p>
+                  ) : (
+                  <>
+                <p>¿Está seguro de eliminar la fuente <strong>{codigoAEliminar}</strong> ? </p>
+                <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                <button onClick={cerrarPopup} className="no-button">No</button>
+                   </>
+                )}
+                </div>
+              </div>
             )}
 
             <div className="ro-buttons">

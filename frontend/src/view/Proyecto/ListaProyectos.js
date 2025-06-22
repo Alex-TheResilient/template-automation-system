@@ -18,6 +18,10 @@ const ListaProyectos = () => {
   const [searchYear, setSearchYear] = useState("");
   const [searchMonth, setSearchMonth] = useState("");
 
+  const [mostrarPopup, setMostrarPopup] = useState(false);
+  const [mensajePopup, setMensajePopup] = useState("");
+  const [codigoAEliminar, setCodigoAEliminar] = useState("");
+
   // Variables de enrutamiento
   const navigate = useNavigate();
 
@@ -75,9 +79,15 @@ const ListaProyectos = () => {
     try {
       await axios.delete(`${API_BASE_URL}/organizations/${orgcod}/projects/${codigo}`);
       fetchProjects(); // Refrescar la lista de proyectos después de eliminar uno
+      setMensajePopup("Proyecto eliminado correctamente.");
     } catch (err) {
-      console.error("Error al eliminar el proyecto:", err);
+      setMensajePopup("Error al eliminar el proyecto");
       setError(err.response?.data?.error || "Error al eliminar el proyecto");
+    } finally {
+        setTimeout(() => {
+          cerrarPopup();
+          setMensajePopup(""); 
+        }, 1500);
     }
   };
 
@@ -159,6 +169,21 @@ const exportToPDF = async () => {
     setError(err.response?.data?.error || 'Error al exportar a PDF');
   }
 };
+
+    const abrirPopup = (code) => {
+        setCodigoAEliminar(code);
+        setMostrarPopup(true);
+    };
+      
+    const cerrarPopup = () => {
+        setMostrarPopup(false);
+    };
+      
+    const confirmarEliminacion = () => {
+        if (codigoAEliminar) {
+            deleteProject(codigoAEliminar);
+        }
+    };
 
   return (
     <div className="lista-container">
@@ -287,7 +312,7 @@ const exportToPDF = async () => {
                             className="botton-crud"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteProject(pro.code);
+                              abrirPopup(pro.code);
                             }}
                           >
                             <FaTrash style={{ color: "red", cursor: "pointer" }} />
@@ -297,6 +322,22 @@ const exportToPDF = async () => {
                     ))}
                   </tbody>
               </table>
+            )}
+
+            {mostrarPopup && (
+              <div className="popup-overlay">
+              <div className="popup-content">
+              {mensajePopup ? (
+                <p>{mensajePopup}</p>
+                  ) : (
+                  <>
+                <p>¿Está seguro de eliminar el proyecto <strong>{codigoAEliminar}</strong> ? </p>
+                <button onClick={confirmarEliminacion} className="si-button">Sí</button>
+                <button onClick={cerrarPopup} className="no-button">No</button>
+                   </>
+                )}
+                </div>
+              </div>
             )}
 
             <div className="ro-buttons">
