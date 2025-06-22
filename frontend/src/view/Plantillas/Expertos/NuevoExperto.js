@@ -13,6 +13,8 @@ const NuevoExperto = () => {
     // Obtener datos del proyecto del URL
     const { projcod,orgcod } = useParams();
     const { proid } = location.state || {};
+    const [organizacion, setOrganizacion] = useState({});
+    const [proyecto, setProyecto] = useState({});
 
     const [code, setCodigoExperto] = useState("");
     const [version, setVersionExperto] = useState("00.01");
@@ -56,6 +58,21 @@ const NuevoExperto = () => {
 
         fetchNextCodigoExperto();
     }, [API_BASE_URL,orgcod, projcod]);
+
+    useEffect(() => {
+    const fetchDatos = async () => {
+        try {
+            const resOrg = await axios.get(`${API_BASE_URL}/organizations/${orgcod}`);
+            setOrganizacion(resOrg.data);
+
+            const resProyecto = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`);
+            setProyecto(resProyecto.data);
+        } catch (error) {
+            console.error("Error al obtener datos de organización o proyecto", error);
+        }
+        };
+        fetchDatos();
+    }, [orgcod, projcod, API_BASE_URL]);
 
     const registrarExperto = async (e) => {
         e.preventDefault();
@@ -120,8 +137,8 @@ const NuevoExperto = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                 <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                <span onClick={irAListaProyecto}>Mocar Company /</span>
-                <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
+                <span onClick={irAListaProyecto}>{organizacion.name || "Organización"} /</span>
+                <span onClick={irAMenuProyecto}>{proyecto.name || "Proyecto"} /</span>
                 <span onClick={irAPlantillas}>Plantillas /</span>
                 <span onClick={irAExpertos}>Expertos /</span>
                 <span>Nuevo Experto</span>

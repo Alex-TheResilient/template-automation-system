@@ -9,6 +9,8 @@ const EditarFuente = () => {
     const hasRun = useRef(false);
     const navigate = useNavigate();
     const {orgcod, projcod,fuecod } = useParams();
+    const [organizacion, setOrganizacion] = useState({});
+    const [proyecto, setProyecto] = useState({});
     // Datos controlados por el usuario
     const [name, setNombre] = useState("");
     const [status, setEstado] = useState("");
@@ -37,6 +39,21 @@ const EditarFuente = () => {
             console.log("Cargando fuente con código:", fuecod);
             fetchSourceData();
         }, [fuecod]);
+
+    useEffect(() => {
+    const fetchDatos = async () => {
+        try {
+            const resOrg = await axios.get(`${API_BASE_URL}/organizations/${orgcod}`);
+            setOrganizacion(resOrg.data);
+
+            const resProyecto = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`);
+            setProyecto(resProyecto.data);
+        } catch (error) {
+            console.error("Error al obtener datos de organización o proyecto", error);
+        }
+        };
+        fetchDatos();
+  }, [orgcod, projcod, API_BASE_URL]);
 
     const handleEdit = async (e) => {
         e.preventDefault();
@@ -83,8 +100,8 @@ const EditarFuente = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                 <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                <span onClick={irAListaProyecto}>Mocar Company /</span>
-                <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
+                <span onClick={irAListaProyecto}>{organizacion.name || "Organización"} /</span>
+                <span onClick={irAMenuProyecto}>{proyecto.name || "Proyecto"} /</span>
                 <span onClick={irAPlantillas}>Plantillas /</span>
                 <span onClick={irAFuentes}>Fuentes /</span>
                 <span>Editar Fuente</span>

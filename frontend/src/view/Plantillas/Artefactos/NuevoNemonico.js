@@ -11,6 +11,8 @@ const NuevoNemonico = () => {
          const [name, setName] = useState("");
          const [mnemonic, setMnemonic] = useState("");
          const [error, setError]=useState(null);
+        const [organizacion, setOrganizacion] = useState({});
+        const [proyecto, setProyecto] = useState({});
 
          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
@@ -31,6 +33,21 @@ const NuevoNemonico = () => {
             setError("No se pudo registrar el artefacto. Inténtalo de nuevo.");
         }
     };
+
+    useEffect(() => {
+    const fetchDatos = async () => {
+        try {
+            const resOrg = await axios.get(`${API_BASE_URL}/organizations/${orgcod}`);
+            setOrganizacion(resOrg.data);
+
+            const resProyecto = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`);
+            setProyecto(resProyecto.data);
+        } catch (error) {
+            console.error("Error al obtener datos de organización o proyecto", error);
+        }
+        };
+        fetchDatos();
+    }, [orgcod, projcod, API_BASE_URL]);
     
         const irALogin = () => {
             navigate("/");
@@ -68,8 +85,8 @@ const NuevoNemonico = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                     <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                    <span onClick={irAListaProyecto}>Mocar Company /</span>
-                    <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
+                    <span onClick={irAListaProyecto}>{organizacion.name || "Organización"} /</span>
+                    <span onClick={irAMenuProyecto}>{proyecto.name || "Proyecto"} /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
                     <span onClick={irAArtefactos}>Artefactos /</span>
                     <span>Nuevo nemónico</span>
