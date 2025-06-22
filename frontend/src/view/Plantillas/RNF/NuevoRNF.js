@@ -22,7 +22,14 @@ const NuevoRNF = () => {
     const [status, setStatus] = useState("");
     const [importance, setImportance] = useState("");
     const [comment, setComment] = useState("");
+
+
     const [error, setError]=useState(null);
+    const [errorName, setErrorName]=useState("");
+    const [errorDescription, setErrorDescription]=useState("");
+    const [errorImportance, setErrorImportance] = useState("");
+    const [errorQualityAttribute, setErrorQualityAttribute] = useState("");
+    const [errorComment, setErrorComment] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
 
@@ -47,6 +54,23 @@ const NuevoRNF = () => {
 
     const registrarRnf = async (e) => {
         e.preventDefault();
+
+        if (!name) {
+            setErrorName("El nombre del RNF es obligatoria.");
+            return;
+        }
+        if (!qualityAttribute) {
+            setErrorQualityAttribute("Debe seleccionar un atributo de calidad.");
+            return;
+        }
+        if (!description) {
+            setErrorDescription("La descripción de RNF es obligatorio.");
+            return;
+        }
+        if (!importance) {
+            setErrorImportance("Debe seleccionar una opción.");
+            return;
+        }
         try {
             // Realiza la solicitud POST con los datos correctos
             await axios.post(`${API_BASE_URL}/projects/${proid}/nfrs`, {
@@ -62,7 +86,7 @@ const NuevoRNF = () => {
             irARNF();
     
         } catch (err) {
-            console.error("Error al registrar el experto:", err);
+            console.error("Error al registrar el Efn:", err);
             setError("No se pudo registrar al experto. Inténtalo de nuevo.");
         }
     };    
@@ -189,7 +213,32 @@ const NuevoRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre del RNF" size="100" />
+                                    <input
+                                    type="text"
+                                    className="inputnombre-field"
+                                    value={name}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                        if (permitido.test(value) && value.length <= 100) {
+                                        setName(value);
+                                        setErrorName(""); // limpiar el error si todo está bien
+                                        } else {
+                                        setErrorName("No se permiten caracteres especiales.");
+                                        // No actualiza el input → no se muestra el carácter inválido
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!name.trim()) {
+                                        setErrorName("Este campo es obligatorio.");
+                                        }
+                                    }}
+                                    maxLength={100}
+                                    size="100"
+                                    />
+                                    {errorName && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorName}</p>)}
                                     <span className="tooltip-text">Ingresar el nombre del RNF</span>
                                 </span>
                             </div>
@@ -200,20 +249,36 @@ const NuevoRNF = () => {
                                 <h4>Atributo de Calidad*</h4>
                             </div>
                             <div className="fiel-vers">
+                                <span className="message">
                                 <select
-                                className="estado2-input "
-                                style={{ width: "600px" }} 
-                                value={qualityAttribute}
-                                onChange={(e) => setQualityAttribute(e.target.value)}
-                                required
-                                >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="seguridad">Seguridad</option>
-                                <option value="accesibilidad">Accesibilidad</option>
-                                <option value="eficiencia">Eficiencia</option>
-                                <option value="usabilidad">Usabilidad</option>
-                                <option value="mantenimiento">Mantenimiento</option>
-                                </select>
+                                    className="estado2-input"
+                                    style={{ width: "600px" }}
+                                    value={qualityAttribute}
+                                    onChange={(e) => {
+                                        setQualityAttribute(e.target.value);
+                                        if (e.target.value) {
+                                        setErrorQualityAttribute(""); // limpia error si selecciona algo
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!qualityAttribute) {
+                                        setErrorQualityAttribute("Debe seleccionar un atributo de calidad.");
+                                        }
+                                    }}
+                                    required
+                                    >
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="seguridad">Seguridad</option>
+                                    <option value="accesibilidad">Accesibilidad</option>
+                                    <option value="eficiencia">Eficiencia</option>
+                                    <option value="usabilidad">Usabilidad</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                    </select>
+
+                                    {errorQualityAttribute && (
+                                    <p style={{ color: "red", margin: 0 }}>{errorQualityAttribute}</p>
+                                    )}
+                                    </span>
                             </div>
                         </div>
 
@@ -223,7 +288,32 @@ const NuevoRNF = () => {
                             </div>
                             <div className="fiel-vers">
                                 <span className="message">
-                                    <input className="input-text" type="text" value={description} onChange={(e) => setDescripcion(e.target.value)}size="100" />
+                                    <input
+                                    type="text"
+                                    className="inputnombre-field"
+                                    value={description}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s().,_\-&\/]*$/;
+
+                                        if (permitido.test(value) && value.length <= 100) {
+                                        setDescripcion(value);
+                                        setErrorDescription(""); // limpiar el error si todo está bien
+                                        } else {
+                                        setErrorDescription("No se permiten caracteres especiales.");
+                                        // No actualiza el input → no se muestra el carácter inválido
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (!description.trim()) {
+                                        setErrorDescription("Este campo es obligatorio.");
+                                        }
+                                    }}
+                                    maxLength={100}
+                                    size="100"
+                                    />
+                                    {errorDescription && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorDescription}</p>)}
                                     <span className="tooltip-text">Ingresar detalles sobre el requerimiento no funcional</span>
                                 </span>
                             </div>
@@ -298,31 +388,49 @@ const NuevoRNF = () => {
                             <label className="ne-label">Importancia*</label>
                             <label className="ne-label">Estado*</label>
                         </h3>
-                        <div className="ne-input-container">
-                            <select
-                                className="ne-input estado-input"
-                                value={importance}
-                                onChange={(e) => setImportance(e.target.value)}
-                                required
-                            >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Media">Media</option>
-                                <option value="Baja">Baja</option>
-                            </select>
+                        <div className="ne-input-container" style={{ display: 'flex', gap: '20px' }}>
+  
+                                {/* Select de Importance */}
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                    <select
+                                    className="ne-input estado-input"
+                                    style={{ width: '100%' }}
+                                    value={importance}
+                                    onChange={(e) => {
+                                        setImportance(e.target.value);
+                                        if (e.target.value) setErrorImportance("");
+                                    }}
+                                    onBlur={() => {
+                                        if (!importance) setErrorImportance("Debe seleccionar una opción.");
+                                    }}
+                                    required
+                                    >
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                    </select>
+                                    {errorImportance && (
+                                    <p style={{ color: 'red', margin: 0 }}>{errorImportance}</p>
+                                    )}
+                                </div>
 
-                            <select
-                                className="ne-input estado-input"
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                required
-                            >
-                                <option value="">Seleccione una opcion</option>
-                                <option value="Activo">Activo</option>
-                                <option value="Inactivo">Inactivo</option>
-                            </select>
-                            
-                        </div>
+                                {/* Select de Estado */}
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                    <select
+                                    className="ne-input estado-input"
+                                    style={{ width: '100%' }}
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    required
+                                    >
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+
+                                </div>
                         
                     </section>
 
@@ -330,7 +438,32 @@ const NuevoRNF = () => {
                         <h3>Comentario</h3>
 
                         <div className="input-text">
-                            <textarea className="input-fieldtext" rows="3" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Añadir comentarios "></textarea>
+                            <textarea
+                                className="input-fieldtext"
+                                rows="3"
+                                value={comment}
+                                placeholder="Añadir comentarios"
+                                maxLength={300}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const permitido = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,;:()¿?!¡"'\-]*$/;
+
+                                    // Validar: solo permitir si cumple el patrón
+                                    if (permitido.test(value)) {
+                                    setComment(value);
+                                    setErrorComment("");
+                                    } else {
+                                    setErrorComment("No se permiten caracteres especialeS.");
+                                    }
+                                }}
+                                onBlur={() => {
+                                    if (!comment.trim()) {
+                                    setErrorComment("El campo no puede estar vacío.");
+                                    }
+                                }}
+                                ></textarea>
+
+                                {errorComment && <p style={{ color: 'red', margin: 0 }}>{errorComment}</p>}
                         </div>
 
                         <div className="ne-buttons">

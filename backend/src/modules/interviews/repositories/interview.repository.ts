@@ -16,12 +16,12 @@ export class InterviewRepository {
       throw new Error('Project not found');
     }
 
-    if (!data.authorCode) {
+    if (!data.authorId) {
       throw new Error('El campo authorCode es obligatorio para crear una entrevista');
     }
 
     const author = await prisma.author.findUnique({
-      where: { code: data.authorCode },
+      where: { id: data.authorId },
     });
     if (!author) {
       throw new Error('Author not found');

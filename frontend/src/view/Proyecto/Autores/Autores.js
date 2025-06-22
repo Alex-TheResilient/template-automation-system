@@ -15,8 +15,6 @@ const Autores = () => {
     const [error, setError] = useState(null);
     // Estado para los parámetros de búsqueda
     const [searchNombre, setSearchNombre] = useState("");
-    const [searchYear, setSearchYear] = useState("");
-    const [searchMonth, setSearchMonth] = useState("");
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 

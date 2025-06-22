@@ -17,7 +17,7 @@ export interface InterviewDTO {
   observations: string;
   agendaItems?: AgendaItemDTO[];
   conclusions?: ConclusionDTO[];
-  authorCode: string;
+  authorId: string;
 }
 
 export interface InterviewResponse {
