@@ -74,6 +74,22 @@ const EditarEduccion = () => {
 
      const handleEdit = async (e) => {
         e.preventDefault();
+        if (!name) {
+            setErrorName("El nombre es obligatorio.");
+            return;
+        }
+        if (!description) {
+            setErrorDescription("La descripción es obligatoria");
+            return;
+        }
+        if (!importance) {
+            setErrorImportance("Debe seleccionar una importancia.");
+            return;
+        }
+        if (!status) {
+            setErrorStatus("Debe seleccionar un estado");
+            return;
+        }
         
         try {
             const response = await axios.put(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}/educciones/${educod}`, {
