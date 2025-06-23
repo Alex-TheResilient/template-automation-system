@@ -357,7 +357,7 @@ const Ilacion = () => {
                 </aside>
 
                 <main className="main-content">
-                    <h2>ILACIÓN</h2>
+                    <h2>{educod} - ILACIÓN</h2>
                     <section className="pp-section">
                         <h3>Gestion de Ilacion</h3>
 

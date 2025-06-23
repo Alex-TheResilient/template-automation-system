@@ -9,6 +9,8 @@ const EditarRiesgo = () => {
     const { orgcod, projcod, rskcode } = useParams();
     const location = useLocation();
     const { proid, from } = location.state || {};
+    const [organizacion, setOrganizacion] = useState({});
+    const [proyecto, setProyecto] = useState({});
 
     const [entityType, setEntityType] = useState("");
     const [version, setVersion] = useState("01.00");
@@ -90,7 +92,22 @@ const EditarRiesgo = () => {
         } catch (err) {
             setError("Error al actualizar el riesgo: " + err.message);
         }
-    };    
+    }; 
+    
+    useEffect(() => {
+        const fetchDatos = async () => {
+            try {
+                const resOrg = await axios.get(`${API_BASE_URL}/organizations/${orgcod}`);
+                setOrganizacion(resOrg.data);
+
+                const resProyecto = await axios.get(`${API_BASE_URL}/organizations/${orgcod}/projects/${projcod}`);
+                setProyecto(resProyecto.data);
+            } catch (error) {
+                console.error("Error al obtener datos de organización o proyecto", error);
+            }
+        };
+        fetchDatos();
+    }, [orgcod, projcod, API_BASE_URL]);
 
     const irAMenuOrganizaciones = () => {
         navigate("/organizations");
@@ -102,15 +119,19 @@ const EditarRiesgo = () => {
         navigate(`/organizations/${orgcod}/projects`);
     };
     const irAMenuProyecto = () => {
-        navigate(`/projects/${projcod}/menuProyecto`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/menuProyecto`,{
+        state: {
+            proid:proid
+        }
+    });
     };
     const irAPlantillas = () => {
-        navigate(`/projects/${projcod}/plantillas`);
+        navigate(`/organizations/${orgcod}/projects/${projcod}/plantillas`,{
+            state: {
+                proid:proid
+            }
+        });
     };
-    const irAEduccion = () => {
-        navigate("/educcion");
-    };
-
     const irARutaAnterior = () => {
         if (from) {
             navigate(from, { state: { proid: proid } });
@@ -128,10 +149,9 @@ const EditarRiesgo = () => {
                 <h1>ReqWizards App</h1>
                 <div className="flex-container">
                     <span onClick={irAMenuOrganizaciones}>Menú Principal /</span>
-                    <span onClick={irAListaProyecto}>Mocar Company /</span>
-                    <span onClick={irAMenuProyecto}>Sistema Inventario /</span>
+                    <span onClick={irAListaProyecto}>{organizacion.name || "Organización"} /</span>
+                    <span onClick={irAMenuProyecto}>{proyecto.name || "Proyecto"} /</span>
                     <span onClick={irAPlantillas}>Plantillas /</span>
-                    <span onClick={irAEduccion}>Educcion /</span>
                     <span>Editar Riesgo</span>
                 </div>
             </header>

@@ -368,7 +368,7 @@ const abrirPopupEsp = (code) => {
                 </aside>
 
                 <main className="main-content">
-                    <h2>ESPECIFICACIÓN</h2>
+                    <h2>{educod} - {ilacod} - ESPECIFICACIÓN</h2>
                     <section className="pp-section">
                         <h3>Gestión de Especificación</h3>
 
